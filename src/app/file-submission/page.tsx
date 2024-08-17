@@ -18,7 +18,7 @@ import ButtonLoder from "@/components/ButtonLoder";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
-export default function page() {
+export default function Page() {
   const { data, status } = useSession();
   const { replace } = useRouter();
 
