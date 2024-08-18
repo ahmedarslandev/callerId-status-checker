@@ -34,7 +34,7 @@ export default function SignIn() {
   const { toast } = useToast();
   const { status } = useSession();
 
-  if (status == "authenticated") {
+  if (status === "authenticated") {
     router.replace("/");
   }
 
@@ -53,7 +53,7 @@ export default function SignIn() {
     setIsLoading(true);
     try {
       const res = await axios.post("/api/auth/sign-up", values);
-      if (res.data.success == false) {
+      if (res.data.success === false) {
         return toast({
           title: "Error",
           description: res.data.message,
@@ -80,139 +80,134 @@ export default function SignIn() {
   }
 
   return (
-    <>
-      <div className="flex justify-center p-14 h-fit min-h-screen items-center">
-        <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="border-[1px] w-[60%] border-zinc-400 rounded p-6 flex flex-col justify-center gap-4"
-          >
-            <FormField
-              control={form.control}
-              name="username"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Username</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Jhon Doe" {...field} />
-                  </FormControl>
-                  {form.formState.errors.username && (
-                    <FormDescription className="text-xs text-red-500">
-                      {form.formState.errors.username.message}
-                    </FormDescription>
-                  )}
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input placeholder="example@gmail.com" {...field} />
-                  </FormControl>
-                  {form.formState.errors.email && (
-                    <FormDescription className="text-xs text-red-500">
-                      {form.formState.errors.email.message}
-                    </FormDescription>
-                  )}
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="phoneNo"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Phone No</FormLabel>
-                  <FormControl>
-                    <Input placeholder="1234567890" {...field} />
-                  </FormControl>
-                  {form.formState.errors.phoneNo && (
-                    <FormDescription className="text-xs text-red-500">
-                      {form.formState.errors.phoneNo.message}
-                    </FormDescription>
-                  )}
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Password</FormLabel>
-                  <FormControl>
-                    <Input type="password" placeholder="********" {...field} />
-                  </FormControl>
-                  {form.formState.errors.password && (
-                    <FormDescription className="text-xs text-red-500">
-                      {form.formState.errors.password.message}
-                    </FormDescription>
-                  )}
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="confirmPassword"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Confirm Password</FormLabel>
-                  <FormControl>
-                    <Input type="password" placeholder="********" {...field} />
-                  </FormControl>
-                  {form.formState.errors.confirmPassword && (
-                    <FormDescription className="text-xs text-red-500">
-                      {form.formState.errors.confirmPassword.message}
-                    </FormDescription>
-                  )}
-                </FormItem>
-              )}
-            />
-            <div className="flex flex-col gap-3 justify-center items-center">
-              <p>or sign in with </p>
-              <HLine />
-              <div className="flex w-full justify-around items-center">
-                {["Google", "Facebook", "Twitter", "Github"].map((e, i) => (
-                  <div
-                    onClick={async () => {
-                      await login(e.toLocaleLowerCase(), {
-                        callbackUrl: `/api/v1/auth/callback/${e.toLocaleLowerCase()}`,
-                      });
-                    }}
-                    key={i}
-                    className="flex flex-col cursor-pointer select-none justify-center gap-2 items-center"
-                  >
-                    <Image
-                      className={`w-5 h-5 ${
-                        theme == "dark" && e == "Github" ? "invert" : null
-                      }`}
-                      src={`/${e.toLocaleLowerCase()}.svg`}
-                      alt=""
-                      width={20}
-                      height={20}
-                    />
-                    <p className="text-xs">{e}</p>
-                  </div>
-                ))}
-              </div>
+    <div className="flex justify-center p-14 max-md:p-5 h-fit min-h-screen items-center bg-gray-50 dark:bg-gray-900">
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="border-[1px] w-full max-w-md border-zinc-400 rounded p-6 flex flex-col gap-4"
+        >
+          <FormField
+            control={form.control}
+            name="username"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Username</FormLabel>
+                <FormControl>
+                  <Input className="max-md:text-xs" placeholder="John Doe" {...field} />
+                </FormControl>
+                {form.formState.errors.username && (
+                  <FormDescription className="text-xs text-red-500">
+                    {form.formState.errors.username.message}
+                  </FormDescription>
+                )}
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Email</FormLabel>
+                <FormControl>
+                  <Input className="max-md:text-xs" placeholder="example@gmail.com" {...field} />
+                </FormControl>
+                {form.formState.errors.email && (
+                  <FormDescription className="text-xs text-red-500">
+                    {form.formState.errors.email.message}
+                  </FormDescription>
+                )}
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="phoneNo"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Phone No</FormLabel>
+                <FormControl>
+                  <Input className="max-md:text-xs" placeholder="1234567890" {...field} />
+                </FormControl>
+                {form.formState.errors.phoneNo && (
+                  <FormDescription className="text-xs text-red-500">
+                    {form.formState.errors.phoneNo.message}
+                  </FormDescription>
+                )}
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Password</FormLabel>
+                <FormControl>
+                  <Input className="max-md:text-xs" type="password" placeholder="********" {...field} />
+                </FormControl>
+                {form.formState.errors.password && (
+                  <FormDescription className="text-xs text-red-500">
+                    {form.formState.errors.password.message}
+                  </FormDescription>
+                )}
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="confirmPassword"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Confirm Password</FormLabel>
+                <FormControl>
+                  <Input className="max-md:text-xs" type="password" placeholder="********" {...field} />
+                </FormControl>
+                {form.formState.errors.confirmPassword && (
+                  <FormDescription className="text-xs text-red-500">
+                    {form.formState.errors.confirmPassword.message}
+                  </FormDescription>
+                )}
+              </FormItem>
+            )}
+          />
+          <div className="flex flex-col gap-3 justify-center items-center">
+            <p className="max-md:text-xs">or sign in with </p>
+            <HLine />
+            <div className="flex flex-col max-md:gap-2 md:flex-row w-full justify-around items-center">
+              {["Google", "Facebook", "Twitter", "Github"].map((e, i) => (
+                <div
+                  onClick={async () => {
+                    await login(e.toLocaleLowerCase(), {
+                      callbackUrl: `/api/v1/auth/callback/${e.toLocaleLowerCase()}`,
+                    });
+                  }}
+                  key={i}
+                  className="flex flex-row max-md:w-full max-md:border-zinc-300 max-md:border-[1px] max-md:justify-start max-md:rounded max-md:p-2 md:flex-col cursor-pointer select-none justify-center gap-2 items-center"
+                >
+                  <Image
+                    className={`w-5 h-5 ${
+                      theme === "dark" && e === "Github" ? "invert" : ""
+                    }`}
+                    src={`/${e.toLowerCase()}.svg`}
+                    alt=""
+                    width={20}
+                    height={20}
+                  />
+                  <p className="text-xs">{e}</p>
+                </div>
+              ))}
             </div>
-            <ButtonLoder isLoading={isLoading} name={"Sign Up"} />
-            <FormDescription>
-              Already have an account?{" "}
-              <Link
-                className="text-blue-600 hover:text-blue-700"
-                href="/sign-in"
-              >
-                Sign In
-              </Link>
-            </FormDescription>
-          </form>
-        </Form>
-      </div>
-    </>
+          </div>
+          <ButtonLoder isLoading={isLoading} name={"Sign Up"} />
+          <FormDescription className="text-center max-md:text-xs mt-4">
+            Already have an account?{" "}
+            <Link className="text-blue-600 max-md:text-xs hover:text-blue-700" href="/sign-in">
+              Sign In
+            </Link>
+          </FormDescription>
+        </form>
+      </Form>
+    </div>
   );
 }

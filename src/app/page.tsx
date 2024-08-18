@@ -6,10 +6,10 @@ import { useRouter } from "next/navigation";
 
 import { SignOut } from "@/lib/auth.helper";
 import { toast } from "@/components/ui/use-toast";
-import ButtonLoder from "@/components/ButtonLoder";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
+
 export default function Page() {
   const [isLoading, setIsLoading] = useState(false);
   const { data, status } = useSession();
@@ -45,15 +45,15 @@ export default function Page() {
 
   return (
     <>
-      <div className="section1">
-        <div className="left">
-          <h1>Auto Dialer</h1>
-          <p>
+      <div className="section1 flex flex-col gap-5 lg:gap-0 lg:flex-row items-center min-h-screen max-h-screen lg:items-center px-4 lg:px-16 py-8 lg:py-16">
+        <div className="left lg:w-1/2 text-center h-full lg:text-left mb-8 lg:mb-0">
+          <h1 className="text-3xl lg:text-5xl font-bold mb-4">Auto Dialer</h1>
+          <p className="text-lg lg:text-xl mb-6">
             Maximize your contact center’s agent potential by connecting to live
             callers
           </p>
           <Link href="/file-submission">
-            <Button className="w-1/4">
+            <Button className="w-full lg:w-1/4 mx-auto lg:mx-0">
               Get Started
               <span className="ml-2">
                 <ArrowRight className="w-4 h-4 " />
@@ -61,8 +61,9 @@ export default function Page() {
             </Button>
           </Link>
         </div>
-        <div className="right">
+        <div className="right lg:w-1/2 flex h-fit justify-center lg:justify-end">
           <img
+            className="w-full max-w-md lg:max-w-full"
             src="https://telcastnetworks.com/wp-content/uploads/2019/07/WholeSale-Termination-01.png"
             alt="right-img"
           />

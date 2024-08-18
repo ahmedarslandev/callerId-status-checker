@@ -66,7 +66,7 @@ export default function Page() {
               title: "Invalid Caller ID",
               description: `Invalid caller ID at row no ${
                 i + 2
-              }.Make sure there are no empty rows`, // +2 accounts for 0-index and header row
+              }. Make sure there are no empty rows`, // +2 accounts for 0-index and header row
               duration: 5000,
               variant: "destructive",
             });
@@ -85,19 +85,19 @@ export default function Page() {
   }
 
   return (
-    <div className="flex p-14 justify-center h-fit min-h-screen items-center">
+    <div className="flex p-4 md:p-14 justify-center h-fit min-h-screen items-center">
       <DialogBox isOpen={isOpen} setIsOpen={setIsOpen} fileData={fileData} />
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="border-[1px] w-[60%] border-zinc-400 rounded p-6 flex flex-col justify-center gap-4"
+          className="border-[1px] w-full md:w-[60%] border-zinc-400 rounded p-4 md:p-6 flex flex-col justify-center gap-4"
         >
           <FormField
             control={form.control}
             name="file"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Select file </FormLabel>
+                <FormLabel>Select file</FormLabel>
                 <FormControl>
                   <Input
                     type="file"

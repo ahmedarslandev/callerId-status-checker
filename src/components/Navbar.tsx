@@ -7,50 +7,158 @@ import { Input } from "./ui/input";
 import ModeToggle from "./theme-toggle";
 import Image from "next/image";
 import { useSession } from "next-auth/react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { MenuDropDown } from "./MenuDropdown";
+import {
+  File,
+  LogOut,
+  Menu,
+  Settings,
+  Wallet,
+  Image as LucidImage,
+} from "lucide-react";
+import { DropdownMenuCheckboxItem } from "@radix-ui/react-dropdown-menu";
+import { SignOut } from "@/lib/auth.helper";
+import { toast } from "./ui/use-toast";
+import { useTheme } from "next-themes";
 
 const Navbar = () => {
   const { data, status } = useSession();
+  const theme:any = useTheme();
+
+  const Logout = async () => {
+    try {
+      await SignOut();
+      toast({
+        title: "Success",
+        description: "Logged out successfully",
+        duration: 5000,
+      });
+      setTimeout(() => {
+        window.location.href = "/sign-in";
+      }, 2000);
+    } catch (error) {
+      return toast({
+        title: "Error",
+        description: "Failed to log out",
+        duration: 5000,
+      });
+    }
+  };
+
   return (
     <div className="sticky top-0 z-50 w-full border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <nav className="flex w-full items-center justify-between p-3 z-40 ">
+      <nav className="flex md:flex-row w-full items-center justify-between p-3 z-40 gap-3 md:gap-0">
         <Link href={"/"} className="flex gap-5 justify-center items-center">
           <Image
-            className=" object-cover w-10"
+            className="object-cover w-10"
             src="/Sigma-dialer_logo-removebg-preview.png"
             alt="logo"
             width={40}
             height={40}
           />
-          <h1 id="logo-text">Sigma Dialer</h1>
+          <h1 id="logo-text" className="text-lg md:text-xl font-bold">
+            Sigma Dialer
+          </h1>
         </Link>
-        <div className="w-fit py-0 px-2 flex gap-5 list-none">
-          <Input placeholder="Search..." />
-          <ModeToggle />
-          {status === "authenticated" ? (
-            <>
-              <div className="w-full flex justify-between items-center">
-                <div className="flex gap-2 justify-center items-center w-full">
-                  <div className=" w-8 h-8 rounded-full flex justify-center items-center overflow-hidden bg-gray-500">
-                    <img src={data.user?.image!} alt="" />
+        <div className="md:w-fit px-2 flex md:flex-row gap-3 md:gap-5 list-none items-center">
+          <div className="flex justify-center items-center md:hidden gap-3">
+            <ModeToggle />
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Menu className={`${theme == "dark" ? ("border-white"):("border-[hsl(240deg 6.12% 90.39%)]")} rounded-sm text-zinc-500 border-[1px] p-1.5 w-fit h-fit`} />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-full  md:w-auto">
+                {status === "authenticated" && (
+                  <div className="px-3 py-2 gap-3 flex items-center">
+                    <div className="w-8 h-8 rounded-full flex justify-center items-center overflow-hidden bg-gray-500">
+                      <img src={data.user?.image!} alt="User Image" />
+                    </div>
+                    <p className="text-sm font-bold">{data.user?.name}</p>
                   </div>
-                  <p className="text-sm object-cover object-center font-bold">
-                    {data.user?.name}
-                  </p>
+                )}
+                <HLine />
+                {status === "authenticated" ? (
+                  <div className="w-full flex flex-col gap-2 py-3 justify-start">
+                    <Link href={"/profile"}>
+                      <DropdownMenuCheckboxItem className="flex cursor-pointer gap-2 pl-4 ">
+                        <LucidImage />
+                        <p>Profile</p>
+                      </DropdownMenuCheckboxItem>
+                    </Link>
+                    <Link href={"/my-wallet"}>
+                      <DropdownMenuCheckboxItem className="flex cursor-pointer gap-2 pl-4 ">
+                        <Wallet />
+                        <p>Wallet</p>
+                      </DropdownMenuCheckboxItem>
+                    </Link>
+                    <Link href={"/file-submission"}>
+                      <DropdownMenuCheckboxItem className="flex cursor-pointer gap-2 pl-4">
+                        <File />
+                        <p>Upload file</p>
+                      </DropdownMenuCheckboxItem>
+                    </Link>
+                    <Link href={"/settings"}>
+                      <DropdownMenuCheckboxItem className="flex cursor-pointer gap-2 pl-4">
+                        <Settings />
+                        <p>Settings</p>
+                      </DropdownMenuCheckboxItem>
+                    </Link>
+                    <DropdownMenuCheckboxItem
+                      onClick={Logout}
+                      className="flex cursor-pointer gap-2 pl-4"
+                    >
+                      <LogOut />
+                      <p>Logout</p>
+                    </DropdownMenuCheckboxItem>
+                  </div>
+                ) : (
+                  <>
+                    <DropdownMenuItem>
+                      <Link href={"/sign-in"}>
+                        <Button variant={"outline"} className="w-full">
+                          Login
+                        </Button>
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <Link href={"/sign-up"}>
+                        <Button className="w-full">Sign Up</Button>
+                      </Link>
+                    </DropdownMenuItem>
+                  </>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+
+          <div className="hidden md:flex gap-3 md:gap-5 items-center">
+            <Input placeholder="Search..." className="w-full md:w-auto" />
+            <ModeToggle />
+            {status === "authenticated" ? (
+              <div className="flex gap-2 justify-center items-center">
+                <div className="w-8 h-8 rounded-full flex justify-center items-center overflow-hidden bg-gray-500">
+                  <img src={data.user?.image!} alt="User Image" />
                 </div>
+                <p className="text-sm font-bold">{data.user?.name}</p>
                 <MenuDropDown />
               </div>
-            </>
-          ) : (
-            <>
-              <Link href={"/sign-in"}>
-                <Button variant={"outline"}>Login</Button>
-              </Link>
-              <Link href={"/sign-up"}>
-                <Button>Sign Up</Button>
-              </Link>
-            </>
-          )}
+            ) : (
+              <div className="flex gap-3">
+                <Link href={"/sign-in"}>
+                  <Button variant={"outline"}>Login</Button>
+                </Link>
+                <Link href={"/sign-up"}>
+                  <Button>Sign Up</Button>
+                </Link>
+              </div>
+            )}
+          </div>
         </div>
       </nav>
       <HLine />

@@ -69,11 +69,11 @@ export default function SignIn() {
   }
 
   return (
-    <div className="flex p-14 justify-center h-fit min-h-screen items-center">
+    <div className="flex p-14 max-md:p-5 justify-center h-fit min-h-screen items-center">
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="border-[1px] w-[60%] border-zinc-400 rounded p-6 flex flex-col justify-center gap-4"
+          className="border-[1px] w-[60%] max-md:w-full border-zinc-400 rounded p-6 flex flex-col justify-center gap-4"
         >
           <FormField
             control={form.control}
@@ -82,7 +82,7 @@ export default function SignIn() {
               <FormItem>
                 <FormLabel>Email</FormLabel>
                 <FormControl>
-                  <Input placeholder="example@gmail.com" {...field} />
+                  <Input className="max-md:text-xs" placeholder="example@gmail.com" {...field} />
                 </FormControl>
                 {form.formState.errors.email && (
                   <FormDescription className="text-xs text-red-500">
@@ -99,7 +99,7 @@ export default function SignIn() {
               <FormItem>
                 <FormLabel>Password</FormLabel>
                 <FormControl>
-                  <Input type="password" placeholder="********" {...field} />
+                  <Input className="max-md:text-xs" type="password" placeholder="********" {...field} />
                 </FormControl>
                 {form.formState.errors.password && (
                   <FormDescription className="text-xs text-red-500">
@@ -110,9 +110,9 @@ export default function SignIn() {
             )}
           />
           <div className="flex flex-col gap-3 justify-center items-center">
-            <p>or sign in with </p>
+            <p className="max-md:text-xs">or sign in with </p>
             <HLine />
-            <div className="flex w-full justify-around items-center">
+            <div className="flex flex-col max-md:gap-2 md:flex-row w-full justify-around items-center">
               {["Google", "Facebook", "Twitter", "Github"].map((e, i) => (
                 <div
                   onClick={async () => {
@@ -121,7 +121,7 @@ export default function SignIn() {
                     });
                   }}
                   key={i}
-                  className="flex flex-col cursor-pointer select-none justify-center gap-2 items-center"
+                  className="flex flex-row max-md:w-full max-md:border-zinc-300 max-md:border-[1px] max-md:justify-start max-md:rounded max-md:p-2 md:flex-col cursor-pointer select-none justify-center gap-2 items-center"
                 >
                   <Image
                     className={`w-5 h-5 ${
@@ -137,19 +137,19 @@ export default function SignIn() {
               ))}
             </div>
           </div>
-          <FormDescription>
+          <FormDescription className="max-md:text-xs">
             Forgot your password?{" "}
             <Link
-              className="text-blue-600 hover:text-blue-700"
+              className="text-blue-600 max-md:text-xs hover:text-blue-700"
               href="/forgot-password"
             >
               Forgot Password
             </Link>
           </FormDescription>
           <ButtonLoder isLoading={isLoading} name={"Sign In"} />
-          <FormDescription>
+          <FormDescription className="max-md:text-xs">
             Dont have an account?{" "}
-            <Link className="text-blue-600 hover:text-blue-700" href="/sign-up">
+            <Link className="text-blue-600 max-md:text-xs hover:text-blue-700" href="/sign-up">
               Sign Up
             </Link>
           </FormDescription>

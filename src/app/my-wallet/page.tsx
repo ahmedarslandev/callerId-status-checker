@@ -18,7 +18,7 @@ import {
 import { Transaction } from "@/models/transaction.model";
 
 export default function Component() {
-  const { theme } = useTheme(); // Hook to get the current theme
+  const { theme } = useTheme();
   const [wallet, setWallet] = useState<Wallet | null>(null);
   const [transactions, setTransactions] = useState<Transaction[] | null>(null);
 
@@ -54,7 +54,6 @@ export default function Component() {
       setWallet(updatedWallet);
     }
   };
-  console.log(wallet);
 
   const handleWithdrawal = async () => {
     const response = await fetch("/api/u/withdrawal", {
@@ -70,62 +69,73 @@ export default function Component() {
   if (!wallet) {
     return <div>Loading...</div>;
   }
+
   return (
-    <div className=" w-full h-full justify-center items-center flex flex-col p-10">
-      <div className="flex flex-col h-full w-full border-[1px] border-zinc-300 rounded-lg">
-        <header className="p-6 rounded-t-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="text-3xl font-bold">{wallet.balance}</div>
-              <div className="flex gap-2 items-center w-full">
+    <div className="w-full h-full flex flex-col items-center p-4 md:p-10">
+      <div className="flex flex-col w-full border-[1px] border-zinc-300 rounded-lg">
+        <header className="p-4 md:p-6 rounded-t-lg">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between">
+            <div className="mb-4 md:mb-0">
+              <div className="text-2xl md:text-3xl font-bold">
+                {wallet.balance.toFixed(2)}
+              </div>
+              <div className="flex flex-col md:flex-row gap-2 items-start md:items-center w-full">
                 <div className="text-sm">{wallet.currency}</div>
-                <div className="flex justify-center gap-1 items-center">
+                <div className="flex gap-1 items-center">
                   <Button
                     variant={"outline"}
-                    className="flex justify-center items-center w-10 h-5 text-[7px]"
+                    className="w-full md:w-24 h-8 text-xs"
                   >
                     Withdraw
                   </Button>
-                  <Button className="flex justify-center items-center w-10 h-5 text-[7px]">
-                    Deposite
+                  <Button className="w-full md:w-24 h-8 text-xs">
+                    Deposit
                   </Button>
                 </div>
               </div>
             </div>
-            <div className="text-sm ">Last updated: 2023-08-16</div>
+            <div className="text-sm">
+              Last updated: {wallet.lastUpdated as any}
+            </div>
           </div>
         </header>
-        <div className="bg-background p-6 flex-1 overflow-auto">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            <div className="bg-card p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
+        <div className="bg-background p-4 md:p-6 flex-1 overflow-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+            <div className="bg-card p-4 md:p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
               <div className="text-sm text-muted-foreground">
                 Total Transactions
               </div>
-              <div className="text-3xl font-bold">
+              <div className="text-2xl md:text-3xl font-bold">
                 {wallet.totalTransactionsCount}
               </div>
             </div>
-            <div className="bg-card p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
+            <div className="bg-card p-4 md:p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
               <div className="text-sm text-muted-foreground">
                 Total Withdrawn
               </div>
-              <div className="text-3xl font-bold">
+              <div className="text-2xl md:text-3xl font-bold">
                 {wallet.totalWithdrawalsCount}
               </div>
             </div>
-            <div className="bg-card p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
+            <div className="bg-card p-4 md:p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
               <div className="text-sm text-muted-foreground">
                 Total Deposited
               </div>
-              <div className="text-3xl font-bold">{wallet.totalDeposited}</div>
+              <div className="text-2xl md:text-3xl font-bold">
+                {wallet.totalDeposited}
+              </div>
             </div>
-            <div className="bg-card p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
+            <div className="bg-card p-4 md:p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
               <div className="text-sm text-muted-foreground">Total Balance</div>
-              <div className="text-3xl font-bold">{wallet.balance}</div>
+              <div className="text-2xl md:text-3xl font-bold">
+                {wallet.balance.toFixed(2)}
+              </div>
             </div>
           </div>
-          <div className="bg-card p-8 rounded-lg shadow-md mt-8">
-            <div className="mb-6 text-xl font-medium">Transactions</div>
+          <div className="bg-card p-4 md:p-8 rounded-lg shadow-md mt-8">
+            <div className="mb-4 md:mb-6 text-lg md:text-xl font-medium">
+              Transactions
+            </div>
             <Table>
               <TableHeader>
                 <TableRow>
@@ -145,7 +155,7 @@ export default function Component() {
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={3} align="center">
+                    <TableCell colSpan={3} className="text-center">
                       You have no transactions yet.
                     </TableCell>
                   </TableRow>
