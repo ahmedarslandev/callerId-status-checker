@@ -2,17 +2,16 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { userModel } from "@/models/user.model";
 import connectMongo from "@/lib/dbConfig";
-import sendEmail from "@/resendEmailConfig/sendEmail";
-import { cookies } from "next/headers";
 import bcrypt from "bcryptjs";
 
-export async function POST(req: NextRequest, res: NextResponse) {
+export async function POST(req: NextRequest) {
   await connectMongo();
+
   try {
     const { user, data }: any = await auth();
-    const { currentPassword, newPassword, isLoggedInWithCredentials } =
-      await req.json();
+    const { currentPassword, newPassword, isLoggedInWithCredentials } = await req.json();
 
+    // Validate input
     if (!newPassword) {
       return NextResponse.json({
         success: false,
@@ -20,10 +19,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
       });
     }
 
-    if (
-      isLoggedInWithCredentials &&
-      (!currentPassword || currentPassword.length <= 0)
-    ) {
+    if (isLoggedInWithCredentials && !currentPassword) {
       return NextResponse.json({
         success: false,
         message: "Current password is required",
@@ -37,52 +33,44 @@ export async function POST(req: NextRequest, res: NextResponse) {
       });
     }
 
-    const dbUser = await userModel.findOne({ _id: data.id });
+    // Fetch the user from the database
+    const dbUser = await userModel.findById(data.id);
 
     if (!dbUser) {
       return NextResponse.json({
         success: false,
-        message: "Invalid User",
+        message: "Invalid user",
       });
     }
 
+    // Check current password if user is logged in with credentials
     if (isLoggedInWithCredentials) {
-      const passwordMatch = await bcrypt.compare(
-        currentPassword,
-        dbUser.password
-      );
+      const passwordMatch = await bcrypt.compare(currentPassword, dbUser.password);
       if (!passwordMatch) {
         return NextResponse.json({
           success: false,
           message: "Incorrect current password",
         });
       }
-      const hashedPassword = await bcrypt.hash(newPassword, 10);
-      await userModel.findOneAndUpdate(
-        { _id: dbUser._id },
-        { password: hashedPassword },
-        { new: true }
-      );
-      return NextResponse.json({
-        success: true,
-        message: "Password updated successfully",
-      });
     }
+
+    // Hash the new password and update the user
     const hashedPassword = await bcrypt.hash(newPassword, 10);
-    const updatedUser = await userModel.findOneAndUpdate(
-      { _id: dbUser._id },
+    await userModel.findByIdAndUpdate(
+      dbUser._id,
       { password: hashedPassword },
       { new: true }
     );
-    console.log(updatedUser);
+
     return NextResponse.json({
       success: true,
       message: "Password updated successfully",
     });
   } catch (error: any) {
+    console.error("Error updating password:", error.message);
     return NextResponse.json({
       success: false,
-      message: "Failed to send verification email",
+      message: "Failed to update password",
       error: error.message,
     });
   }

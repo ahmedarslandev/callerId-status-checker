@@ -7,46 +7,61 @@ import sendEmail from "@/resendEmailConfig/sendEmail";
 import { walletModel } from "@/models/wallet.model";
 import { securityModel } from "@/models/security.model";
 
-export async function POST(req: NextRequest, res: NextResponse) {
+export async function POST(req: NextRequest) {
   await connectMongo();
+
   try {
     const { username, email, password, confirmPassword } = await req.json();
+
+    // Validate required fields
     if (!username || !email || !password || !confirmPassword) {
       return NextResponse.json({
         success: false,
         message: "Please provide all required fields",
       });
     }
+
+    // Check if passwords match
     if (password !== confirmPassword) {
       return NextResponse.json({
         success: false,
         message: "Passwords do not match",
       });
     }
-    let user: any;
-    user = await userModel.findOne({ email });
-    const securitydata = await securityModel.findOne({ recovery_email: email });
-    if (user || securitydata) {
+
+    // Check if the user or security data already exists
+    const existingUser = await userModel.findOne({ email });
+    const existingSecurity = await securityModel.findOne({ recovery_email: email });
+    
+    if (existingUser || existingSecurity) {
       return NextResponse.json({
         success: false,
-        message: "User with provided phone number already exists.",
+        message: "User with the provided email already exists.",
       });
     }
+
+    // Create and hash password
     const hashedPassword = await bcrypt.hash(password, 10);
     const verifyCode = Math.floor(100000 + Math.random() * 900000);
-    user = new userModel({
+    const verifyCodeExpiry = Date.now() + 2 * 60 * 1000; // 2 minutes expiry
+
+    // Create new user, wallet, and security documents
+    const user = new userModel({
       username,
       email,
       password: hashedPassword,
       verifyCode,
-      verifyCodeExpiry: Date.now() + 1000 * 60 * 2,
+      verifyCodeExpiry,
       isLoggedInWithCredentials: true,
+      verifyCodeLimit: 1,
     });
+
     const wallet = new walletModel({
       user_id: user._id,
       balance: 0,
       currency: "USD",
     });
+
     const security = new securityModel({
       user_id: user._id,
       recovery_email: "",
@@ -54,30 +69,37 @@ export async function POST(req: NextRequest, res: NextResponse) {
       two_factor_enabled: false,
     });
 
-    user.verifyCodeLimit = 1;
-    user.walletId = wallet._id;
+    // Set cookies
     await cookies().set("email", user.email);
-    await cookies().set("code-expiry", user.verifyCodeExpiry);
-    setTimeout(async () => {
-      if (user.isVerified != true) {
-        await userModel.deleteOne({ phoneNo: user.phoneNo, email: user.email });
-      }
-    }, 1000 * 60 * 60 * 24);
-    sendEmail({ email, username, verifyCode });
+    await cookies().set("code-expiry", verifyCodeExpiry.toString());
 
-    await wallet.save();
-    await security.save();
-    await user.save();
+    // Schedule user deletion if not verified within 24 hours
+    setTimeout(async () => {
+      const unverifiedUser = await userModel.findOne({ email: user.email, isVerified: false });
+      if (unverifiedUser) {
+        await userModel.deleteOne({ _id: unverifiedUser._id });
+      }
+    }, 24 * 60 * 60 * 1000); // 24 hours
+
+    // Send verification email
+    sendEmail({ email, username, OTP: verifyCode }).catch(err =>
+      console.error("Failed to send email:", err)
+    );
+
+    // Save all documents
+    await Promise.all([user.save(), wallet.save(), security.save()]);
+
     return NextResponse.json({
       success: true,
-      message: "User created successfully , OTP has been sent successfully",
+      message: "User created successfully. OTP has been sent to your email.",
       user,
     });
-  } catch (error) {
+  } catch (error:any) {
+    console.error("Error in POST /api/create-user:", error);
     return NextResponse.json({
       success: false,
-      message: "Failed to create user",
-      error: error,
+      message: "Failed to create user. Please try again later.",
+      error: error.message,
     });
   }
 }

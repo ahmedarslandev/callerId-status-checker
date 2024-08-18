@@ -6,26 +6,34 @@ import { securityModel } from "@/models/security.model";
 import { cookies } from "next/headers";
 import sendEmail from "@/resendEmailConfig/sendEmail";
 
-export async function POST(req: NextRequest, res: NextResponse) {
+// Handler for POST requests
+export async function POST(req: NextRequest) {
   await connectMongo();
+
   try {
     const { data, user }: any = await auth();
+
+    // Check if user is authenticated
     if (!data || !user) {
       return NextResponse.json({
         success: false,
         message: "Unauthorized",
       });
     }
+
     const dbUser = await userModel.findById(data.id);
+
+    // Check if user exists
     if (!dbUser) {
       return NextResponse.json({
         success: false,
         message: "Invalid User",
       });
     }
-    // Update user information in the database
 
     const security = await securityModel.findOne({ user_id: dbUser._id });
+
+    // Check if security information exists
     if (!security) {
       return NextResponse.json({
         success: false,
@@ -33,39 +41,53 @@ export async function POST(req: NextRequest, res: NextResponse) {
       });
     }
 
+    // Successfully return the security information
     return NextResponse.json({
       success: true,
-      message: "User information updated successfully",
+      message: "User information retrieved successfully",
       security,
     });
   } catch (error: any) {
+    console.error("Error during POST request:", error.message);
     return NextResponse.json({
       success: false,
-      message: "An error occurred while connecting to the database",
+      message: "An error occurred while processing the request",
       error: error.message,
     });
   }
 }
+
+// Handler for PUT requests (updating security information)
 export async function PUT(req: NextRequest) {
-  connectMongo();
+  await connectMongo();
+
   try {
     const { recovery_email, two_factor_enabled } = await req.json();
+
+    // Validate if any details are provided
     if (!recovery_email && !two_factor_enabled) {
       return NextResponse.json({
         success: false,
-        message: "Nothing details Provided",
+        message: "No details provided",
       });
     }
+
+    // Check if the provided email already exists in userModel
     if (recovery_email) {
-      const UserByEmail = await userModel.findOne({ email: recovery_email });
-      if (UserByEmail) {
+      const userByEmail = await userModel.findOne({ email: recovery_email });
+      const securityByEmail = await securityModel.findOne({ recovery_email });
+
+      if (userByEmail || securityByEmail) {
         return NextResponse.json({
           success: false,
-          message: "User with provided email already exists",
+          message: "User with the provided email already exists",
         });
       }
     }
+
     const { user, data }: any = await auth();
+
+    // Check if user is authenticated
     if (!user || !data) {
       return NextResponse.json({
         success: false,
@@ -74,6 +96,8 @@ export async function PUT(req: NextRequest) {
     }
 
     const dbUser = await userModel.findById(data.id);
+
+    // Check if user exists
     if (!dbUser) {
       return NextResponse.json({
         success: false,
@@ -82,15 +106,19 @@ export async function PUT(req: NextRequest) {
     }
 
     const security = await securityModel.findOne({ user_id: dbUser._id });
+
+    // Check if security information exists
     if (!security) {
       return NextResponse.json({
         success: false,
         message: "Security information not found",
       });
     }
+
+    // Check if there are any changes to be made
     if (
-      security.recovery_email == recovery_email &&
-      security.two_factor_enabled == two_factor_enabled
+      security.recovery_email === recovery_email &&
+      security.two_factor_enabled === two_factor_enabled
     ) {
       return NextResponse.json({
         success: false,
@@ -98,12 +126,11 @@ export async function PUT(req: NextRequest) {
       });
     }
 
-    if (
-      (!recovery_email && two_factor_enabled) ||
-      security.recovery_email == recovery_email
-    ) {
+    // Update only two-factor authentication if recovery email is not provided
+    if (!recovery_email && two_factor_enabled !== undefined) {
       security.two_factor_enabled = two_factor_enabled;
       await security.save();
+
       return NextResponse.json({
         success: true,
         message: `Two-factor authentication ${
@@ -111,28 +138,32 @@ export async function PUT(req: NextRequest) {
         } successfully`,
       });
     }
+
+    // Update security information
     security.recovery_email = recovery_email;
     security.two_factor_enabled = two_factor_enabled;
+    await security.save();
 
-    const cookiesData = JSON.stringify(security);
-
+    // Set cookies with updated security information
     cookies().set("email", recovery_email);
-    cookies().set("updatedSecurity", cookiesData);
-    cookies().set("updatedUser", dbUser);
+    cookies().set("updatedSecurity", JSON.stringify(security));
+    cookies().set("updatedUser", JSON.stringify(dbUser));
 
+    // Generate and send a verification code if the email is updated
     const verifyCode = Math.floor(100000 + Math.random() * 900000);
     dbUser.verifyCode = verifyCode;
-    dbUser.verifyCodeExpiry = Date.now() + 1000 * 60 * 2;
+    dbUser.verifyCodeExpiry = Date.now() + 1000 * 60 * 2; // 2 minutes expiry
     dbUser.verifyCodeLimit = 1;
 
-    const updatedUser = JSON.stringify(dbUser);
-    cookies().set("updatedUser", updatedUser);
+    // Save updated user and set cookies
+    await dbUser.save();
+    cookies().set("updatedUser", JSON.stringify(dbUser));
+
     await sendEmail({
       email: recovery_email,
       username: dbUser.username,
       verifyCode,
     });
-    await dbUser.save();
 
     return NextResponse.json({
       isEmailSent: true,
@@ -140,9 +171,10 @@ export async function PUT(req: NextRequest) {
       message: "Email sent successfully.",
     });
   } catch (error: any) {
+    console.error("Error during PUT request:", error.message);
     return NextResponse.json({
       success: false,
-      message: "An error occurred while connecting to the database",
+      message: "An error occurred while processing the request",
       error: error.message,
     });
   }

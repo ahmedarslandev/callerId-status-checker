@@ -2,16 +2,17 @@ import { NextRequest, NextResponse } from "next/server";
 import { mkdir, writeFile } from "fs/promises";
 import { Buffer } from "buffer";
 import { nanoid } from "nanoid";
+import { join } from "path";
 import { auth } from "@/auth";
 import { userModel } from "@/models/user.model";
 import { fileModel } from "@/models/file.model";
-import { join } from "path";
 import connectMongo from "@/lib/dbConfig";
 import { processFile } from "@/lib/fileProcessing";
 import fileProcessing from "@/lib/intervalSetup";
 
 export async function POST(req: NextRequest) {
   await connectMongo();
+
   try {
     const { data, user }: any = await auth();
     if (!data || !user) {
@@ -19,8 +20,10 @@ export async function POST(req: NextRequest) {
     }
 
     const dbUser = await userModel
-      .findOne({ _id: data.id })
-      .populate("walletId");
+      .findById(data.id)
+      .populate("walletId")
+      .exec();
+
     if (!dbUser || !dbUser.isVerified) {
       return NextResponse.json({ message: "Invalid User", success: false });
     }
@@ -47,7 +50,7 @@ export async function POST(req: NextRequest) {
     const extension = file.name.split(".").pop();
     const buffer = Buffer.from(await file.arrayBuffer());
 
-    const userDirectory = join(`./public/uploads`, dbUser._id.toString());
+    const userDirectory = join("./public/uploads", dbUser._id.toString());
     await mkdir(userDirectory, { recursive: true });
 
     const filePath = join(userDirectory, `${filename}.${extension}`);
@@ -55,8 +58,8 @@ export async function POST(req: NextRequest) {
 
     const dbFile = new fileModel({
       owner: dbUser._id,
-      filename: filename,
-      filePath: `./public/uploads/${dbUser._id}/${filename}.${extension}`,
+      filename,
+      filePath,
       size: file.size,
       noOfCallerIds: callerIds,
       type: file.type,
@@ -70,26 +73,24 @@ export async function POST(req: NextRequest) {
       dbFile.save(),
       dbUser.walletId.save(),
       dbUser.save(),
-    ]).then(() => {
-      fileProcessing.startProcessingInterval(
-        dbFile._id,
-        filePath,
-        userDirectory,
-        filename
-      );
-      processFile(dbFile._id, filePath, userDirectory, filename);
-    });
+    ]);
 
-    // Set interval to check for pending files every 20 seconds
+    fileProcessing.startProcessingInterval(
+      dbFile._id,
+      filePath,
+      userDirectory,
+      filename
+    );
+    processFile(dbFile._id, filePath, userDirectory, filename);
 
     return NextResponse.json({
       success: true,
       message: "File uploaded successfully",
     });
   } catch (error) {
-    console.log(error);
+    console.error("Error processing file:", error);
     return NextResponse.json(
-      { error: "Error processing file" },
+      { error: "Error processing file", success: false },
       { status: 500 }
     );
   }
