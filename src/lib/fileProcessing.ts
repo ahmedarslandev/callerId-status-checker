@@ -34,7 +34,6 @@ export async function processFile(
       const batchTitles = await handleDidsRes(callerIds);
       await Promise.all(batchTitles);
       await saveResTitles(batchTitles, userDirectory, filename);
-
       dbFile.status = "completed";
       await dbFile.save();
       return "success";
@@ -42,7 +41,7 @@ export async function processFile(
 
     return "File already checked";
   } catch (error: any) {
-    console.log(error.message);
+    console.log("PATH ERROR",error.message);
     return null;
   }
 }

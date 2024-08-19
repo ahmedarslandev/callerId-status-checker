@@ -13,7 +13,11 @@ import { LogOut, Menu, Settings, Image, Wallet, File } from "lucide-react";
 import { toast } from "./ui/use-toast";
 import { SignOut } from "@/lib/auth.helper";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
+import HLine from "./HLine";
 export function MenuDropDown() {
+  const { data, status } = useSession();
+
   const Logout = async () => {
     try {
       await SignOut();
@@ -40,7 +44,15 @@ export function MenuDropDown() {
         <Menu className="cursor-pointer" />
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56">
-        <DropdownMenuLabel>Menu Bar</DropdownMenuLabel>
+        {status === "authenticated" && (
+          <div className="px-3 py-2 gap-3 flex items-center">
+            <div className="w-8 h-8 rounded-full flex justify-center items-center overflow-hidden bg-gray-500">
+              <img src={data.user?.image!} alt="User Image" />
+            </div>
+            <p className="text-sm font-bold">{data.user?.name}</p>
+          </div>
+        )}
+        <HLine />
         <DropdownMenuSeparator />
         <Link href={"/profile"}>
           <DropdownMenuCheckboxItem className="flex cursor-pointer gap-2 pl-4 ">
@@ -60,6 +72,13 @@ export function MenuDropDown() {
             <p>Upload file</p>
           </DropdownMenuCheckboxItem>
         </Link>
+        <Link href={"/my-files"}>
+          <DropdownMenuCheckboxItem className="flex cursor-pointer gap-2 pl-4">
+            <File />
+            <p>My files</p>
+          </DropdownMenuCheckboxItem>
+        </Link>
+
         <Link href={"/settings"}>
           <DropdownMenuCheckboxItem className="flex cursor-pointer gap-2 pl-4">
             <Settings />

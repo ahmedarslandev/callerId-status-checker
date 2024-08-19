@@ -4,9 +4,9 @@ import { join } from "path";
 
 export async function saveResTitles(
   titles: { callerId: string; status: string }[],
-  userDirectory: string,
-  filename: string
-): Promise<string | null> {
+  userDirectory: any,
+  filename: any
+): Promise<any | null> {
   try {
     const worksheetData = [
       ["callerIDs", "status"],
@@ -19,7 +19,7 @@ export async function saveResTitles(
 
     const filePathRes = join(userDirectory, `${filename}_Completed.xlsx`);
     const buffer = XLSX.write(workbook, { bookType: "xlsx", type: "buffer" });
-
+    console.log(filePathRes);
     await writeFile(filePathRes, buffer);
 
     return filePathRes;

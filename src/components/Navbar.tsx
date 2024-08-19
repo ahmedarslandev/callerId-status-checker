@@ -7,29 +7,17 @@ import { Input } from "./ui/input";
 import ModeToggle from "./theme-toggle";
 import Image from "next/image";
 import { useSession } from "next-auth/react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { MenuDropDown } from "./MenuDropdown";
-import {
-  File,
-  LogOut,
-  Menu,
-  Settings,
-  Wallet,
-  Image as LucidImage,
-} from "lucide-react";
-import { DropdownMenuCheckboxItem } from "@radix-ui/react-dropdown-menu";
 import { SignOut } from "@/lib/auth.helper";
 import { toast } from "./ui/use-toast";
 import { useTheme } from "next-themes";
+import { useEffect } from "react";
 
 const Navbar = () => {
   const { data, status } = useSession();
-  const theme:any = useTheme();
+  const theme: any = useTheme();
+
+ 
 
   const Logout = async () => {
     try {
@@ -69,72 +57,7 @@ const Navbar = () => {
         <div className="md:w-fit px-2 flex md:flex-row gap-3 md:gap-5 list-none items-center">
           <div className="flex justify-center items-center md:hidden gap-3">
             <ModeToggle />
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Menu className={`${theme == "dark" ? ("border-white"):("border-[hsl(240deg 6.12% 90.39%)]")} rounded-sm text-zinc-500 border-[1px] p-1.5 w-fit h-fit`} />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-full  md:w-auto">
-                {status === "authenticated" && (
-                  <div className="px-3 py-2 gap-3 flex items-center">
-                    <div className="w-8 h-8 rounded-full flex justify-center items-center overflow-hidden bg-gray-500">
-                      <img src={data.user?.image!} alt="User Image" />
-                    </div>
-                    <p className="text-sm font-bold">{data.user?.name}</p>
-                  </div>
-                )}
-                <HLine />
-                {status === "authenticated" ? (
-                  <div className="w-full flex flex-col gap-2 py-3 justify-start">
-                    <Link href={"/profile"}>
-                      <DropdownMenuCheckboxItem className="flex cursor-pointer gap-2 pl-4 ">
-                        <LucidImage />
-                        <p>Profile</p>
-                      </DropdownMenuCheckboxItem>
-                    </Link>
-                    <Link href={"/my-wallet"}>
-                      <DropdownMenuCheckboxItem className="flex cursor-pointer gap-2 pl-4 ">
-                        <Wallet />
-                        <p>Wallet</p>
-                      </DropdownMenuCheckboxItem>
-                    </Link>
-                    <Link href={"/file-submission"}>
-                      <DropdownMenuCheckboxItem className="flex cursor-pointer gap-2 pl-4">
-                        <File />
-                        <p>Upload file</p>
-                      </DropdownMenuCheckboxItem>
-                    </Link>
-                    <Link href={"/settings"}>
-                      <DropdownMenuCheckboxItem className="flex cursor-pointer gap-2 pl-4">
-                        <Settings />
-                        <p>Settings</p>
-                      </DropdownMenuCheckboxItem>
-                    </Link>
-                    <DropdownMenuCheckboxItem
-                      onClick={Logout}
-                      className="flex cursor-pointer gap-2 pl-4"
-                    >
-                      <LogOut />
-                      <p>Logout</p>
-                    </DropdownMenuCheckboxItem>
-                  </div>
-                ) : (
-                  <>
-                    <DropdownMenuItem>
-                      <Link href={"/sign-in"}>
-                        <Button variant={"outline"} className="w-full">
-                          Login
-                        </Button>
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      <Link href={"/sign-up"}>
-                        <Button className="w-full">Sign Up</Button>
-                      </Link>
-                    </DropdownMenuItem>
-                  </>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <MenuDropDown />
           </div>
 
           <div className="hidden md:flex gap-3 md:gap-5 items-center">
@@ -142,10 +65,6 @@ const Navbar = () => {
             <ModeToggle />
             {status === "authenticated" ? (
               <div className="flex gap-2 justify-center items-center">
-                <div className="w-8 h-8 rounded-full flex justify-center items-center overflow-hidden bg-gray-500">
-                  <img src={data.user?.image!} alt="User Image" />
-                </div>
-                <p className="text-sm font-bold">{data.user?.name}</p>
                 <MenuDropDown />
               </div>
             ) : (

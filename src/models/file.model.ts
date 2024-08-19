@@ -10,7 +10,8 @@ export interface File extends Document {
   lastModefied: number;
   noOfCallerIds: number;
   extentionName: string;
-  status:string;
+  status: string;
+  realname: string;
 }
 
 const securitySchema = new Schema<File>({
@@ -49,11 +50,15 @@ const securitySchema = new Schema<File>({
     type: String,
     enum: ["xlsx", "xlsm", "csv"],
   },
-  status:{
+  status: {
     type: String,
     default: "pending",
-    enum: ["pending", "processing", "completed", "failed"]
-  }
+    enum: ["pending", "processing", "completed", "failed"],
+  },
+  realname: {
+    type: String,
+    default: "",
+  },
 });
 
 const fileModel =

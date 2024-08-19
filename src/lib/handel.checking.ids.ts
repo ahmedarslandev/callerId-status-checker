@@ -2,7 +2,7 @@ import pLimit from "p-limit";
 import { getTitle } from "./checkStatus";
 
 const limit = pLimit(3); // Limit to 5 concurrent requests
-const MAX_RETRIES = 10; // Maximum number of retries for rate limiting
+const MAX_RETRIES = 3; // Maximum number of retries for rate limiting
 
 async function fetchWithRetry(
   url: string,

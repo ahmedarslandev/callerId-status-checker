@@ -1,84 +1,67 @@
 import { fileModel } from "@/models/file.model";
 import { processFile } from "@/lib/fileProcessing";
+import { join } from "path";
 
-class FileProcessor {
-  private processingInterval: NodeJS.Timeout | null = null;
-  private filesAtATime: number;
-  private isIntervalRunning: boolean = false;
+// Global variables
+let hasRun = false;
+let processingInterval: NodeJS.Timeout | null = null;
+const filesAtATime = parseInt(process.env.FILES_CHECK_AT_A_TIME as string, 10);
 
-  constructor() {
-    this.filesAtATime = parseInt(
-      process.env.FILES_CHECK_AT_A_TIME as string,
-      10
+const processPendingFiles = async () => {
+  try {
+    const processingFiles = await fileModel.find({ status: "processing" });
+
+    if (processingFiles.length >= filesAtATime) {
+      console.log("Limit reached. Skipping processing.");
+      return; // Limit reached
+    }
+
+    const pendingFile = await fileModel.findOne({ status: "pending" });
+
+    if (!pendingFile) {
+      console.log("No pending file found.");
+      return;
+    }
+
+    const userDirectory = join(
+      "./public/uploads",
+      pendingFile.owner.toString()
     );
+
+    console.log(`Processing file: ${pendingFile.filename}`);
+    await processFile(
+      pendingFile._id,
+      pendingFile.filePath,
+      userDirectory,
+      pendingFile.filename
+    );
+
+    console.log(`Processing complete for file: ${pendingFile.filename}`);
+  } catch (error) {
+    console.error("Error during file processing:", error);
+  }
+};
+
+const startProcessingInterval = () => {
+  if (hasRun) {
+    console.log("Processing function has already been executed.");
+    return; // Prevent further execution
   }
 
-  public async startProcessingInterval(
-    dbFileId: any,
-    filePath: any,
-    userDirectory: any,
-    filename: any
-  ) {
+  hasRun = true;
 
-    this.isIntervalRunning = Boolean(
-      process.env.IS_INTERVAL_RUNNING
-    ) as boolean;
-
-    if (this.processingInterval || this.isIntervalRunning) {
-      console.log("Interval already running.");
-      return; // Interval already running
-    }
-
-    this.processingInterval = setInterval(async () => {
-      process.env.IS_INTERVAL_RUNNING = "true";
-      try {
-        const processingFiles: Array<any> = await fileModel.find({
-          status: "processing",
-        });
-
-        if (processingFiles.length >= this.filesAtATime) {
-          console.log("Limit reached. Skipping processing.");
-          return; // Limit reached
-        }
-
-        const pendingFile = await fileModel.findOne({ _id: dbFileId });
-        if (!pendingFile) {
-          console.log("No pending file found.");
-          return;
-        }
-
-        if (pendingFile.status === "pending") {
-          pendingFile.status = "processing";
-          await pendingFile.save();
-
-          console.log(`Processing file: ${filename}`);
-          await processFile(dbFileId, filePath, userDirectory, filename);
-
-          // Clear the interval after processing is done
-          this.clearProcessingInterval();
-          console.log(
-            `Processing complete and interval cleared for file: ${filename}`
-          );
-        }
-      } catch (error) {
-        console.error("Error during file processing:", error);
-        this.clearProcessingInterval();
-      }
-
-      console.log("Checking for pending files...");
-    }, 1000 * 5);
-
-    console.log("Processing interval started.");
+  if (processingInterval) {
+    console.log("Processing interval already running.");
+    return; // Interval already running
   }
 
-  private clearProcessingInterval() {
-    if (this.processingInterval) {
-      clearInterval(this.processingInterval);
-      this.processingInterval = null;
-    }
-  }
-}
+  processingInterval = setInterval(() => {
+    console.log("Checking for pending files...");
+    processPendingFiles();
+  }, 1000 * 5); // Check every 5 seconds
+
+  console.log("Processing interval started.");
+};
 
 // Example usage
-const fileProcessor = new FileProcessor();
-export default fileProcessor;
+export  { startProcessingInterval };

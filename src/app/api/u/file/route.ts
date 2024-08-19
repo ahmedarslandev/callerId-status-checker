@@ -8,7 +8,7 @@ import { userModel } from "@/models/user.model";
 import { fileModel } from "@/models/file.model";
 import connectMongo from "@/lib/dbConfig";
 import { processFile } from "@/lib/fileProcessing";
-import fileProcessing from "@/lib/intervalSetup";
+import {startProcessingInterval} from "@/lib/intervalSetup";
 
 export async function POST(req: NextRequest) {
   await connectMongo();
@@ -64,23 +64,15 @@ export async function POST(req: NextRequest) {
       noOfCallerIds: callerIds,
       type: file.type,
       lastModified: file.lastModified,
-      extensionName: extension,
+      extentionName: extension,
+      realname: file.name,
     });
 
     dbUser.files.push(dbFile._id);
 
-    await Promise.all([
-      dbFile.save(),
-      dbUser.walletId.save(),
-      dbUser.save(),
-    ]);
+    await Promise.all([dbFile.save(), dbUser.walletId.save(), dbUser.save()]);
 
-    fileProcessing.startProcessingInterval(
-      dbFile._id,
-      filePath,
-      userDirectory,
-      filename
-    );
+    startProcessingInterval();
     processFile(dbFile._id, filePath, userDirectory, filename);
 
     return NextResponse.json({
@@ -93,5 +85,30 @@ export async function POST(req: NextRequest) {
       { error: "Error processing file", success: false },
       { status: 500 }
     );
+  }
+}
+
+export async function GET(req: NextRequest) {
+  await connectMongo();
+  try {
+    const { data }: any = await auth();
+
+    if (!data) {
+      return NextResponse.json({ success: false, message: "Unauthorized" });
+    }
+
+    const dbUser = await userModel.findById(data.id).populate("files").exec();
+
+    if (!dbUser) {
+      return NextResponse.json({ success: false, message: "Invalid User" });
+    }
+
+    return NextResponse.json({ success: true, files: dbUser.files });
+  } catch (error: any) {
+    return NextResponse.json({
+      success: false,
+      message: "Error retrieving files",
+      error: error.message,
+    });
   }
 }
