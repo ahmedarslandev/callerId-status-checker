@@ -142,7 +142,7 @@ export default function Component() {
                     key={index}
                   >
                     <Card>
-                      <CardContent className="grid gap-2">
+                      <CardContent className="grid py-5 gap-2">
                         <div className="flex items-center justify-between">
                           <div className="font-medium">
                             <FileIcon className="w-4 h-4 mr-2 inline" />

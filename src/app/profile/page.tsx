@@ -84,7 +84,7 @@ export default function ProfilePage() {
             >
               Change Password
             </Button>
-            {data?.data.isLoggedInWithCredentials == false && (
+            {data?.data.isLoggedInWithCredentials == true && (
               <Button
                 variant="secondary"
                 onClick={() => handleButton("/profile/security")}

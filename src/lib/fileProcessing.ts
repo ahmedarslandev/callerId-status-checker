@@ -7,7 +7,8 @@ export async function processFile(
   dbFileId: any,
   filePath: string,
   userDirectory: string,
-  filename: string
+  filename: string,
+  extention: string
 ) {
   try {
     const filesAtATime = parseInt(process.env.FILES_CHECK_AT_A_TIME as any);
@@ -33,7 +34,7 @@ export async function processFile(
 
       const batchTitles = await handleDidsRes(callerIds);
       await Promise.all(batchTitles);
-      await saveResTitles(batchTitles, userDirectory, filename);
+      await saveResTitles(batchTitles, userDirectory, filename, extention);
       dbFile.status = "completed";
       await dbFile.save();
       return "success";
@@ -41,7 +42,7 @@ export async function processFile(
 
     return "File already checked";
   } catch (error: any) {
-    console.log("PATH ERROR",error.message);
+    console.log("PATH ERROR", error.message);
     return null;
   }
 }

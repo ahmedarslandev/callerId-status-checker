@@ -8,7 +8,7 @@ import { userModel } from "@/models/user.model";
 import { fileModel } from "@/models/file.model";
 import connectMongo from "@/lib/dbConfig";
 import { processFile } from "@/lib/fileProcessing";
-import {startProcessingInterval} from "@/lib/intervalSetup";
+import { startProcessingInterval } from "@/lib/intervalSetup";
 
 export async function POST(req: NextRequest) {
   await connectMongo();
@@ -73,7 +73,13 @@ export async function POST(req: NextRequest) {
     await Promise.all([dbFile.save(), dbUser.walletId.save(), dbUser.save()]);
 
     startProcessingInterval();
-    processFile(dbFile._id, filePath, userDirectory, filename);
+    processFile(
+      dbFile._id,
+      filePath,
+      userDirectory,
+      filename,
+      extension as any
+    );
 
     return NextResponse.json({
       success: true,

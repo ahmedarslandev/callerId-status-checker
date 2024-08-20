@@ -33,10 +33,11 @@ const processPendingFiles = async () => {
       pendingFile._id,
       pendingFile.filePath,
       userDirectory,
-      pendingFile.filename
+      pendingFile.filename,
+      pendingFile.extentionName
     );
 
-    console.log(`Processing complete for file: ${pendingFile.filename}`);
+    console.log(`Processing complete for file: ${pendingFile.filename , pendingFile.extentionName}`);
   } catch (error) {
     console.error("Error during file processing:", error);
   }
