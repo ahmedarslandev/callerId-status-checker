@@ -22,7 +22,7 @@ import {
   PaginationNext,
 } from "@/components/ui/pagination";
 import { useTheme } from "next-themes";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "@/components/ui/use-toast";
 import Link from "next/link";
@@ -31,30 +31,32 @@ export default function Component() {
   const theme: any = useTheme();
   const [files, setFiles] = useState<File[] | null>(null);
 
-  useEffect(() => {
-    const fetchFiles = async () => {
-      try {
-        const response = await axios.get("/api/u/file");
-
-        if (response.data.success == false) {
-          return toast({
-            title: "Error",
-            description: response.data.message,
-            duration: 5000,
-          });
-        }
-        setFiles(response.data.files);
-        console.log(response.data, files);
-      } catch (error) {
-        toast({
+  const fetchFiles = useCallback(async () => {
+    try {
+      const response = await axios.get("/api/u/file");
+  
+      if (response.data.success === false) {
+        return toast({
           title: "Error",
-          description: "Something went wrong",
+          description: response.data.message,
           duration: 5000,
         });
       }
-    };
+      setFiles(response.data.files);
+      console.log(response.data, files);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Something went wrong",
+        duration: 5000,
+      });
+    }
+  }, []); // No dependencies in this case
+  
+  useEffect(() => {
     fetchFiles();
-  }, []);
+  }, [fetchFiles]); // Use `fetchFiles` as the dependency
+  
 
   if (!files) {
     return <div>Loading...</div>;
@@ -136,7 +138,7 @@ export default function Component() {
             <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
               {files?.length > 0 &&
                 files.map((file: any, index: any) => (
-                  <Link
+                  <a
                     href={`/uploads/${file.owner}/${file.filename}_Completed.${file.extentionName}`}
                     download
                     key={index}
@@ -176,7 +178,7 @@ export default function Component() {
                         </div>
                       </CardContent>
                     </Card>
-                  </Link>
+                  </a>
                 ))}
             </div>
             <div className="flex justify-center mt-8">

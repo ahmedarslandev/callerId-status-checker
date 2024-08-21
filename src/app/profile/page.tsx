@@ -44,7 +44,7 @@ export default function ProfilePage() {
         </CardHeader>
         <CardContent>
           <div className="flex flex-col md:flex-row items-center md:items-start space-y-4 md:space-y-0 md:space-x-4">
-            <img
+            <Image
               src={user.profileImage}
               alt={`${user.username}'s profile image`}
               width={100}

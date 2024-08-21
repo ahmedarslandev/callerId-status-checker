@@ -5,16 +5,23 @@ import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LogOut, Menu, Settings, Image, Wallet, File } from "lucide-react";
+import {
+  LogOut,
+  Menu,
+  Settings,
+  Image as Picture,
+  Wallet,
+  File,
+} from "lucide-react";
 import { toast } from "./ui/use-toast";
 import { SignOut } from "@/lib/auth.helper";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import HLine from "./HLine";
+import Image from "next/image";
 export function MenuDropDown() {
   const { data, status } = useSession();
 
@@ -47,7 +54,13 @@ export function MenuDropDown() {
         {status === "authenticated" && (
           <div className="px-3 py-2 gap-3 flex items-center">
             <div className="w-8 h-8 rounded-full flex justify-center items-center overflow-hidden bg-gray-500">
-              <img src={data.user?.image!} alt="User Image" />
+              <Image
+                src={data.user?.image!}
+                alt="User Image"
+                width={100}
+                height={100}
+                layout="responsive"
+              />
             </div>
             <p className="text-sm font-bold">{data.user?.name}</p>
           </div>
@@ -56,7 +69,7 @@ export function MenuDropDown() {
         <DropdownMenuSeparator />
         <Link href={"/profile"}>
           <DropdownMenuCheckboxItem className="flex cursor-pointer gap-2 pl-4 ">
-            <Image />
+            <Picture />
             <p>Profile</p>
           </DropdownMenuCheckboxItem>
         </Link>

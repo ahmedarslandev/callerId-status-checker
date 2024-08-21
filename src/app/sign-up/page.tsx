@@ -93,7 +93,11 @@ export default function SignIn() {
               <FormItem>
                 <FormLabel>Username</FormLabel>
                 <FormControl>
-                  <Input className="max-md:text-xs" placeholder="John Doe" {...field} />
+                  <Input
+                    className="max-md:text-xs"
+                    placeholder="John Doe"
+                    {...field}
+                  />
                 </FormControl>
                 {form.formState.errors.username && (
                   <FormDescription className="text-xs text-red-500">
@@ -110,7 +114,11 @@ export default function SignIn() {
               <FormItem>
                 <FormLabel>Email</FormLabel>
                 <FormControl>
-                  <Input className="max-md:text-xs" placeholder="example@gmail.com" {...field} />
+                  <Input
+                    className="max-md:text-xs"
+                    placeholder="example@gmail.com"
+                    {...field}
+                  />
                 </FormControl>
                 {form.formState.errors.email && (
                   <FormDescription className="text-xs text-red-500">
@@ -127,7 +135,11 @@ export default function SignIn() {
               <FormItem>
                 <FormLabel>Phone No</FormLabel>
                 <FormControl>
-                  <Input className="max-md:text-xs" placeholder="1234567890" {...field} />
+                  <Input
+                    className="max-md:text-xs"
+                    placeholder="1234567890"
+                    {...field}
+                  />
                 </FormControl>
                 {form.formState.errors.phoneNo && (
                   <FormDescription className="text-xs text-red-500">
@@ -144,7 +156,12 @@ export default function SignIn() {
               <FormItem>
                 <FormLabel>Password</FormLabel>
                 <FormControl>
-                  <Input className="max-md:text-xs" type="password" placeholder="********" {...field} />
+                  <Input
+                    className="max-md:text-xs"
+                    type="password"
+                    placeholder="********"
+                    {...field}
+                  />
                 </FormControl>
                 {form.formState.errors.password && (
                   <FormDescription className="text-xs text-red-500">
@@ -161,7 +178,12 @@ export default function SignIn() {
               <FormItem>
                 <FormLabel>Confirm Password</FormLabel>
                 <FormControl>
-                  <Input className="max-md:text-xs" type="password" placeholder="********" {...field} />
+                  <Input
+                    className="max-md:text-xs"
+                    type="password"
+                    placeholder="********"
+                    {...field}
+                  />
                 </FormControl>
                 {form.formState.errors.confirmPassword && (
                   <FormDescription className="text-xs text-red-500">
@@ -202,7 +224,10 @@ export default function SignIn() {
           <ButtonLoder isLoading={isLoading} name={"Sign Up"} />
           <FormDescription className="text-center max-md:text-xs mt-4">
             Already have an account?{" "}
-            <Link className="text-blue-600 max-md:text-xs hover:text-blue-700" href="/sign-in">
+            <Link
+              className="text-blue-600 max-md:text-xs hover:text-blue-700"
+              href="/sign-in"
+            >
               Sign In
             </Link>
           </FormDescription>

@@ -17,8 +17,6 @@ const Navbar = () => {
   const { data, status } = useSession();
   const theme: any = useTheme();
 
- 
-
   const Logout = async () => {
     try {
       await SignOut();

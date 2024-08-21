@@ -9,6 +9,7 @@ import { toast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function Page() {
   const [isLoading, setIsLoading] = useState(false);
@@ -62,10 +63,13 @@ export default function Page() {
           </Link>
         </div>
         <div className="right lg:w-1/2 flex h-fit justify-center lg:justify-end">
-          <img
+          <Image
             className="w-full max-w-md lg:max-w-full"
             src="https://telcastnetworks.com/wp-content/uploads/2019/07/WholeSale-Termination-01.png"
             alt="right-img"
+            width={600}
+            height={600}
+            layout="responsive"
           />
         </div>
       </div>

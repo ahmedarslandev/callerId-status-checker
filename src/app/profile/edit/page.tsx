@@ -11,6 +11,7 @@ import { useTheme } from "next-themes";
 import { toast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
 import ButtonLoder from "@/components/ButtonLoder";
+import Image from "next/image";
 
 export default function EditProfilePage() {
   const router = useRouter();
@@ -103,7 +104,7 @@ export default function EditProfilePage() {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="flex items-center space-x-4">
-              <img
+              <Image
                 src={user.profileImage || "/default-profile.png"}
                 alt={`${user.username}'s profile image`}
                 width={100}
