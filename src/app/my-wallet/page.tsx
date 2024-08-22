@@ -16,6 +16,7 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import { Transaction } from "@/models/transaction.model";
+import Link from "next/link";
 
 export default function Component() {
   const { theme } = useTheme();
@@ -82,15 +83,19 @@ export default function Component() {
               <div className="flex flex-col md:flex-row gap-2 items-start md:items-center w-full">
                 <div className="text-sm">{wallet.currency}</div>
                 <div className="flex gap-1 items-center">
-                  <Button
-                    variant={"outline"}
-                    className="w-full md:w-24 h-8 text-xs"
-                  >
-                    Withdraw
-                  </Button>
-                  <Button className="w-full md:w-24 h-8 text-xs">
-                    Deposit
-                  </Button>
+                  <Link href={"/my-wallet/withdraw"}>
+                    <Button
+                      variant={"outline"}
+                      className="w-full md:w-24 h-8 text-xs"
+                    >
+                      Withdraw
+                    </Button>
+                  </Link>
+                  <Link href={"/my-wallet/deposite"}>
+                    <Button className="w-full md:w-24 h-8 text-xs">
+                      Deposit
+                    </Button>
+                  </Link>
                 </div>
               </div>
             </div>
