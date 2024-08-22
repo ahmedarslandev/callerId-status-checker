@@ -68,7 +68,7 @@ export default function Page() {
         </div>
         <div className="right lg:w-1/2 flex h-fit justify-center lg:justify-end">
           <Image
-            className="w-full max-w-md lg:max-w-full lazyload"
+            className="w-full max-w-md lg:max-w-full animate-bounce lazyload"
             data-src="https://telcastnetworks.com/wp-content/uploads/2019/07/WholeSale-Termination-01.png"
             src="https://telcastnetworks.com/wp-content/uploads/2019/07/WholeSale-Termination-01.png"
             alt="right-img"
