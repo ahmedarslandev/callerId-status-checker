@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { User } from "@/models/user.model"; // Adjust the import path
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useTheme } from "next-themes";
@@ -12,6 +11,9 @@ import { toast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
 import ButtonLoder from "@/components/ButtonLoder";
 import Image from "next/image";
+
+import 'lazysizes';
+import 'lazysizes/plugins/parent-fit/ls.parent-fit';
 
 export default function EditProfilePage() {
   const router = useRouter();
@@ -105,11 +107,12 @@ export default function EditProfilePage() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="flex items-center space-x-4">
               <Image
+                data-src={user.profileImage}
                 src={user.profileImage || "/default-profile.png"}
                 alt={`${user.username}'s profile image`}
                 width={100}
                 height={100}
-                className="rounded-full"
+                className="rounded-full lazyload"
               />
               <div>
                 <h3 className="text-xl font-semibold">{user.username}</h3>

@@ -22,6 +22,10 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import HLine from "./HLine";
 import Image from "next/image";
+
+import 'lazysizes';
+import 'lazysizes/plugins/parent-fit/ls.parent-fit';
+
 export function MenuDropDown() {
   const { data, status } = useSession();
 
@@ -55,11 +59,13 @@ export function MenuDropDown() {
           <div className="px-3 py-2 gap-3 flex items-center">
             <div className="w-8 h-8 rounded-full flex justify-center items-center overflow-hidden bg-gray-500">
               <Image
+                data-src={data.user?.image!}
                 src={data.user?.image!}
                 alt="User Image"
                 width={100}
                 height={100}
                 layout="responsive"
+                className="lazyload"
               />
             </div>
             <p className="text-sm font-bold">{data.user?.name}</p>

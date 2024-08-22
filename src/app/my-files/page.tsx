@@ -34,7 +34,7 @@ export default function Component() {
   const fetchFiles = useCallback(async () => {
     try {
       const response = await axios.get("/api/u/file");
-  
+
       if (response.data.success === false) {
         return toast({
           title: "Error",
@@ -52,11 +52,10 @@ export default function Component() {
       });
     }
   }, []); // No dependencies in this case
-  
+
   useEffect(() => {
     fetchFiles();
   }, [fetchFiles]); // Use `fetchFiles` as the dependency
-  
 
   if (!files) {
     return <div>Loading...</div>;
@@ -138,47 +137,50 @@ export default function Component() {
             <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
               {files?.length > 0 &&
                 files.map((file: any, index: any) => (
-                  <a
-                    href={`/uploads/${file.owner}/${file.filename}_Completed.${file.extentionName}`}
-                    download
-                    key={index}
+                  <Link legacyBehavior key={index} href={`/uploads/${file.owner}/${file.filename}_Completed.${file.extentionName}`}
+                  passHref
                   >
-                    <Card>
-                      <CardContent className="grid py-5 gap-2">
-                        <div className="flex items-center justify-between">
-                          <div className="font-medium">
-                            <FileIcon className="w-4 h-4 mr-2 inline" />
-                            {file.realname}
+                    <a
+                      download
+                      key={index}
+                    >
+                      <Card>
+                        <CardContent className="grid py-5 gap-2">
+                          <div className="flex items-center justify-between">
+                            <div className="font-medium">
+                              <FileIcon className="w-4 h-4 mr-2 inline" />
+                              {file.realname}
+                            </div>
+                            <div className="text-muted-foreground text-sm">
+                              <FileTypeIcon className="w-4 h-4 mr-1 inline" />
+                              {file.extentionName}
+                            </div>
                           </div>
                           <div className="text-muted-foreground text-sm">
-                            <FileTypeIcon className="w-4 h-4 mr-1 inline" />
-                            {file.extentionName}
+                            <FileIcon className="w-4 h-4 mr-1 inline" />
+                            {Math.round(file.size / 1000)} KB
                           </div>
-                        </div>
-                        <div className="text-muted-foreground text-sm">
-                          <FileIcon className="w-4 h-4 mr-1 inline" />
-                          {Math.round(file.size / 1000)} KB
-                        </div>
-                        <div className="text-muted-foreground text-sm">
-                          Status:
-                          <span
-                            className={`${
-                              file.status == "completed"
-                                ? "text-green-500"
-                                : file.status == "processing"
-                                ? "text-blue-500"
-                                : file.status == "failed"
-                                ? "text-red-500"
-                                : "text-black"
-                            }`}
-                          >
-                            {" "}
-                            {file.status}
-                          </span>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </a>
+                          <div className="text-muted-foreground text-sm">
+                            Status:
+                            <span
+                              className={`${
+                                file.status == "completed"
+                                  ? "text-green-500"
+                                  : file.status == "processing"
+                                  ? "text-blue-500"
+                                  : file.status == "failed"
+                                  ? "text-red-500"
+                                  : "text-black"
+                              }`}
+                            >
+                              {" "}
+                              {file.status}
+                            </span>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </a>
+                  </Link>
                 ))}
             </div>
             <div className="flex justify-center mt-8">

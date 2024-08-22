@@ -2,12 +2,28 @@
 
 const nextConfig = {
   images: {
-    domains: [
-      "telcastnetworks.com",
-      "platform-lookaside.fbsbx.com",
-      "pbs.twimg.com",
-      "avatars.githubusercontent.com",
-    ], // Add your image domain here
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "telcastnetworks.com",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "platform-lookaside.fbsbx.com",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "pbs.twimg.com",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "avatars.githubusercontent.com",
+        pathname: "/**",
+      },
+    ],
   },
 };
 

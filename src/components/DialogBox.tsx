@@ -32,15 +32,11 @@ export default function DialogBox({
         formData.append("file", fileData.file);
         formData.append("callerIds", fileData.numberOfCallerIds);
         try {
-          const response = await axios.post(
-            "/api/u/file",
-            formData,
-            {
-              headers: {
-                "Content-Type": "multipart/form-data",
-              },
-            }
-          );
+          const response = await axios.post("/api/u/file", formData, {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          });
           console.log(response);
           if (response.data.success == false) {
             return toast({
@@ -70,8 +66,8 @@ export default function DialogBox({
         <DialogHeader>
           <DialogTitle>CallerIds: {fileData.numberOfCallerIds}</DialogTitle>
           <DialogDescription>
-            You will have to pay ${Math.round(fileData.numberOfCallerIds * 0.1)}{" "}
-            for these callerIds
+            You will have to pay $
+            {(fileData.numberOfCallerIds * 0.1).toFixed(2)} for these callerIds
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className="sm:justify-start">

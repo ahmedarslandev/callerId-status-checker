@@ -11,6 +11,10 @@ import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 
+import 'lazysizes';
+import 'lazysizes/plugins/parent-fit/ls.parent-fit';
+
+
 export default function Page() {
   const [isLoading, setIsLoading] = useState(false);
   const { data, status } = useSession();
@@ -64,7 +68,8 @@ export default function Page() {
         </div>
         <div className="right lg:w-1/2 flex h-fit justify-center lg:justify-end">
           <Image
-            className="w-full max-w-md lg:max-w-full"
+            className="w-full max-w-md lg:max-w-full lazyload"
+            data-src="https://telcastnetworks.com/wp-content/uploads/2019/07/WholeSale-Termination-01.png"
             src="https://telcastnetworks.com/wp-content/uploads/2019/07/WholeSale-Termination-01.png"
             alt="right-img"
             width={600}

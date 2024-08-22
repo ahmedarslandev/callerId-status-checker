@@ -13,6 +13,9 @@ import { toast } from "./ui/use-toast";
 import { useTheme } from "next-themes";
 import { useEffect } from "react";
 
+import 'lazysizes';
+import 'lazysizes/plugins/parent-fit/ls.parent-fit';
+
 const Navbar = () => {
   const { data, status } = useSession();
   const theme: any = useTheme();
@@ -42,7 +45,8 @@ const Navbar = () => {
       <nav className="flex md:flex-row w-full items-center justify-between p-3 z-40 gap-3 md:gap-0">
         <Link href={"/"} className="flex gap-5 justify-center items-center">
           <Image
-            className="object-cover w-10"
+            className="object-cover w-10 lazyload"
+            data-src="/Sigma-dialer_logo-removebg-preview.png"
             src="/Sigma-dialer_logo-removebg-preview.png"
             alt="logo"
             width={40}

@@ -10,6 +10,9 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 
+import 'lazysizes';
+import 'lazysizes/plugins/parent-fit/ls.parent-fit';
+
 export default function ProfilePage() {
   const [user, setUser] = useState<User | null>(null);
   const router = useRouter();
@@ -45,11 +48,12 @@ export default function ProfilePage() {
         <CardContent>
           <div className="flex flex-col md:flex-row items-center md:items-start space-y-4 md:space-y-0 md:space-x-4">
             <Image
+              data-src={user.profileImage}
               src={user.profileImage}
               alt={`${user.username}'s profile image`}
               width={100}
               height={100}
-              className="rounded-full w-24 h-24"
+              className="rounded-full w-24 h-24 lazyload"
             />
             <div className="text-center md:text-left">
               <h3 className="text-lg md:text-xl font-semibold">
