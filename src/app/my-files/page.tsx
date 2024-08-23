@@ -134,16 +134,27 @@ export default function Component() {
                 </DropdownMenu>
               </div>
             </div>
+            {files.length <= 0 && (
+              <>
+                <div className="flex p-10 justify-center items-center w-full">
+                  <p className="text-xs">You don't have any uploaded file</p>
+                </div>
+              </>
+            )}
             <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
               {files?.length > 0 &&
                 files.map((file: any, index: any) => (
-                  <Link legacyBehavior key={index} href={`/uploads/${file.owner}/${file.filename}_Completed.${file.extentionName}`}
-                  passHref
+                  <Link
+                    legacyBehavior
+                    key={index}
+                    href={`${
+                      file.status == "completed"
+                        ? `/uploads/${file.owner}/${file.filename}_Completed.${file.extentionName}`
+                        : "#"
+                    }`}
+                    passHref
                   >
-                    <a
-                      download
-                      key={index}
-                    >
+                    <a download key={index}>
                       <Card>
                         <CardContent className="grid py-5 gap-2">
                           <div className="flex items-center justify-between">
