@@ -2,10 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Wallet } from "@/models/wallet.model";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { useTheme } from "next-themes";
 import axios from "axios";
 import {
   Table,
@@ -19,7 +16,6 @@ import { Transaction } from "@/models/transaction.model";
 import Link from "next/link";
 
 export default function Component() {
-  const { theme } = useTheme();
   const [wallet, setWallet] = useState<Wallet | null>(null);
   const [transactions, setTransactions] = useState<Transaction[] | null>(null);
 
@@ -44,28 +40,6 @@ export default function Component() {
 
     fetchWalletData();
   }, []);
-
-  const handleDeposit = async () => {
-    const response = await fetch("/api/u/deposite", {
-      method: "POST",
-    });
-
-    if (response.ok) {
-      const { updatedWallet } = await response.json();
-      setWallet(updatedWallet);
-    }
-  };
-
-  const handleWithdrawal = async () => {
-    const response = await fetch("/api/u/withdrawal", {
-      method: "POST",
-    });
-
-    if (response.ok) {
-      const updatedWallet = await response.json();
-      setWallet(updatedWallet);
-    }
-  };
 
   if (!wallet) {
     return <div>Loading...</div>;
@@ -111,7 +85,7 @@ export default function Component() {
                 Total Transactions
               </div>
               <div className="text-2xl md:text-3xl font-bold">
-                {wallet.totalTransactionsCount}
+                {wallet.transactionsCount}
               </div>
             </div>
             <div className="bg-card p-4 md:p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
@@ -119,7 +93,7 @@ export default function Component() {
                 Total Withdrawn
               </div>
               <div className="text-2xl md:text-3xl font-bold">
-                {wallet.totalWithdrawalsCount}
+                {wallet.totalWithdraw}
               </div>
             </div>
             <div className="bg-card p-4 md:p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
@@ -137,36 +111,56 @@ export default function Component() {
               </div>
             </div>
           </div>
-          <div className="bg-card p-4 md:p-8 rounded-lg shadow-md mt-8">
+          <div className="bg-card p-4 md:p-8 rounded-lg shadow-md mt-8 overflow-x-auto">
             <div className="mb-4 md:mb-6 text-lg md:text-xl font-medium">
               Transactions
             </div>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Amount</TableHead>
-                  <TableHead>Type</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {transactions && transactions.length > 0 ? (
-                  transactions.map((e: any, i) => (
-                    <TableRow key={i}>
-                      <TableCell>{e.date}</TableCell>
-                      <TableCell>{e.amount}</TableCell>
-                      <TableCell>{e.type}</TableCell>
-                    </TableRow>
-                  ))
-                ) : (
+            <div className="overflow-x-auto">
+              <Table className="min-w-[600px]">
+                <TableHeader>
                   <TableRow>
-                    <TableCell colSpan={3} className="text-center">
-                      You have no transactions yet.
-                    </TableCell>
+                    <TableHead>Date</TableHead>
+                    <TableHead>Amount</TableHead>
+                    <TableHead>Type</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Bank Account</TableHead>
+                    <TableHead>Bank Name</TableHead>
+                    <TableHead>Account Holder Name</TableHead>
                   </TableRow>
-                )}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {transactions && transactions.length > 0 ? (
+                    transactions
+                      .slice()
+                      .reverse()
+                      .map((e: any, i) => (
+                        <TableRow key={i}>
+                          <TableCell>
+                            {new Date(e.timeStamp).toISOString().split("T")[0]}
+                          </TableCell>
+                          <TableCell>
+                            {e.amount}{" "}
+                            <span className="text-[8px] font-bold">
+                              {wallet.currency}
+                            </span>
+                          </TableCell>
+                          <TableCell>{e.type}</TableCell>
+                          <TableCell>{e.status}</TableCell>
+                          <TableCell>{e.bankAccount}</TableCell>
+                          <TableCell>{e.bank}</TableCell>
+                          <TableCell>{e.accountHolderName}</TableCell>
+                        </TableRow>
+                      ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={7} className="text-center">
+                        You have no transactions yet.
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </div>
           </div>
         </div>
       </div>

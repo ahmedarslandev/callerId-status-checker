@@ -27,6 +27,7 @@ import "lazysizes";
 import "lazysizes/plugins/parent-fit/ls.parent-fit";
 import { useState } from "react";
 import ButtonLoder from "@/components/ButtonLoder";
+import axios from "axios";
 
 export default function Component() {
   const { toast } = useToast();
@@ -51,16 +52,34 @@ export default function Component() {
 
   async function onSubmit(values: z.infer<typeof withdrawalSchema>) {
     setIsLoading(true);
-    // Handle form submission
-    console.log(values);
-    // Simulate a loading state and response
-    // setTimeout(() => {
-    //   toast({
-    //     title: "Success",
-    //     description: "Withdrawal request submitted.",
-    //   });
-    //   router.push("/success");
-    // }, 1000);
+    try {
+      const res = await axios.post("/api/u/withdraw", values);
+
+      if (res.data.success == false) {
+        return toast({
+          title: "Error",
+          description: res.data.message,
+          variant: "destructive",
+        });
+      }
+
+      return toast({
+        title: "Success",
+        description: res.data.message,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description:
+          "Failed to submit withdrawal request. Please try again later.",
+        variant: "destructive",
+      });
+    } finally {
+      setTimeout(() => {
+        router.replace("/my-wallet");
+      }, 2000);
+      setIsLoading(false);
+    }
   }
 
   return (

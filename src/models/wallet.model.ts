@@ -10,12 +10,8 @@ export interface Wallet extends Document {
   lastUpdated: Date;
   lastWithdraw: Date;
   lastDeposited: Date;
-  totalTransactions: number;
-  totalWithdrawn: number;
+  totalWithdraw: number;
   totalDeposited: number;
-  totalTransactionsCount: number;
-  totalDepositsCount: number;
-  totalWithdrawalsCount: number;
   totalBalanceCount: number;
 }
 
@@ -65,12 +61,7 @@ const walletSchema = new Schema<Wallet>({
     type: Date,
     default: null,
   },
-  totalTransactions: {
-    type: Number,
-    default: 0,
-    required: true,
-  },
-  totalWithdrawn: {
+  totalWithdraw: {
     type: Number,
     default: 0,
     required: true,
@@ -80,26 +71,11 @@ const walletSchema = new Schema<Wallet>({
     default: 0,
     required: true,
   },
-  totalTransactionsCount: {
-    type: Number,
-    default: 0,
-    required: true,
-  },
-  totalDepositsCount: {
-    type: Number,
-    default: 0,
-    required: true,
-  },
-  totalWithdrawalsCount: {
-    type: Number,
-    default: 0,
-    required: true,
-  },
   totalBalanceCount: {
     type: Number,
     default: 0,
     required: true,
-  }
+  },
 });
 const walletModel =
   mongoose.models.Wallet || mongoose.model("Wallet", walletSchema);
