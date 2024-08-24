@@ -24,9 +24,13 @@ import {
   FormLabel,
 } from "@/components/ui/form";
 import ButtonLoder from "@/components/ButtonLoder";
+import axios from "axios";
+import { useRouter } from "next/navigation";
 
 export default function Component() {
   const { toast } = useToast();
+  const router = useRouter();
+
   const [isLoading, setIsLoading] = useState(false);
   const [bankDetails, setBankDetails] = useState<{
     number: string;
@@ -63,23 +67,31 @@ export default function Component() {
   async function onSubmit(values: z.infer<typeof depositeSchema>) {
     setIsLoading(true);
     try {
-      // Handle form submission
-      console.log(values);
-      // Simulate a loading state and response
-      // setTimeout(() => {
-      //   toast({
-      //     title: "Success",
-      //     description: "Deposit request submitted.",
-      //   });
-      //   // Optionally, redirect to another page or reset form
-      //   // router.push("/success");
-      // }, 1000);
+      const res = await axios.post("/api/u/deposite", values);
+
+      if (res.data.success == false) {
+        return toast({
+          title: "Error",
+          description: res.data.message,
+          variant: "destructive",
+        });
+      }
+
+      return toast({
+        title: "Success",
+        description: res.data.message,
+      });
     } catch (error) {
       toast({
         title: "Error",
-        description: "There was an issue with your request.",
+        description:
+          "Failed to submit withdrawal request. Please try again later.",
+        variant: "destructive",
       });
     } finally {
+      setTimeout(() => {
+        router.replace("/my-wallet/success");
+      }, 2000);
       setIsLoading(false);
     }
   }

@@ -76,7 +76,7 @@ export default function Component() {
       });
     } finally {
       setTimeout(() => {
-        router.replace("/my-wallet");
+        router.replace("/my-wallet/success");
       }, 2000);
       setIsLoading(false);
     }

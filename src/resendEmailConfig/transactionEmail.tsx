@@ -13,6 +13,8 @@ interface EmailTemplateProps {
     timeStamp: number;
     bankAccount: string;
     bank: string;
+    transactionId?: string; // Optional: Present if type is 'deposit'
+    bankName?: string; // Optional: Present if type is 'deposit'
   };
 }
 
@@ -55,14 +57,18 @@ export const EmailTemplate: React.FC<Readonly<EmailTemplateProps>> = ({
               height: "40px",
             }}
           />
-          <div style={{ fontSize: "18px", fontWeight: "bold" }}>
+          <div style={{ fontSize: "18px", fontWeight: "bold", color: "green" }}>
             {user.username}
           </div>
         </div>
         <div style={{ textAlign: "right" }}>
-          <div style={{ fontSize: "24px", fontWeight: "bold" }}>
+          <div style={{ fontSize: "24px", fontWeight: "bold", color: "green" }}>
             {transaction.amount}{" "}
-            <span style={{ fontSize: "10px", fontWeight: "bold" }}>USD</span>
+            <span
+              style={{ fontSize: "10px", fontWeight: "bold", color: "green" }}
+            >
+              USD
+            </span>
           </div>
           <div style={{ fontSize: "12px", color: "#999" }}>Requested</div>
         </div>
@@ -76,39 +82,85 @@ export const EmailTemplate: React.FC<Readonly<EmailTemplateProps>> = ({
         }}
       >
         <div>
-          <div style={{ fontSize: "12px", fontWeight: "bold" }}>
+          <div style={{ fontSize: "12px", fontWeight: "bold", color: "green" }}>
             Transaction Type
           </div>
           <div style={{ fontSize: "16px" }}>{transaction.type}</div>
         </div>
-        <div>
-          <div style={{ fontSize: "12px", fontWeight: "bold" }}>Status</div>
-          <div style={{ fontSize: "16px", color: "#28a745" }}>
-            {transaction.status}
+        {transaction.type != "deposit" && (
+          <div>
+            <div
+              style={{ fontSize: "12px", fontWeight: "bold", color: "green" }}
+            >
+              Status
+            </div>
+            <div style={{ fontSize: "16px", color: "red" }}>
+              {transaction.status}
+            </div>
           </div>
-        </div>
-        <div>
-          <div style={{ fontSize: "12px", fontWeight: "bold" }}>Recipient</div>
-          <div style={{ fontSize: "16px" }}>
-            {transaction.accountHolderName}
+        )}
+        {transaction.type != "deposit" && (
+          <div>
+            <div
+              style={{ fontSize: "12px", fontWeight: "bold", color: "green" }}
+            >
+              Recipient
+            </div>
+            <div style={{ fontSize: "16px" }}>
+              {transaction.accountHolderName}
+            </div>
           </div>
-        </div>
+        )}
         <div>
-          <div style={{ fontSize: "12px", fontWeight: "bold" }}>Date</div>
+          <div style={{ fontSize: "12px", fontWeight: "bold", color: "green" }}>
+            Date
+          </div>
           <div style={{ fontSize: "16px" }}>
             {new Date(transaction.timeStamp).toLocaleDateString()}
           </div>
         </div>
         <div>
-          <div style={{ fontSize: "12px", fontWeight: "bold" }}>
-            Bank Account
-          </div>
+          {transaction.type != "deposit" && (
+            <div
+              style={{ fontSize: "12px", fontWeight: "bold", color: "green" }}
+            >
+              Bank Account
+            </div>
+          )}
           <div style={{ fontSize: "16px" }}>{transaction.bankAccount}</div>
         </div>
         <div>
-          <div style={{ fontSize: "12px", fontWeight: "bold" }}>Bank Type</div>
+          <div style={{ fontSize: "12px", fontWeight: "bold", color: "green" }}>
+            Bank Type
+          </div>
           <div style={{ fontSize: "16px" }}>{transaction.bank}</div>
         </div>
+
+        {/* Conditionally render these fields if the transaction type is 'deposit' */}
+        {transaction.type == "deposit" && (
+          <>
+            <div>
+              <div
+                style={{ fontSize: "12px", fontWeight: "bold", color: "green" }}
+              >
+                Transaction ID
+              </div>
+              <div style={{ fontSize: "16px" }}>
+                {transaction.transactionId || "N/A"}
+              </div>
+            </div>
+            <div>
+              <div
+                style={{ fontSize: "12px", fontWeight: "bold", color: "green" }}
+              >
+                Bank Name
+              </div>
+              <div style={{ fontSize: "16px" }}>
+                {transaction.bank || "N/A"}
+              </div>
+            </div>
+          </>
+        )}
       </div>
       <hr style={{ margin: "20px 0", borderColor: "#ddd" }} />
       <div style={{ fontSize: "12px", color: "#999" }}>

@@ -11,9 +11,8 @@ import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 
-import 'lazysizes';
-import 'lazysizes/plugins/parent-fit/ls.parent-fit';
-
+import "lazysizes";
+import "lazysizes/plugins/parent-fit/ls.parent-fit";
 
 export default function Page() {
   const [isLoading, setIsLoading] = useState(false);
@@ -74,7 +73,7 @@ export default function Page() {
             alt="right-img"
             width={600}
             height={600}
-            layout="responsive"
+            style={{ objectFit: "cover" }}
           />
         </div>
       </div>
