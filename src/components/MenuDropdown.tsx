@@ -17,14 +17,14 @@ import {
   File,
 } from "lucide-react";
 import { toast } from "./ui/use-toast";
-import { SignOut } from "@/lib/auth.helper";
+import { SignOut } from "@/lib/api.handler";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import HLine from "./HLine";
 import Image from "next/image";
 
-import 'lazysizes';
-import 'lazysizes/plugins/parent-fit/ls.parent-fit';
+import "lazysizes";
+import "lazysizes/plugins/parent-fit/ls.parent-fit";
 
 export function MenuDropDown() {
   const { data, status } = useSession();

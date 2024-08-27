@@ -1,138 +1,117 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import axios from "axios";
-import { Security } from "@/models/security.model"; // Adjust the import path
+import { useState } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
-import { useTheme } from "next-themes";
-import { toast } from "@/components/ui/use-toast";
+import { Button } from "@/components/ui/button";
+import axios from "axios";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { toast } from "@/components/ui/use-toast";
 
-export default function SettingsPage() {
-  const router = useRouter();
-  const [security, setSecurity] = useState<Security | null>(null);
-  const [form, setForm] = useState<Partial<Security>>({
-    recovery_email: "",
-    two_factor_enabled: false,
+export default function ChangePasswordPage() {
+  const { data } = useSession();
+  const [form, setForm] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: ""
   });
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
-  useEffect(() => {
-    const fetchSecurityData = async () => {
-      try {
-        const response = await axios.post("/api/u/security"); // Adjust the API endpoint
-        setSecurity(response.data.security);
-        console.log(response.data);
-        setForm({
-          recovery_email: response.data.security.recovery_email,
-          two_factor_enabled: response.data.security.two_factor_enabled,
-        });
-      } catch (error) {
-        console.error("Error fetching security data:", error);
-      }
-    };
-
-    fetchSecurityData();
-  }, []);
-
-  const handleChange = (
-    e:
-      | React.ChangeEvent<HTMLInputElement>
-      | React.ChangeEvent<HTMLButtonElement>
-  ) => {
-    const { name, value, type, checked } = e.target as HTMLInputElement;
-    setForm((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }));
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setForm(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleChangePassword = async () => {
+    setIsLoading(true);
+    setError(null);
+
+    if (form.newPassword !== form.confirmPassword) {
+      setError("New password and confirmation do not match.");
+      setIsLoading(false);
+      return;
+    }
+
     try {
-      const res = await axios.put("/api/u/security", form); // Adjust the API endpoint
-      if (res.data.success == false) {
-        return toast({
-          title: "Error",
-          description: res.data.message,
-          duration: 5000,
-        });
-      }
-      if (res.data.isEmailSent) {
-        setTimeout(() => router.replace("/code-verification"), 2000);
-        return toast({
+      const response = await axios.post("/api/u/change-password", {
+        currentPassword: form.currentPassword,
+        newPassword: form.newPassword,
+        isLoggedInWithCredentials: data?.data.isLoggedInWithCredentials,
+      });
+      if (response.data.success) {
+        toast({
           title: "Success",
-          description: res.data.message,
+          description: "Password changed successfully.",
+          duration: 5000,
+        });
+        router.replace("/profile");
+      } else {
+        toast({
+          title: "Error",
+          description: response.data.message,
+          variant: "destructive",
           duration: 5000,
         });
       }
-      return toast({
-        title: "Success",
-        description: res.data.message,
+    } catch (err: any) {
+      toast({
+        title: "Error",
+        description: err.message || "An unexpected error occurred.",
+        variant: "destructive",
         duration: 5000,
       });
-    } catch (error) {
-      console.error("Error updating security settings:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  if (!security) {
-    return <div>Loading...</div>;
-  }
-
   return (
-    <div className="p-6">
-      <Card>
+    <div className="flex justify-center items-center min-h-screen p-6">
+      <Card className="w-full max-w-md">
         <CardHeader>
-          <h2 className="text-2xl font-bold">Security Settings</h2>
+          <h2 className="text-2xl font-bold">Change Password</h2>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit}>
+          {error && <div className="mb-4 text-red-600">{error}</div>}
+          {data?.data.isLoggedInWithCredentials && (
             <div className="mb-4">
-              <label
-                htmlFor="recovery_email"
-                className="block text-sm font-medium"
-              >
-                Recovery Email
-              </label>
               <Input
-                type="email"
-                id="recovery_email"
-                name="recovery_email"
-                value={form.recovery_email}
-                onChange={handleChange}
-                required
+                name="currentPassword"
+                type="password"
+                placeholder="Current Password"
+                value={form.currentPassword}
+                onChange={handleInputChange}
               />
             </div>
-            <div className="mb-4 flex items-center">
-              <Checkbox
-                id="two_factor_enabled"
-                name="two_factor_enabled"
-                checked={form.two_factor_enabled}
-                onCheckedChange={(checked) =>
-                  setForm(
-                    (prev) =>
-                      ({
-                        ...prev,
-                        two_factor_enabled: checked,
-                      } as any)
-                  )
-                }
-              />
-
-              <label
-                htmlFor="two_factor_enabled"
-                className="ml-2 text-sm font-medium"
-              >
-                Enable Two-Factor Authentication
-              </label>
-            </div>
-            <Button type="submit" variant="default">
-              Save Changes
-            </Button>
-          </form>
+          )}
+          <div className="mb-4">
+            <Input
+              name="newPassword"
+              type="password"
+              placeholder="New Password"
+              value={form.newPassword}
+              onChange={handleInputChange}
+            />
+          </div>
+          <div className="mb-4">
+            <Input
+              name="confirmPassword"
+              type="password"
+              placeholder="Confirm New Password"
+              value={form.confirmPassword}
+              onChange={handleInputChange}
+            />
+          </div>
+          <Button
+            variant="default"
+            onClick={handleChangePassword}
+            disabled={isLoading}
+          >
+            {isLoading ? "Changing..." : "Change Password"}
+          </Button>
         </CardContent>
       </Card>
     </div>

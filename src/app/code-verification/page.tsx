@@ -3,7 +3,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-
 import {
   Form,
   FormControl,
@@ -14,12 +13,10 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import ButtonLoder from "@/components/ButtonLoder";
-
 import { useToast } from "@/components/ui/use-toast";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useCookies } from "next-client-cookies";
 import { useRouter } from "next/navigation";
-
 import axios from "axios";
 import { CodeVerificationSchema } from "@/zod-schemas/code-verification.schema";
 
@@ -30,17 +27,26 @@ export default function CodeVerification() {
   const [time, setTime] = useState(0);
   const { toast } = useToast();
 
-  useEffect(() => {
+  const startTimer = useCallback(() => {
     const codeExpiry = cookies.get("code-expiry") as any;
-    const timer = Math.floor((codeExpiry - Date.now()) / 1000);
+    const remainingTime = Math.max(
+      Math.floor((codeExpiry - Date.now()) / 1000),
+      0
+    );
+    setTime(remainingTime);
 
-    setTime(timer > 0 ? timer : 0);
-    const interval = setInterval(() => {
-      setTime((prev) => (prev > 0 ? prev - 1 : prev));
-    }, 1000);
+    if (remainingTime > 0) {
+      const interval = setInterval(() => {
+        setTime((prev) => (prev > 0 ? prev - 1 : 0));
+      }, 1000);
 
-    return () => clearInterval(interval);
+      return () => clearInterval(interval);
+    }
   }, [cookies]);
+
+  useEffect(() => {
+    startTimer();
+  }, [startTimer]);
 
   const form = useForm<z.infer<typeof CodeVerificationSchema>>({
     resolver: zodResolver(CodeVerificationSchema),
@@ -52,24 +58,18 @@ export default function CodeVerification() {
 
     try {
       const res = await axios.post("/api/auth/code-verification", values);
-      if (res.data.success == false) {
-        return toast({
-          title: "Error",
-          description: res.data.message,
-          variant: "destructive",
-          duration: 5000,
-        });
-      }
-
-      router.replace("/sign-in");
-
-      return toast({
-        title: "Success",
+      toast({
+        title: res.data.success ? "Success" : "Error",
         description: res.data.message,
+        variant: res.data.success ? "default" : "destructive",
         duration: 5000,
       });
+
+      if (res.data.success) {
+        router.replace("/sign-in");
+      }
     } catch (error: any) {
-      return toast({
+      toast({
         title: "Error",
         description: error.message,
         variant: "destructive",
@@ -85,31 +85,18 @@ export default function CodeVerification() {
 
     try {
       const res = await axios.post("/api/auth/resend-verifycode");
-      
-      if (res.data.success == false) {
-        return toast({
-          title: "Error",
-          description: res.data.message,
-          variant: "destructive",
-          duration: 5000,
-        });
-      }
-
-      const codeExpiry = cookies.get("code-expiry") as any;
-      const timer = Math.floor((codeExpiry - Date.now()) / 1000);
-
-      setTime(timer > 0 ? timer : 0);
-      const interval = setInterval(() => {
-        setTime((prev) => (prev > 0 ? prev - 1 : prev));
-      }, 1000);
-
-      return toast({
-        title: "Success",
+      toast({
+        title: res.data.success ? "Success" : "Error",
         description: res.data.message,
+        variant: res.data.success ? "default" : "destructive",
         duration: 5000,
       });
+
+      if (res.data.success) {
+        startTimer();
+      }
     } catch (error: any) {
-      return toast({
+      toast({
         title: "Error",
         description: error.message,
         variant: "destructive",

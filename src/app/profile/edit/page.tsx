@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, ChangeEvent, FormEvent } from "react";
 import axios from "axios";
 import { User } from "@/models/user.model"; // Adjust the import path
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -25,12 +25,13 @@ export default function EditProfilePage() {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await axios.post("/api/u/me");
-        setUser(response.data.dbUser);
+        const response = await axios.get("/api/u/me");
+        const { dbUser } = response.data;
+        setUser(dbUser);
         setForm({
-          username: response.data.dbUser.username,
-          email: response.data.dbUser.email,
-          bio: response.data.dbUser.bio,
+          username: dbUser.username,
+          email: dbUser.email,
+          bio: dbUser.bio,
         });
       } catch (error) {
         console.error("Error fetching user data:", error);
@@ -40,9 +41,7 @@ export default function EditProfilePage() {
     fetchUserData();
   }, []);
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setForm((prev) => ({
       ...prev,
@@ -50,39 +49,46 @@ export default function EditProfilePage() {
     }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    try {
-      const res = await axios.put("/api/u/me", form);
+    setIsLoading(true);
 
-      if (res.data.success == false) {
+    try {
+      const response = await axios.put("/api/u/me", form);
+      const { success, message, dbUser, isEmailSent } = response.data;
+
+      if (!success) {
         toast({
           title: "Error",
-          description: res.data.message,
+          description: message,
           variant: "destructive",
           duration: 5000,
         });
+        return;
       }
-      setUser(res.data.dbUser);
 
-      if (res.data.isEmailSent && res.data.isEmailSent == true) {
-        setTimeout(() => {
-          router.replace("/code-verification");
-        }, 2000);
-        return toast({
+      setUser(dbUser);
+
+      if (isEmailSent) {
+        toast({
           title: "Success",
           description: "Email has been sent successfully.",
           duration: 5000,
         });
+        setTimeout(() => {
+          router.replace("/code-verification");
+        }, 2000);
+        return;
       }
+
+      toast({
+        title: "Success",
+        description: message,
+        duration: 5000,
+      });
       setTimeout(() => {
         router.replace("/profile");
       }, 2000);
-      return toast({
-        title: "Success",
-        description: res.data.message,
-        duration: 5000,
-      });
     } catch (error: any) {
       toast({
         title: "Error",
@@ -90,6 +96,8 @@ export default function EditProfilePage() {
         variant: "destructive",
         duration: 5000,
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 

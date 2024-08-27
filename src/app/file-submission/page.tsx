@@ -13,29 +13,37 @@ import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import * as XLSX from "xlsx"; // Import the XLSX library
 import DialogBox from "@/components/DialogBox";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import ButtonLoder from "@/components/ButtonLoder";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
+interface FileData {
+  file: File | null;
+  numberOfCallerIds: number;
+}
+
 export default function Page() {
-  const { data, status } = useSession();
+  const { data: session, status } = useSession();
   const { replace } = useRouter();
 
-  if (status === "unauthenticated") {
-    replace("/sign-in");
-  }
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      replace("/sign-in");
+    }
+  }, [status, replace]);
+
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [fileData, setFileData] = useState({
+  const [fileData, setFileData] = useState<FileData>({
     file: null,
     numberOfCallerIds: 0,
   });
 
   const form = useForm();
 
-  async function onSubmit(values: any) {
-    const file: any = values.file[0]!;
+  const onSubmit = useCallback(async (values: any) => {
+    const file: File | null = values.file?.[0] || null;
 
     if (!file) {
       toast({
@@ -46,43 +54,50 @@ export default function Page() {
       return;
     }
 
-    // Set loading to true before starting the file processing
     setIsLoading(true);
 
     const reader = new FileReader();
     reader.onload = (e) => {
-      if (e.target?.result) {
-        const data = new Uint8Array(e.target.result as ArrayBuffer);
-        const workbook = XLSX.read(data, { type: "array" });
-        const sheet = workbook.Sheets[workbook.SheetNames[0]]; // Get the first sheet
-        const json = XLSX.utils.sheet_to_json(sheet, { header: 1 }); // Convert sheet to JSON
-        const callerIds: Array<any> = json.slice(1); // Skip header row
-
-        // Validate caller IDs
-        for (let i = 0; i < callerIds.length; i++) {
-          const callerId = callerIds[i][0]; // Assuming caller IDs are in the first column
-          if (!/^\d{10}$/.test(callerId)) {
-            toast({
-              title: "Invalid Caller ID",
-              description: `Invalid caller ID at row no ${
-                i + 2
-              }. Make sure there are no empty rows`, // +2 accounts for 0-index and header row
-              duration: 5000,
-              variant: "destructive",
-            });
-            setIsLoading(false);
-            return;
-          }
-        }
-
-        const numberOfCallerIds = callerIds.length;
-        setFileData({ file, numberOfCallerIds }); // Set file data
-        setIsOpen(true);
+      if (!e.target?.result) {
+        toast({
+          title: "Error",
+          description: "Failed to read file",
+          duration: 5000,
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
       }
+
+      const data = new Uint8Array(e.target.result as ArrayBuffer);
+      const workbook = XLSX.read(data, { type: "array" });
+      const sheet = workbook.Sheets[workbook.SheetNames[0]];
+      const json = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+
+      const callerIds: any = json.slice(1);
+
+      for (let i = 0; i < callerIds.length; i++) {
+        const callerId = callerIds[i][0];
+        if (!/^\d{10}$/.test(callerId)) {
+          toast({
+            title: "Invalid Caller ID",
+            description: `Invalid caller ID at row ${
+              i + 2
+            }. Ensure all IDs are 10 digits and there are no empty rows.`,
+            duration: 5000,
+            variant: "destructive",
+          });
+          setIsLoading(false);
+          return;
+        }
+      }
+
+      setFileData({ file, numberOfCallerIds: callerIds.length });
+      setIsOpen(true);
       setIsLoading(false);
     };
     reader.readAsArrayBuffer(file);
-  }
+  }, []);
 
   return (
     <div className="flex p-4 md:p-14 justify-center h-fit min-h-screen items-center">

@@ -8,7 +8,7 @@ import ModeToggle from "./theme-toggle";
 import Image from "next/image";
 import { useSession } from "next-auth/react";
 import { MenuDropDown } from "./MenuDropdown";
-import { SignOut } from "@/lib/auth.helper";
+import { SignOut } from "@/lib/api.handler";
 import { toast } from "./ui/use-toast";
 import { useTheme } from "next-themes";
 import { useEffect } from "react";

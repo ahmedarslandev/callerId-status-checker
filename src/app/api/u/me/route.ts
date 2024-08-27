@@ -7,7 +7,7 @@ import { cookies } from "next/headers";
 import { securityModel } from "@/models/security.model";
 
 // Handler for POST requests
-export async function POST(req: NextRequest) {
+export async function GET(req: NextRequest) {
   await connectMongo();
 
   try {

@@ -15,24 +15,31 @@ import 'lazysizes/plugins/parent-fit/ls.parent-fit';
 
 export default function ProfilePage() {
   const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState<boolean>(true); // Add loading state
   const router = useRouter();
   const { data } = useSession();
 
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await axios.post("/api/u/me"); // Changed to GET request
-        console.log(response.data);
+        const response = await axios.get("/api/u/me"); // Changed to GET request
         setUser(response.data.dbUser);
       } catch (error) {
         console.error("Error fetching user data:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchUserData();
   }, []);
+
+  if (loading) {
+    return <div className="p-4 md:p-6">Loading...</div>;
+  }
+
   if (!user) {
-    return <div>Loading...</div>;
+    return <div className="p-4 md:p-6">No user data available.</div>;
   }
 
   const handleButton = (path: string) => {
@@ -48,8 +55,8 @@ export default function ProfilePage() {
         <CardContent>
           <div className="flex flex-col md:flex-row items-center md:items-start space-y-4 md:space-y-0 md:space-x-4">
             <Image
-              data-src={user.profileImage}
-              src={user.profileImage}
+              data-src={user.profileImage || '/default-profile.png'}
+              src={user.profileImage || '/default-profile.png'}
               alt={`${user.username}'s profile image`}
               width={100}
               height={100}
@@ -60,11 +67,9 @@ export default function ProfilePage() {
                 {user.username}
               </h3>
               <p className="text-sm md:text-base">{user.email}</p>
-              {user.isVerified ? (
-                <Badge className="mt-2 bg-green-600">Verified</Badge>
-              ) : (
-                <Badge className="mt-2 bg-red-500">Unverified</Badge>
-              )}
+              <Badge className={`mt-2 ${user.isVerified ? 'bg-green-600' : 'bg-red-500'}`}>
+                {user.isVerified ? 'Verified' : 'Unverified'}
+              </Badge>
             </div>
           </div>
           <div className="mt-4">
@@ -88,7 +93,7 @@ export default function ProfilePage() {
             >
               Change Password
             </Button>
-            {data?.data.isLoggedInWithCredentials == true && (
+            {data?.data.isLoggedInWithCredentials && (
               <Button
                 variant="secondary"
                 onClick={() => handleButton("/profile/security")}

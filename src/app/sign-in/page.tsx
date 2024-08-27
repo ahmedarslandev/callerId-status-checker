@@ -19,7 +19,7 @@ import Link from "next/link";
 import HLine from "@/components/HLine";
 import { useToast } from "@/components/ui/use-toast";
 import { useState } from "react";
-import { SignIn as login } from "@/lib/auth.helper";
+import { SignIn as login } from "@/lib/api.handler";
 import ButtonLoder from "@/components/ButtonLoder";
 import { useTheme } from "next-themes";
 import Image from "next/image";

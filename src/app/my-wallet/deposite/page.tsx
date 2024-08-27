@@ -18,10 +18,10 @@ import { depositeSchema } from "@/zod-schemas/deposite.schema";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
+  FormDescription,
 } from "@/components/ui/form";
 import ButtonLoder from "@/components/ButtonLoder";
 import axios from "axios";
@@ -32,12 +32,9 @@ export default function Component() {
   const router = useRouter();
 
   const [isLoading, setIsLoading] = useState(false);
-  const [bankDetails, setBankDetails] = useState<{
-    number: string;
-    name: string;
-  } | null>(null);
+  const [bankDetails, setBankDetails] = useState<any | null>(null);
 
-  const form = useForm<z.infer<typeof depositeSchema>>({
+  const form = useForm({
     resolver: zodResolver(depositeSchema),
     defaultValues: {
       bankName: "",
@@ -51,37 +48,23 @@ export default function Component() {
     watch,
     formState: { errors },
   } = form;
-
   const selectedBank = watch("bankName");
 
-  // Update bank details when the selected bank changes
   useEffect(() => {
-    const bank = paymentGateways.find((e: any) => e.bankName === selectedBank);
-    if (bank) {
-      setBankDetails({ number: bank.details.number, name: bank.details.name });
-    } else {
-      setBankDetails(null);
-    }
+    const bank: any = paymentGateways.find((e) => e.bankName === selectedBank);
+    setBankDetails(bank ? bank.details : null);
   }, [selectedBank]);
 
-  async function onSubmit(values: z.infer<typeof depositeSchema>) {
+  const onSubmit = async (values: any) => {
     setIsLoading(true);
     try {
-      const res = await axios.post("/api/u/deposite", values);
-
-      if (res.data.success == false) {
-        return toast({
-          title: "Error",
-          description: res.data.message,
-          variant: "destructive",
-        });
-      }
-
-      return toast({
-        title: "Success",
-        description: res.data.message,
+      const { data } = await axios.post("/api/u/deposite", values);
+      toast({
+        title: data.success ? "Success" : "Error",
+        description: data.message,
+        variant: data.success ? "default" : "destructive",
       });
-    } catch (error) {
+    } catch {
       toast({
         title: "Error",
         description:
@@ -94,7 +77,7 @@ export default function Component() {
       }, 2000);
       setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="w-full h-full flex flex-col items-center p-4 md:p-10">
@@ -114,17 +97,13 @@ export default function Component() {
                     <FormItem>
                       <FormLabel>Select Bank</FormLabel>
                       <FormControl>
-                        <Select
-                          {...field}
-                          onValueChange={field.onChange}
-                          value={field.value}
-                        >
+                        <Select {...field} onValueChange={field.onChange}>
                           <SelectTrigger>
                             <SelectValue placeholder="Select Bank..." />
                           </SelectTrigger>
                           <SelectContent>
-                            {paymentGateways.map((e, i) => (
-                              <SelectItem key={i} value={e.bankName}>
+                            {paymentGateways.map((e) => (
+                              <SelectItem key={e.bankName} value={e.bankName}>
                                 <div className="flex items-center gap-3">
                                   <div className="w-7 h-7 flex items-center rounded-full overflow-hidden">
                                     <img
@@ -164,7 +143,7 @@ export default function Component() {
                   </div>
                 )}
                 <p className="text-xs">
-                  Send the amount in this account and paste the transactionId
+                  Send the amount to this account and paste the transaction ID
                   below.
                 </p>
                 <FormField
@@ -176,7 +155,6 @@ export default function Component() {
                       <FormControl>
                         <Input
                           id="transactionId"
-                          type="transactionId"
                           placeholder="Enter transaction ID"
                           {...field}
                         />

@@ -8,9 +8,10 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { toast } from "@/components/ui/use-toast";
+import ButtonLoder from "@/components/ButtonLoder";
 
 export default function ChangePasswordPage() {
-  const { data, status } = useSession();
+  const { data } = useSession();
   const [isLoading, setIsLoading] = useState(false);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -20,26 +21,26 @@ export default function ChangePasswordPage() {
 
   const handleChangePassword = async () => {
     setIsLoading(true);
+
     if (newPassword !== confirmPassword) {
       setError("New password and confirmation do not match.");
+      setIsLoading(false);
       return;
     }
 
     try {
-      let values = {
+      const response = await axios.post("/api/u/change-password", {
         currentPassword,
         newPassword,
-        isLoggedInWithCredentials:data?.data.isLoggedInWithCredentials,
-      };
+        isLoggedInWithCredentials: data?.data.isLoggedInWithCredentials,
+      });
 
-      const response = await axios.post("/api/u/change-password", values);
-      console.log(response.data);
-      if (response.data.success == true) {
+      if (response.data.success) {
         toast({
           title: "Success",
           description: "Password changed successfully.",
           duration: 5000,
-        })
+        });
         router.replace("/profile");
       } else {
         toast({
@@ -49,7 +50,7 @@ export default function ChangePasswordPage() {
           duration: 5000,
         });
       }
-    } catch (err:any) {
+    } catch (err: any) {
       toast({
         title: "Error",
         description: err.message,
@@ -69,7 +70,7 @@ export default function ChangePasswordPage() {
         </CardHeader>
         <CardContent>
           {error && <div className="mb-4 text-red-600">{error}</div>}
-          {data?.data.isLoggedInWithCredentials ? (
+          {data?.data.isLoggedInWithCredentials && (
             <div className="mb-4">
               <Input
                 type="password"
@@ -78,7 +79,7 @@ export default function ChangePasswordPage() {
                 onChange={(e) => setCurrentPassword(e.target.value)}
               />
             </div>
-          ) : null}
+          )}
           <div className="mb-4">
             <Input
               type="password"
@@ -95,9 +96,9 @@ export default function ChangePasswordPage() {
               onChange={(e) => setConfirmPassword(e.target.value)}
             />
           </div>
-          <Button variant="default" onClick={handleChangePassword}>
+          <ButtonLoder variant="default" onClick={handleChangePassword} isLoading={isLoading}>
             Change Password
-          </Button>
+          </ButtonLoder>
         </CardContent>
       </Card>
     </div>
