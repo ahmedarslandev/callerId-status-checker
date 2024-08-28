@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { User, userModel } from "@/models/user.model";
+import { userModel } from "@/models/user.model";
 import { transactionModel } from "@/models/transaction.model";
 import connectMongo from "@/lib/dbConfig";
 

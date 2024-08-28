@@ -12,7 +12,6 @@ export async function POST(req: NextRequest) {
 
   try {
     const { username, email, password, confirmPassword } = await req.json();
-
     // Validate required fields
     if (!username || !email || !password || !confirmPassword) {
       return NextResponse.json({
@@ -31,8 +30,10 @@ export async function POST(req: NextRequest) {
 
     // Check if the user or security data already exists
     const existingUser = await userModel.findOne({ email });
-    const existingSecurity = await securityModel.findOne({ recovery_email: email });
-    
+    const existingSecurity = await securityModel.findOne({
+      recovery_email: email,
+    });
+
     if (existingUser || existingSecurity) {
       return NextResponse.json({
         success: false,
@@ -69,20 +70,24 @@ export async function POST(req: NextRequest) {
       two_factor_enabled: false,
     });
 
+    user.walletId = wallet._id;
     // Set cookies
     await cookies().set("email", user.email);
     await cookies().set("code-expiry", verifyCodeExpiry.toString());
 
     // Schedule user deletion if not verified within 24 hours
     setTimeout(async () => {
-      const unverifiedUser = await userModel.findOne({ email: user.email, isVerified: false });
+      const unverifiedUser = await userModel.findOne({
+        email: user.email,
+        isVerified: false,
+      });
       if (unverifiedUser) {
         await userModel.deleteOne({ _id: unverifiedUser._id });
       }
     }, 24 * 60 * 60 * 1000); // 24 hours
 
     // Send verification email
-    sendEmail({ email, username, OTP: verifyCode }).catch(err =>
+    sendEmail({ email, username, OTP: verifyCode }).catch((err) =>
       console.error("Failed to send email:", err)
     );
 
@@ -94,7 +99,7 @@ export async function POST(req: NextRequest) {
       message: "User created successfully. OTP has been sent to your email.",
       user,
     });
-  } catch (error:any) {
+  } catch (error: any) {
     console.error("Error in POST /api/create-user:", error);
     return NextResponse.json({
       success: false,

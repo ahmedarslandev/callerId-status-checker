@@ -23,12 +23,12 @@ export const SignOut = async () => {
   });
 };
 
-export const SignUp = async (values = {} as any) => {
+export const SignUp = async (values: any) => {
   try {
     const { data } = await axios.post("/api/auth/sign-up", values);
     return data;
   } catch (error: any) {
-    return { success: false, message: "Signup failed" };
+    return { success: false, message: "Signup failed"  };
   }
 };
 

@@ -37,6 +37,7 @@ export default function WalletComponent() {
         };
         setWallet(formattedWallet);
         setTransactions(data.transactions.reverse());
+        console.log(data.transactions , formattedWallet)
       } catch (error) {
         console.error("Failed to fetch wallet data:", error);
       }
@@ -69,7 +70,7 @@ export default function WalletComponent() {
                       Withdraw
                     </Button>
                   </Link>
-                  <Link href="/my-wallet/deposit">
+                  <Link href="/my-wallet/deposite">
                     <Button className="w-full md:w-24 h-8 text-xs">
                       Deposit
                     </Button>

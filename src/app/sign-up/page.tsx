@@ -52,19 +52,20 @@ export default function SignIn() {
 
   async function onSubmit(values: z.infer<typeof SignUpSchema>) {
     setIsLoading(true);
-    const res = await SignUp(values);
-    if (res.success == false) {
+    const { data } = await axios.post("/api/auth/sign-up", values);
+    if (data.success == false) {
       return toast({
         title: "Error",
-        description: res.message,
+        description: data.message,
         variant: "destructive",
         duration: 5000,
       });
     }
     setIsLoading(false);
+    router.replace("/code-verification")
     toast({
       title: "Success",
-      description: res.message,
+      description: data.message,
       duration: 5000,
     });
   }
