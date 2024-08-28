@@ -17,6 +17,7 @@ import { useEffect, useState, useCallback } from "react";
 import ButtonLoder from "@/components/ButtonLoder";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { isAuthenticated } from "@/lib/auth/isAuthenticated";
 
 interface FileData {
   file: File | null;
@@ -24,14 +25,13 @@ interface FileData {
 }
 
 export default function Page() {
-  const { data: session, status } = useSession();
   const { replace } = useRouter();
 
-  useEffect(() => {
-    if (status === "unauthenticated") {
-      replace("/sign-in");
-    }
-  }, [status, replace]);
+  const router = useRouter();
+  const isUser = isAuthenticated();
+  if (!isUser) {
+    router.replace("/sign-in");
+  }
 
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);

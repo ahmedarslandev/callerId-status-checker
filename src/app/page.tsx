@@ -1,23 +1,18 @@
 "use client";
 
-import { useEffect } from "react";
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
-
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { isAuthenticated } from "@/lib/auth/isAuthenticated";
+import { useRouter } from "next/navigation";
 
 export default function Page() {
-  const { status } = useSession();
-  const { replace } = useRouter();
-
-  useEffect(() => {
-    if (status === "unauthenticated") {
-      replace("/sign-in");
-    }
-  }, [status, replace]);
+  const router = useRouter();
+  const isUser = isAuthenticated();
+  if (!isUser) {
+    router.replace("/sign-in" as any);
+  }
 
   return (
     <div className="section1 flex flex-col gap-5 lg:gap-0 lg:flex-row items-center min-h-screen max-h-screen lg:items-center px-4 lg:px-16 py-8 lg:py-16">

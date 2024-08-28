@@ -12,15 +12,20 @@ import { useRouter } from "next/navigation";
 import ButtonLoder from "@/components/ButtonLoder";
 import Image from "next/image";
 
-import 'lazysizes';
-import 'lazysizes/plugins/parent-fit/ls.parent-fit';
+import "lazysizes";
+import "lazysizes/plugins/parent-fit/ls.parent-fit";
+import { isAuthenticated } from "@/lib/auth/isAuthenticated";
 
 export default function EditProfilePage() {
-  const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [form, setForm] = useState<Partial<User>>({});
   const [isLoading, setIsLoading] = useState(false);
-  const { theme } = useTheme();
+
+  const router = useRouter();
+  const isUser = isAuthenticated();
+  if (!isUser) {
+    router.replace("/sign-in");
+  }
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -41,7 +46,9 @@ export default function EditProfilePage() {
     fetchUserData();
   }, []);
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
     setForm((prev) => ({
       ...prev,

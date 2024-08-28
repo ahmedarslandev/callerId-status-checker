@@ -1,6 +1,13 @@
+import { isAuthenticated } from "@/lib/auth/isAuthenticated";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function Component() {
+  const router = useRouter();
+  const isUser = isAuthenticated();
+  if (!isUser) {
+    router.replace("/sign-in");
+  }
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4 py-12 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-md text-center">
@@ -26,7 +33,7 @@ export default function Component() {
   );
 }
 
-function CircleCheckIcon({ className }:any) {
+function CircleCheckIcon({ className }: any) {
   return (
     <svg
       className={className}

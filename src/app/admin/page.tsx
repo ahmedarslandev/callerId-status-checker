@@ -38,7 +38,6 @@ import {
   PlusIcon,
   SearchIcon,
 } from "@/components/admin/icons";
-import { useTheme } from "next-themes";
 import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "@/components/ui/use-toast";
@@ -154,10 +153,12 @@ export default function TransactionsPage() {
               />
             </div>
           </form>
-          <Button variant="outline" size="icon" className="rounded-full">
-            <PlusIcon className="h-5 w-5" />
-            <span className="sr-only">Add Transaction</span>
-          </Button>
+          <Link href={"/admin/transaction/new-transaction"}>
+            <Button variant="outline" size="icon" className="rounded-full">
+              <PlusIcon className="h-5 w-5" />
+              <span className="sr-only">Add Transaction</span>
+            </Button>
+          </Link>
         </div>
       </header>
       <main className="flex-1 p-4 md:p-6">

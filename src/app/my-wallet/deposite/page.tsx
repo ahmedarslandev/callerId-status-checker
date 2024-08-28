@@ -26,10 +26,15 @@ import {
 import ButtonLoder from "@/components/ButtonLoder";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import { isAuthenticated } from "@/lib/auth/isAuthenticated";
 
 export default function Component() {
   const { toast } = useToast();
   const router = useRouter();
+  const isUser = isAuthenticated();
+  if (!isUser) {
+    router.replace("/sign-in");
+  }
 
   const [isLoading, setIsLoading] = useState(false);
   const [bankDetails, setBankDetails] = useState<any | null>(null);

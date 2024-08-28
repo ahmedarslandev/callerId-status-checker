@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { toast } from "@/components/ui/use-toast";
 import ButtonLoder from "@/components/ButtonLoder";
+import { isAuthenticated } from "@/lib/auth/isAuthenticated";
 
 export default function ChangePasswordPage() {
   const { data } = useSession();
@@ -18,6 +19,10 @@ export default function ChangePasswordPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const isUser = isAuthenticated();
+  if (!isUser) {
+    router.replace("/sign-in");
+  }
 
   const handleChangePassword = async () => {
     setIsLoading(true);
@@ -96,9 +101,12 @@ export default function ChangePasswordPage() {
               onChange={(e) => setConfirmPassword(e.target.value)}
             />
           </div>
-          <ButtonLoder variant="default" onClick={handleChangePassword} isLoading={isLoading}>
-            Change Password
-          </ButtonLoder>
+          <ButtonLoder
+            variant="default"
+            onClick={handleChangePassword}
+            isLoading={isLoading}
+            name={"Change Password"}
+          />
         </CardContent>
       </Card>
     </div>

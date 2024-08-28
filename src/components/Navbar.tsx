@@ -13,12 +13,13 @@ import { toast } from "./ui/use-toast";
 import { useTheme } from "next-themes";
 import { useEffect } from "react";
 
-import 'lazysizes';
-import 'lazysizes/plugins/parent-fit/ls.parent-fit';
+import "lazysizes";
+import "lazysizes/plugins/parent-fit/ls.parent-fit";
+import { useRouter } from "next/navigation";
 
 const Navbar = () => {
   const { data, status } = useSession();
-  const theme: any = useTheme();
+  const router = useRouter();
 
   const Logout = async () => {
     try {
@@ -29,7 +30,7 @@ const Navbar = () => {
         duration: 5000,
       });
       setTimeout(() => {
-        window.location.href = "/sign-in";
+        router.replace("/sign-in");
       }, 2000);
     } catch (error) {
       return toast({

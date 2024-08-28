@@ -19,13 +19,19 @@ import { useCookies } from "next-client-cookies";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { CodeVerificationSchema } from "@/zod-schemas/code-verification.schema";
+import { isAuthenticated } from "@/lib/auth/isAuthenticated";
 
 export default function CodeVerification() {
-  const router = useRouter();
   const cookies = useCookies();
   const [isLoading, setIsLoading] = useState(false);
   const [time, setTime] = useState(0);
   const { toast } = useToast();
+  const router = useRouter();
+  const isUser = isAuthenticated();
+
+  if (!isUser) {
+    router.replace("/");
+  }
 
   const startTimer = useCallback(() => {
     const codeExpiry = cookies.get("code-expiry") as any;

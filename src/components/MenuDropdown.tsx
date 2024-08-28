@@ -27,18 +27,19 @@ import "lazysizes";
 import "lazysizes/plugins/parent-fit/ls.parent-fit";
 
 export function MenuDropDown() {
-  const { data, status } = useSession();
+  const { data, status, update } = useSession();
 
   const Logout = async () => {
     try {
       await SignOut();
+      update(null);
       toast({
         title: "Success",
         description: "Logged out successfully",
         duration: 5000,
       });
       setTimeout(() => {
-        window.location.href = "/sign-in";
+        window.location.reload()
       }, 2000);
     } catch (error) {
       return toast({

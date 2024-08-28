@@ -9,7 +9,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
-import { useSession } from "next-auth/react";
 
 import {
   Form,
@@ -25,20 +24,18 @@ import ButtonLoder from "@/components/ButtonLoder";
 import HLine from "@/components/HLine";
 import { SignUpSchema } from "@/zod-schemas/signup-schema";
 import { SignIn as login, SignUp } from "@/lib/api.handler";
+import { isAuthenticated } from "@/lib/auth/isAuthenticated";
 
 export default function SignIn() {
-  const router = useRouter();
   const { theme } = useTheme();
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
-  const { status } = useSession();
+  const router = useRouter();
+  const isUser = isAuthenticated();
 
-  useEffect(() => {
-    if (status === "authenticated") {
-      router.replace("/");
-    }
-  }, [status, router]);
-
+  if (isUser) {
+    router.replace("/");
+  }
   const form = useForm<z.infer<typeof SignUpSchema>>({
     resolver: zodResolver(SignUpSchema),
     defaultValues: {
@@ -62,7 +59,7 @@ export default function SignIn() {
       });
     }
     setIsLoading(false);
-    router.replace("/code-verification")
+    router.replace("/code-verification");
     toast({
       title: "Success",
       description: data.message,

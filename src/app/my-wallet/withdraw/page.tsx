@@ -28,11 +28,16 @@ import "lazysizes/plugins/parent-fit/ls.parent-fit";
 import { useState } from "react";
 import ButtonLoader from "@/components/ButtonLoder";
 import axios from "axios";
+import { isAuthenticated } from "@/lib/auth/isAuthenticated";
 
 export default function WithdrawFunds() {
   const { toast } = useToast();
-  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
+  const isUser = isAuthenticated();
+  if (!isUser) {
+    router.replace("/sign-in");
+  }
 
   const form = useForm<z.infer<typeof withdrawalSchema>>({
     resolver: zodResolver(withdrawalSchema),

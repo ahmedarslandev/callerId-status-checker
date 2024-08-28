@@ -21,12 +21,13 @@ import {
   PaginationNext,
   useToast,
 } from "@/components/ui/index";
-import { useTheme } from "next-themes";
-import { useCallback, useEffect, useState } from "react";
+import {  useEffect, useState } from "react";
 import axios from "axios";
 import Link from "next/link";
-import { FileIcon, SearchIcon } from "@/components/admin/icons";
+import { FileIcon } from "@/components/admin/icons";
 import { FileTypeIcon, FilterIcon, ListOrderedIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { isAuthenticated } from "@/lib/auth/isAuthenticated";
 
 const fetchFiles = async (setFiles: any, toast: any) => {
   try {
@@ -46,9 +47,14 @@ const fetchFiles = async (setFiles: any, toast: any) => {
 };
 
 export default function Component() {
-  const { setTheme } = useTheme();
   const [files, setFiles] = useState<File[] | null>(null);
   const toast = useToast();
+  const router = useRouter();
+
+  const isUser = isAuthenticated();
+  if (!isUser) {
+    router.replace("/sign-in");
+  }
 
   useEffect(() => {
     fetchFiles(setFiles, toast);
@@ -91,6 +97,7 @@ export default function Component() {
                       : "#"
                   }
                   passHref
+                  legacyBehavior
                 >
                   <a download>
                     <Card>

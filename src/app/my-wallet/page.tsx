@@ -14,10 +14,17 @@ import {
 } from "@/components/ui/table";
 import { Transaction } from "@/models/transaction.model";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { isAuthenticated } from "@/lib/auth/isAuthenticated";
 
 export default function WalletComponent() {
   const [wallet, setWallet] = useState<Wallet | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const router = useRouter();
+  const isUser = isAuthenticated();
+  if (!isUser) {
+    router.replace("/sign-in");
+  }
 
   useEffect(() => {
     const fetchWalletData = async () => {

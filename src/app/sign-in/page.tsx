@@ -26,18 +26,23 @@ import Image from "next/image";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
-import 'lazysizes';
-import 'lazysizes/plugins/parent-fit/ls.parent-fit';
+import "lazysizes";
+import "lazysizes/plugins/parent-fit/ls.parent-fit";
+import { isAuthenticated } from "@/lib/auth/isAuthenticated";
 
 export default function SignIn() {
   const { theme } = useTheme();
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
-  const { status } = useSession();
   const router = useRouter();
+  const isUser = isAuthenticated();
 
-  if (status == "authenticated") {
-    router.replace("/");
+  if (isUser) {
+    if (isUser) {
+      setTimeout(() => {
+        router.replace("/");
+      }, 2000);
+    }
   }
 
   const form = useForm<z.infer<typeof SignInSchema>>({

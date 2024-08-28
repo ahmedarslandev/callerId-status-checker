@@ -10,14 +10,20 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 
-import 'lazysizes';
-import 'lazysizes/plugins/parent-fit/ls.parent-fit';
+import "lazysizes";
+import "lazysizes/plugins/parent-fit/ls.parent-fit";
+import { isAuthenticated } from "@/lib/auth/isAuthenticated";
 
 export default function ProfilePage() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState<boolean>(true); // Add loading state
-  const router = useRouter();
   const { data } = useSession();
+
+  const router = useRouter();
+  const isUser = isAuthenticated();
+  if (!isUser) {
+    router.replace("/sign-in");
+  }
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -55,8 +61,8 @@ export default function ProfilePage() {
         <CardContent>
           <div className="flex flex-col md:flex-row items-center md:items-start space-y-4 md:space-y-0 md:space-x-4">
             <Image
-              data-src={user.profileImage || '/default-profile.png'}
-              src={user.profileImage || '/default-profile.png'}
+              data-src={user.profileImage || "/default-profile.png"}
+              src={user.profileImage || "/default-profile.png"}
               alt={`${user.username}'s profile image`}
               width={100}
               height={100}
@@ -67,8 +73,12 @@ export default function ProfilePage() {
                 {user.username}
               </h3>
               <p className="text-sm md:text-base">{user.email}</p>
-              <Badge className={`mt-2 ${user.isVerified ? 'bg-green-600' : 'bg-red-500'}`}>
-                {user.isVerified ? 'Verified' : 'Unverified'}
+              <Badge
+                className={`mt-2 ${
+                  user.isVerified ? "bg-green-600" : "bg-red-500"
+                }`}
+              >
+                {user.isVerified ? "Verified" : "Unverified"}
               </Badge>
             </div>
           </div>
