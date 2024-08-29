@@ -1,3 +1,5 @@
+"use client";
+
 import { isAuthenticated } from "@/lib/auth/isAuthenticated";
 import Link from "next/link";
 import { useRouter } from "next/navigation";

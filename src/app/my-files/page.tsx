@@ -21,7 +21,7 @@ import {
   PaginationNext,
   useToast,
 } from "@/components/ui/index";
-import {  useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import Link from "next/link";
 import { FileIcon } from "@/components/admin/icons";
@@ -84,7 +84,7 @@ export default function Component() {
           </div>
           {files.length === 0 ? (
             <div className="flex p-10 justify-center items-center w-full">
-              <p className="text-xs">You don't have any uploaded files</p>
+              <p className="text-xs">You don&apos;t have any uploaded files</p>
             </div>
           ) : (
             <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">

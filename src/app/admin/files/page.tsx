@@ -9,12 +9,38 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
-import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
-import { Pagination, PaginationContent, PaginationItem } from "@/components/ui/pagination";
-import { ChevronLeftIcon, ChevronRightIcon, FileIcon, MoveHorizontalIcon, PlusIcon, SearchIcon } from "@/components/admin/icons";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
+import {
+  Table,
+  TableHeader,
+  TableRow,
+  TableHead,
+  TableBody,
+  TableCell,
+} from "@/components/ui/table";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+} from "@/components/ui/pagination";
+import {
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  FileIcon,
+  MoveHorizontalIcon,
+  PlusIcon,
+  SearchIcon,
+} from "@/components/admin/icons";
+import Image from "next/image";
 
-const FileTableRow = ({ id, filename, size, type, lastModified }:any) => (
+const FileTableRow = ({ id, filename, size, type, lastModified }: any) => (
   <TableRow>
     <TableCell>
       <div className="font-medium">#{id}</div>
@@ -71,7 +97,7 @@ export default function Component() {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="rounded-full">
-                <img
+                <Image
                   src="/placeholder.svg"
                   width="32"
                   height="32"
@@ -96,7 +122,9 @@ export default function Component() {
           <Card>
             <CardHeader>
               <CardTitle>Recent Files</CardTitle>
-              <CardDescription>View and manage your recent files.</CardDescription>
+              <CardDescription>
+                View and manage your recent files.
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <Table>

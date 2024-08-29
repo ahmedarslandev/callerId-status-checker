@@ -1,8 +1,10 @@
+"use client";
+
 import { isAuthenticated } from "@/lib/auth/isAuthenticated";
 import { useRouter } from "next/navigation";
 import React from "react";
 
-const page = () => {
+const Page = () => {
   const router = useRouter();
   const isUser = isAuthenticated();
 
@@ -12,4 +14,4 @@ const page = () => {
   return <div>Settings Page</div>;
 };
 
-export default page;
+export default Page;

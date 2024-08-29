@@ -21,6 +21,7 @@ import {
   Package2Icon,
 } from "@/components/admin/icons"; // Assuming these are exported from a central icons file.
 import { usePathname } from "next/navigation";
+import Image from "next/image";
 
 export default function Sidebar() {
   const pathname = usePathname();
@@ -38,7 +39,7 @@ export default function Sidebar() {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" className="rounded-full">
-              <img
+              <Image
                 src="/placeholder.svg"
                 width="32"
                 height="32"

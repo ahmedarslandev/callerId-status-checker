@@ -25,9 +25,11 @@ import Image from "next/image";
 
 import "lazysizes";
 import "lazysizes/plugins/parent-fit/ls.parent-fit";
+import { useRouter } from "next/navigation";
 
 export function MenuDropDown() {
   const { data, status, update } = useSession();
+  const router = useRouter();
 
   const Logout = async () => {
     try {
@@ -39,7 +41,7 @@ export function MenuDropDown() {
         duration: 5000,
       });
       setTimeout(() => {
-        window.location.reload()
+        router.replace("/sign-in");
       }, 2000);
     } catch (error) {
       return toast({

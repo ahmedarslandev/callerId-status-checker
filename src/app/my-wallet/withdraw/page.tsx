@@ -29,6 +29,7 @@ import { useState } from "react";
 import ButtonLoader from "@/components/ButtonLoder";
 import axios from "axios";
 import { isAuthenticated } from "@/lib/auth/isAuthenticated";
+import Image from "next/image";
 
 export default function WithdrawFunds() {
   const { toast } = useToast();
@@ -164,11 +165,12 @@ export default function WithdrawFunds() {
                             <SelectValue placeholder="Select Bank..." />
                           </SelectTrigger>
                           <SelectContent>
-                            {paymentGateways.map(({ bankName, icon }) => (
+                            {paymentGateways.map(({ bankName, icon }: any) => (
                               <SelectItem key={bankName} value={bankName}>
                                 <div className="flex items-center gap-3">
                                   <div className="w-7 h-7 overflow-hidden rounded-full">
-                                    <img
+                                    <Image
+                                      src={icon}
                                       data-src={icon}
                                       className="lazyload object-cover"
                                       alt={bankName}
