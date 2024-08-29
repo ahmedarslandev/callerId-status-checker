@@ -30,12 +30,14 @@ import ButtonLoader from "@/components/ButtonLoder";
 import axios from "axios";
 import { isAuthenticated } from "@/lib/auth/isAuthenticated";
 import Image from "next/image";
+import { useSession } from "next-auth/react";
 
 export default function WithdrawFunds() {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-  const isUser = isAuthenticated();
+  const { status } = useSession();
+  const isUser = isAuthenticated(status);
   if (!isUser) {
     router.replace("/sign-in");
   }

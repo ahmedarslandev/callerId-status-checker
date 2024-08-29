@@ -1,12 +1,14 @@
 "use client";
 
 import { isAuthenticated } from "@/lib/auth/isAuthenticated";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 export default function Component() {
   const router = useRouter();
-  const isUser = isAuthenticated();
+  const { status } = useSession();
+  const isUser = isAuthenticated(status);
   if (!isUser) {
     router.replace("/sign-in");
   }

@@ -20,7 +20,8 @@ export default function ChangePasswordPage() {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-  const isUser = isAuthenticated();
+  const { status } = useSession();
+  const isUser = isAuthenticated(status);
   
   if (!isUser) {
     router.replace("/sign-in");

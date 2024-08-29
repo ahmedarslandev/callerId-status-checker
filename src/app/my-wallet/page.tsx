@@ -16,12 +16,14 @@ import { Transaction } from "@/models/transaction.model";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { isAuthenticated } from "@/lib/auth/isAuthenticated";
+import { useSession } from "next-auth/react";
 
 export default function WalletComponent() {
   const [wallet, setWallet] = useState<Wallet | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const router = useRouter();
-  const isUser = isAuthenticated();
+  const { status } = useSession();
+  const isUser = isAuthenticated(status);
   if (!isUser) {
     router.replace("/sign-in");
   }

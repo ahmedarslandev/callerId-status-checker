@@ -35,7 +35,8 @@ export default function SignIn() {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const router = useRouter();
-  const isUser = isAuthenticated();
+  const { status } = useSession();
+  const isUser = isAuthenticated(status);
 
   if (isUser) {
     if (isUser) {

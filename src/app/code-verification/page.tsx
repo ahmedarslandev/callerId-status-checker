@@ -20,6 +20,7 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 import { CodeVerificationSchema } from "@/zod-schemas/code-verification.schema";
 import { isAuthenticated } from "@/lib/auth/isAuthenticated";
+import { useSession } from "next-auth/react";
 
 export default function CodeVerification() {
   const cookies = useCookies();
@@ -27,7 +28,8 @@ export default function CodeVerification() {
   const [time, setTime] = useState(0);
   const { toast } = useToast();
   const router = useRouter();
-  const isUser = isAuthenticated();
+  const { status } = useSession();
+  const isUser = isAuthenticated(status);
 
   if (!isUser) {
     router.replace("/");

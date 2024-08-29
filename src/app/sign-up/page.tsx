@@ -25,13 +25,15 @@ import HLine from "@/components/HLine";
 import { SignUpSchema } from "@/zod-schemas/signup-schema";
 import { SignIn as login, SignUp } from "@/lib/api.handler";
 import { isAuthenticated } from "@/lib/auth/isAuthenticated";
+import { useSession } from "next-auth/react";
 
 export default function SignIn() {
   const { theme } = useTheme();
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const router = useRouter();
-  const isUser = isAuthenticated();
+  const { status } = useSession();
+  const isUser = isAuthenticated(status);
 
   if (isUser) {
     router.replace("/");

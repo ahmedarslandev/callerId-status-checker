@@ -28,7 +28,8 @@ export default function Page() {
   const { replace } = useRouter();
 
   const router = useRouter();
-  const isUser = isAuthenticated();
+  const { status } = useSession();
+  const isUser = isAuthenticated(status);
   if (!isUser) {
     router.replace("/sign-in");
   }

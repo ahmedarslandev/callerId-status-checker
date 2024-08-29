@@ -15,6 +15,7 @@ import Image from "next/image";
 import "lazysizes";
 import "lazysizes/plugins/parent-fit/ls.parent-fit";
 import { isAuthenticated } from "@/lib/auth/isAuthenticated";
+import { useSession } from "next-auth/react";
 
 export default function EditProfilePage() {
   const [user, setUser] = useState<User | null>(null);
@@ -22,7 +23,8 @@ export default function EditProfilePage() {
   const [isLoading, setIsLoading] = useState(false);
 
   const router = useRouter();
-  const isUser = isAuthenticated();
+  const { status } = useSession();
+  const isUser = isAuthenticated(status);
   if (!isUser) {
     router.replace("/sign-in");
   }

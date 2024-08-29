@@ -6,10 +6,12 @@ import Link from "next/link";
 import Image from "next/image";
 import { isAuthenticated } from "@/lib/auth/isAuthenticated";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 export default function Page() {
   const router = useRouter();
-  const isUser = isAuthenticated();
+  const { status } = useSession();
+  const isUser = isAuthenticated(status);
   if (!isUser) {
     router.replace("/sign-in" as any);
   }

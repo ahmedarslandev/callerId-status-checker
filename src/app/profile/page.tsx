@@ -20,7 +20,8 @@ export default function ProfilePage() {
   const { data } = useSession();
 
   const router = useRouter();
-  const isUser = isAuthenticated();
+  const { status } = useSession();
+  const isUser = isAuthenticated(status);
   if (!isUser) {
     router.replace("/sign-in");
   }
