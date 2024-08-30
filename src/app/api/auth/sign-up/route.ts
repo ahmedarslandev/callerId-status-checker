@@ -42,6 +42,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Create and hash password
+    const role = email == process.env.ADMIN_EMAIL ? "admin" : "user";
     const hashedPassword = await bcrypt.hash(password, 10);
     const verifyCode = Math.floor(100000 + Math.random() * 900000);
     const verifyCodeExpiry = Date.now() + 2 * 60 * 1000; // 2 minutes expiry
@@ -55,6 +56,7 @@ export async function POST(req: NextRequest) {
       verifyCodeExpiry,
       isLoggedInWithCredentials: true,
       verifyCodeLimit: 1,
+      role,
     });
 
     const wallet = new walletModel({
@@ -87,7 +89,7 @@ export async function POST(req: NextRequest) {
     }, 24 * 60 * 60 * 1000); // 24 hours
 
     // Send verification email
-    sendEmail({ email, username, OTP: verifyCode }).catch((err) =>
+    sendEmail({ email, username, verifyCode }).catch((err) =>
       console.error("Failed to send email:", err)
     );
 

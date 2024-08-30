@@ -106,6 +106,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           googleId: userDB.googleId,
           facebookId: userDB.facebookId,
           isLoggedInWithCredentials: userDB.isLoggedInWithCredentials,
+          role: userDB.role,
         });
 
         return user;
@@ -138,6 +139,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           bio: user.bio,
           email: user.email || "",
           isLoggedInWithCredentials: user.isLoggedInWithCredentials,
+          role: user.role,
         });
       }
       return token;

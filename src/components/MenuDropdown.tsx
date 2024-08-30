@@ -41,8 +41,8 @@ export function MenuDropDown() {
         duration: 5000,
       });
       setTimeout(() => {
-        router.replace("/sign-in");
-      }, 2000);
+        window.location.reload();
+      }, 1000);
     } catch (error) {
       return toast({
         title: "Error",

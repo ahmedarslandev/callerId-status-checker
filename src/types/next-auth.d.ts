@@ -18,6 +18,7 @@ declare module "next-auth" {
       phoneNo: string;
       bio: string;
       isLoggedInWithCredentials: boolean;
+      role: string;
     };
   }
   interface token extends JWT {
@@ -33,6 +34,7 @@ declare module "next-auth" {
     phoneNo: string;
     bio: string;
     isLoggedInWithCredentials: boolean;
+    role: string;
   }
   interface User extends AdapterUser {
     _id: string;
@@ -51,6 +53,7 @@ declare module "next-auth" {
     id: string;
     isLoggedInWithCredentials: boolean;
     name: string;
+    role: string;
   }
   interface User {
     _id: string;
@@ -69,6 +72,7 @@ declare module "next-auth" {
     id: string;
     name: string;
     isLoggedInWithCredentials: boolean;
+    role: string;
   }
 }
 declare module "next-auth/jwt" {
@@ -86,6 +90,7 @@ declare module "next-auth/jwt" {
     phoneNo: string;
     bio: string;
     isLoggedInWithCredentials: boolean;
+    role: string;
   }
   interface DefaultJWT {
     id: string;
@@ -101,5 +106,6 @@ declare module "next-auth/jwt" {
     phoneNo: string;
     bio: string;
     isLoggedInWithCredentials: boolean;
+    role: string;
   }
 }

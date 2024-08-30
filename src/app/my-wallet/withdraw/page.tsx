@@ -171,7 +171,7 @@ export default function WithdrawFunds() {
                               <SelectItem key={bankName} value={bankName}>
                                 <div className="flex items-center gap-3">
                                   <div className="w-7 h-7 overflow-hidden rounded-full">
-                                    <Image
+                                    <img
                                       src={icon}
                                       data-src={icon}
                                       className="lazyload object-cover"

@@ -8,9 +8,6 @@ export const SignUpSchema = z.object({
   email: z
     .string({ message: "Enter valid email" })
     .email({ message: "Enter valid email" }),
-  phoneNo: z
-    .string({ message: "Enter valid phone number" })
-    .min(9, { message: "Phone number must at least 9 characters long." }),
   password: z
     .string({ message: "Enter valid password" })
     .min(8, { message: "Password must at least 8 characters" })

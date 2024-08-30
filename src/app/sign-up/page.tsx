@@ -45,7 +45,6 @@ export default function SignIn() {
       email: "",
       password: "",
       confirmPassword: "",
-      phoneNo: "",
     },
   });
 
@@ -79,7 +78,6 @@ export default function SignIn() {
           {[
             { name: "username", label: "Username", placeholder: "John Doe" },
             { name: "email", label: "Email", placeholder: "example@gmail.com" },
-            { name: "phoneNo", label: "Phone No", placeholder: "1234567890" },
             {
               name: "password",
               label: "Password",

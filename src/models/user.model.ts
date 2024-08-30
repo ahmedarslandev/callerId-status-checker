@@ -12,6 +12,7 @@ export interface User extends Document {
   isAdmin: boolean;
   createdAt: Date;
   updatedAt: Date;
+  role: string;
   profileImage: string;
   bio: string;
   walletId: ObjectId;
@@ -41,13 +42,18 @@ const userSchema = new Schema<User>({
   githubId: { type: String, default: "" },
   twitterId: { type: String, default: "" },
   facebookId: { type: String, default: "" },
+  role: {
+    type: String,
+    enum: ["user", "admin"],
+    default: "user",
+  },
   files: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "File",
     },
   ],
-  isLoggedInWithCredentials: { type: Boolean , default: false },
+  isLoggedInWithCredentials: { type: Boolean, default: false },
 });
 const userModel = mongoose.models.User || mongoose.model("User", userSchema);
 

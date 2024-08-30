@@ -1,0 +1,43 @@
+// lib/envConfig.ts
+const TRANSACTION_EMAIL = process.env.TRANSACTION_EMAIL || "";
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "";
+const MONGODB_URI = process.env.MONGODB_URI || "";
+const RESEND_API_KEY = process.env.RESEND_API_KEY || "";
+const JWT_SECRET = process.env.JWT_SECRET || "";
+const AUTH_SECRET = process.env.AUTH_SECRET || "";
+const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID || "";
+const GITHUB_CLIENT_ID_SECRET = process.env.GITHUB_CLIENT_ID_SECRET || "";
+const NEXTAUTH_URL = process.env.NEXTAUTH_URL || "";
+const FACEBOOK_CLIENT_ID = process.env.FACEBOOK_CLIENT_ID || "";
+const FACEBOOK_CLIENT_ID_SECRET = process.env.FACEBOOK_CLIENT_ID_SECRET || "";
+const TWITTER_CLIENT_ID = process.env.TWITTER_CLIENT_ID || "";
+const TWITTER_CLIENT_ID_SECRET = process.env.TWITTER_CLIENT_ID_SECRET || "";
+const AUTH_TRUST_HOST = process.env.AUTH_TRUST_HOST || "";
+const CHECK_STATUS_CALLERID_URL = process.env.CHECK_STATUS_CALLERID_URL || "";
+const FILES_CHECK_AT_A_TIME = parseInt(
+  process.env.FILES_CHECK_AT_A_TIME || "1",
+  10
+);
+const BATCH_SIZE = parseInt(process.env.BATCH_SIZE || "5", 10);
+const IS_INTERVAL_RUNNING = process.env.IS_INTERVAL_RUNNING === "true";
+
+export {
+  TRANSACTION_EMAIL,
+  MONGODB_URI,
+  RESEND_API_KEY,
+  JWT_SECRET,
+  AUTH_SECRET,
+  GITHUB_CLIENT_ID,
+  GITHUB_CLIENT_ID_SECRET,
+  NEXTAUTH_URL,
+  FACEBOOK_CLIENT_ID,
+  FACEBOOK_CLIENT_ID_SECRET,
+  TWITTER_CLIENT_ID,
+  TWITTER_CLIENT_ID_SECRET,
+  AUTH_TRUST_HOST,
+  CHECK_STATUS_CALLERID_URL,
+  FILES_CHECK_AT_A_TIME,
+  BATCH_SIZE,
+  IS_INTERVAL_RUNNING,
+  ADMIN_EMAIL,
+};

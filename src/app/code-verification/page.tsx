@@ -31,7 +31,7 @@ export default function CodeVerification() {
   const { status } = useSession();
   const isUser = isAuthenticated(status);
 
-  if (!isUser) {
+  if (isUser) {
     router.replace("/");
   }
 

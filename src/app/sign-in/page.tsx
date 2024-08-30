@@ -42,7 +42,7 @@ export default function SignIn() {
     if (isUser) {
       setTimeout(() => {
         router.replace("/");
-      }, 2000);
+      }, 1000);
     }
   }
 
