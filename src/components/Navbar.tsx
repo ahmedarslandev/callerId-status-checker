@@ -45,7 +45,7 @@ const Navbar = () => {
     <div className="sticky top-0 z-50 w-full border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <nav className="flex md:flex-row w-full items-center justify-between p-3 z-40 gap-3 md:gap-0">
         <Link href={"/"} className="flex gap-5 justify-center items-center">
-          <Image
+          <img
             className="object-cover w-10 lazyload"
             data-src="/Sigma-dialer_logo-removebg-preview.png"
             src="/Sigma-dialer_logo-removebg-preview.png"

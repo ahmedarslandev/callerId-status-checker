@@ -61,7 +61,7 @@ export default function ProfilePage() {
         </CardHeader>
         <CardContent>
           <div className="flex flex-col md:flex-row items-center md:items-start space-y-4 md:space-y-0 md:space-x-4">
-            <Image
+            <img
               data-src={user.profileImage || "/default-profile.png"}
               src={user.profileImage || "/default-profile.png"}
               alt={`${user.username}'s profile image`}

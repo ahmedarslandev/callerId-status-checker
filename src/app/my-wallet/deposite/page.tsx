@@ -114,7 +114,7 @@ export default function Component() {
                               <SelectItem key={e.bankName} value={e.bankName}>
                                 <div className="flex items-center gap-3">
                                   <div className="w-7 h-7 flex items-center rounded-full overflow-hidden">
-                                    <Image
+                                    <img
                                       data-src={e.icon}
                                       className="object-cover lazyload"
                                       src={e.icon}

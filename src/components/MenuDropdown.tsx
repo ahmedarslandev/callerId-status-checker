@@ -61,7 +61,7 @@ export function MenuDropDown() {
         {status === "authenticated" && (
           <div className="px-3 py-2 gap-3 flex items-center">
             <div className="w-8 h-8 rounded-full flex justify-center items-center overflow-hidden bg-gray-500">
-              <Image
+              <img
                 data-src={data.user?.image!}
                 src={data.user?.image!}
                 alt="User Image"

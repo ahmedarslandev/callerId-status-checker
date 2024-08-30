@@ -34,7 +34,7 @@ export default function Page() {
         </Link>
       </div>
       <div className="right lg:w-1/2 flex h-fit justify-center lg:justify-end">
-        <Image
+        <img
           className="w-full max-w-md lg:max-w-full animate-bounce"
           src="https://telcastnetworks.com/wp-content/uploads/2019/07/WholeSale-Termination-01.png"
           alt="right-img"

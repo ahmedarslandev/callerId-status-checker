@@ -29,7 +29,12 @@ export async function POST(req: NextRequest) {
       dbUser.save(),
       dbUser.walletId.save(),
       sendTransactionEmail(
-        { transactionId, bank:bankName, type: "deposit", timeStamp: Date.now() },
+        {
+          transactionId,
+          bank: bankName,
+          type: "deposit",
+          timeStamp: Date.now(),
+        },
         dbUser
       ),
     ]);

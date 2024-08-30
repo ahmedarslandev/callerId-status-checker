@@ -135,7 +135,7 @@ export default function SignIn() {
                   }}
                   className="flex flex-row max-md:w-full max-md:border-zinc-300 max-md:border-[1px] max-md:justify-start max-md:rounded max-md:p-2 md:flex-col cursor-pointer select-none justify-center gap-2 items-center"
                 >
-                  <Image
+                  <img
                     src={`/${provider.toLowerCase()}.svg`}
                     alt={provider}
                     width={20}

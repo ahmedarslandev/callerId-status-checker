@@ -141,7 +141,7 @@ export default function SignIn() {
                   key={i}
                   className="flex flex-row max-md:w-full max-md:border-zinc-300 max-md:border-[1px] max-md:justify-start max-md:rounded max-md:p-2 md:flex-col cursor-pointer select-none justify-center gap-2 items-center"
                 >
-                  <Image
+                  <img
                     data-src={`/${e.toLowerCase()}.svg`}
                     className={`w-5 h-5 lazyload ${
                       theme === "dark" && e === "Github" ? "invert" : ""

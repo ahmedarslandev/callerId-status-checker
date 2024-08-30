@@ -10,8 +10,8 @@ const Page = () => {
   const { status } = useSession();
   const isUser = isAuthenticated(status);
 
-  if (isUser) {
-    router.replace("/");
+  if (!isUser) {
+    router.replace("/sign-in");
   }
   return <div>Settings Page</div>;
 };

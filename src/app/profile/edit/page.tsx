@@ -123,7 +123,7 @@ export default function EditProfilePage() {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="flex items-center space-x-4">
-              <Image
+              <img
                 data-src={user.profileImage}
                 src={user.profileImage || "/default-profile.png"}
                 alt={`${user.username}'s profile image`}

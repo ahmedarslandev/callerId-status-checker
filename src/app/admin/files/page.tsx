@@ -97,7 +97,7 @@ export default function Component() {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="rounded-full">
-                <Image
+                <img
                   src="/placeholder.svg"
                   width="32"
                   height="32"

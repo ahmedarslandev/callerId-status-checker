@@ -86,10 +86,15 @@ export async function POST(req: NextRequest, res: NextResponse) {
       bank: bankName,
     });
 
-    wallet.transactions.push(transaction);
+    console.log(transactionType);
     transactionType == "deposit"
-      ? (wallet.balance += transaction.amount)
-      : (wallet.balance -= transaction.amount);
+      ? (wallet.balance += parseInt(transaction.amount))
+      : (wallet.balance -= parseInt(transaction.amount));
+    console.log(
+      transaction.amount,
+      wallet.balance,
+      transaction.amount + wallet.balance
+    );
     transactionType == "deposit"
       ? (wallet.lastDeposited = Date.now())
       : (wallet.lastWithdraw = Date.now());
@@ -98,6 +103,8 @@ export async function POST(req: NextRequest, res: NextResponse) {
       : wallet.totalWithdraw++;
     wallet.transactionsCount++;
     wallet.lastUpdated = Date.now();
+
+    wallet.transactions.push(transaction);
 
     await transaction.save();
     await wallet.save();
