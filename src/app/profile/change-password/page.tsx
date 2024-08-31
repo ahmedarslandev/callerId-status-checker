@@ -3,13 +3,12 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { toast } from "@/components/ui/use-toast";
 import ButtonLoder from "@/components/ButtonLoder";
-import { isAuthenticated } from "@/lib/auth/isAuthenticated";
+import { useSelector } from "react-redux";
 
 export default function ChangePasswordPage() {
   const { data } = useSession();
@@ -19,10 +18,10 @@ export default function ChangePasswordPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
-  const { status } = useSession();
-  const isUser = isAuthenticated(status);
-  if (!isUser) {
-    router.replace("/sign-in");
+  const { user } = useSelector((state: any) => state.user) as any;
+
+  if (!user) {
+    router.replace("/");
   }
 
   const handleChangePassword = async () => {

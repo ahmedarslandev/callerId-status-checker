@@ -29,16 +29,16 @@ import { useRouter } from "next/navigation";
 import { isAuthenticated } from "@/lib/auth/isAuthenticated";
 import Image from "next/image";
 import { useSession } from "next-auth/react";
+import { useSelector } from "react-redux";
 
 export default function Component() {
   const { toast } = useToast();
   const router = useRouter();
-  const { status } = useSession();
-  const isUser = isAuthenticated(status);
-  if (!isUser) {
-    router.replace("/sign-in");
-  }
+  const { user } = useSelector((state: any) => state.user) as any;
 
+  if (!user) {
+    router.replace("/");
+  }
   const [isLoading, setIsLoading] = useState(false);
   const [bankDetails, setBankDetails] = useState<any | null>(null);
 

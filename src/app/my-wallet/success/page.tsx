@@ -4,13 +4,14 @@ import { isAuthenticated } from "@/lib/auth/isAuthenticated";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useSelector } from "react-redux";
 
 export default function Component() {
   const router = useRouter();
-  const { status } = useSession();
-  const isUser = isAuthenticated(status);
-  if (!isUser) {
-    router.replace("/sign-in");
+  const { user } = useSelector((state: any) => state.user) as any;
+
+  if (!user) {
+    router.replace("/");
   }
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4 py-12 sm:px-6 lg:px-8">

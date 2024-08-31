@@ -1,18 +1,17 @@
 "use client";
 
-import { isAuthenticated } from "@/lib/auth/isAuthenticated";
-import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import React from "react";
+import { useSelector } from "react-redux";
 
 const Page = () => {
   const router = useRouter();
-  const { status } = useSession();
-  const isUser = isAuthenticated(status);
+  const { user } = useSelector((state: any) => state.user) as any;
 
-  if (!isUser) {
-    router.replace("/sign-in");
+  if (!user) {
+    router.replace("/");
   }
+
   return <div>Settings Page</div>;
 };
 

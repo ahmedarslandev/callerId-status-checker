@@ -5,42 +5,28 @@ import HLine from "./HLine";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import ModeToggle from "./theme-toggle";
-import Image from "next/image";
-import { useSession } from "next-auth/react";
 import { MenuDropDown } from "./MenuDropdown";
-import { SignOut } from "@/lib/api.handler";
-import { toast } from "./ui/use-toast";
-import { useTheme } from "next-themes";
-import { useEffect } from "react";
+import { useMemo } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { setUser } from "@/store/reducers/auth.reducer";
 
 import "lazysizes";
 import "lazysizes/plugins/parent-fit/ls.parent-fit";
-import { useRouter } from "next/navigation";
+import { AppDispatch } from "@/store/auth.store";
+import { useSession } from "next-auth/react";
 
 const Navbar = () => {
-  const { data, status } = useSession();
-  const router = useRouter();
+  const { data } = useSession();
+  const dispatch: AppDispatch = useDispatch();
 
-  const Logout = async () => {
-    try {
-      await SignOut();
-      toast({
-        title: "Success",
-        description: "Logged out successfully",
-        duration: 5000,
-      });
-      setTimeout(() => {
-        router.replace("/sign-in");
-      }, 2000);
-    } catch (error) {
-      return toast({
-        title: "Error",
-        description: "Failed to log out",
-        duration: 5000,
-      });
-    }
-  };
+  useMemo(() => {
+    dispatch(setUser({ user: data?.data }));
+  }, [data]);
 
+  const { user } = useSelector((state: any) => state.user) as any;
+  if (!user) {
+    return null
+  }
   return (
     <div className="sticky top-0 z-50 w-full border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <nav className="flex md:flex-row w-full items-center justify-between p-3 z-40 gap-3 md:gap-0">
@@ -60,15 +46,18 @@ const Navbar = () => {
         <div className="md:w-fit px-2 flex md:flex-row gap-3 md:gap-5 list-none items-center">
           <div className="flex justify-center items-center md:hidden gap-3">
             <ModeToggle />
-            <MenuDropDown />
+            <MenuDropDown profileImage={user.picture} username={user.name} />
           </div>
 
           <div className="hidden md:flex gap-3 md:gap-5 items-center">
             <Input placeholder="Search..." className="w-full md:w-auto" />
             <ModeToggle />
-            {status === "authenticated" ? (
+            {user ? (
               <div className="flex gap-2 justify-center items-center">
-                <MenuDropDown />
+                <MenuDropDown
+                  profileImage={user.picture}
+                  username={user.name}
+                />
               </div>
             ) : (
               <div className="flex gap-3">

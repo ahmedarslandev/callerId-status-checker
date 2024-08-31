@@ -18,6 +18,7 @@ import ButtonLoder from "@/components/ButtonLoder";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { isAuthenticated } from "@/lib/auth/isAuthenticated";
+import { useSelector } from "react-redux";
 
 interface FileData {
   file: File | null;
@@ -25,13 +26,11 @@ interface FileData {
 }
 
 export default function Page() {
-  const { replace } = useRouter();
-
   const router = useRouter();
-  const { status } = useSession();
-  const isUser = isAuthenticated(status);
-  if (!isUser) {
-    router.replace("/sign-in");
+  const { user } = useSelector((state: any) => state.user) as any;
+
+  if (!user) {
+    router.replace("/");
   }
 
   const [isOpen, setIsOpen] = useState(false);

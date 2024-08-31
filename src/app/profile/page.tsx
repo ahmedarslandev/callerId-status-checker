@@ -5,14 +5,13 @@ import axios from "axios";
 import { User } from "@/models/user.model"; // Adjust the import path
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 
 import "lazysizes";
 import "lazysizes/plugins/parent-fit/ls.parent-fit";
-import { isAuthenticated } from "@/lib/auth/isAuthenticated";
+import { useSelector } from "react-redux";
 
 export default function ProfilePage() {
   const [user, setUser] = useState<User | null>(null);
@@ -20,10 +19,10 @@ export default function ProfilePage() {
   const { data } = useSession();
 
   const router = useRouter();
-  const { status } = useSession();
-  const isUser = isAuthenticated(status);
-  if (!isUser) {
-    router.replace("/sign-in");
+  const { user: authUser } = useSelector((state: any) => state.user) as any;
+
+  if (!authUser) {
+    router.replace("/");
   }
 
   useEffect(() => {

@@ -29,6 +29,7 @@ import { FileTypeIcon, FilterIcon, ListOrderedIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { isAuthenticated } from "@/lib/auth/isAuthenticated";
 import { useSession } from "next-auth/react";
+import { useSelector } from "react-redux";
 
 const fetchFiles = async (setFiles: any, toast: any) => {
   try {
@@ -52,10 +53,10 @@ export default function Component() {
   const toast = useToast();
   const router = useRouter();
 
-  const { status } = useSession();
-  const isUser = isAuthenticated(status);
-  if (!isUser) {
-    router.replace("/sign-in");
+  const { user } = useSelector((state: any) => state.user) as any;
+
+  if (!user) {
+    router.replace("/");
   }
 
   useEffect(() => {

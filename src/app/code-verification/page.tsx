@@ -15,28 +15,25 @@ import { Input } from "@/components/ui/input";
 import ButtonLoder from "@/components/ButtonLoder";
 import { useToast } from "@/components/ui/use-toast";
 import { useEffect, useState, useCallback } from "react";
-import { useCookies } from "next-client-cookies";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { CodeVerificationSchema } from "@/zod-schemas/code-verification.schema";
-import { isAuthenticated } from "@/lib/auth/isAuthenticated";
-import { useSession } from "next-auth/react";
+import Cookies from "js-cookie";
+import { useSelector } from "react-redux";
 
 export default function CodeVerification() {
-  const cookies = useCookies();
   const [isLoading, setIsLoading] = useState(false);
   const [time, setTime] = useState(0);
   const { toast } = useToast();
   const router = useRouter();
-  const { status } = useSession();
-  const isUser = isAuthenticated(status);
+  const { user } = useSelector((state: any) => state.user) as any;
 
-  if (isUser) {
+  if (user) {
     router.replace("/");
   }
 
   const startTimer = useCallback(() => {
-    const codeExpiry = cookies.get("code-expiry") as any;
+    const codeExpiry = Cookies.get("code-expiry") as any;
     const remainingTime = Math.max(
       Math.floor((codeExpiry - Date.now()) / 1000),
       0
@@ -50,7 +47,7 @@ export default function CodeVerification() {
 
       return () => clearInterval(interval);
     }
-  }, [cookies]);
+  }, []);
 
   useEffect(() => {
     startTimer();

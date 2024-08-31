@@ -1,12 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import axios from "axios";
 import Link from "next/link";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 
@@ -23,19 +22,17 @@ import { useToast } from "@/components/ui/use-toast";
 import ButtonLoder from "@/components/ButtonLoder";
 import HLine from "@/components/HLine";
 import { SignUpSchema } from "@/zod-schemas/signup-schema";
-import { SignIn as login, SignUp } from "@/lib/api.handler";
-import { isAuthenticated } from "@/lib/auth/isAuthenticated";
-import { useSession } from "next-auth/react";
+import { SignIn as login } from "@/lib/api.handler";
+import { useSelector } from "react-redux";
 
 export default function SignIn() {
   const { theme } = useTheme();
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const router = useRouter();
-  const { status } = useSession();
-  const isUser = isAuthenticated(status);
+  const { user } = useSelector((state: any) => state.user) as any;
 
-  if (isUser) {
+  if (user) {
     router.replace("/");
   }
   const form = useForm<z.infer<typeof SignUpSchema>>({

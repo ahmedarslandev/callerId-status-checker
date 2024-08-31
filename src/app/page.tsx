@@ -3,16 +3,13 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image";
-import { isAuthenticated } from "@/lib/auth/isAuthenticated";
 import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
+import { useSelector } from "react-redux";
 
 export default function Page() {
   const router = useRouter();
-  const { status } = useSession();
-  const isUser = isAuthenticated(status);
-  if (!isUser) {
+  const { user } = useSelector((state: any) => state.user) as any;
+  if (!user) {
     router.replace("/sign-in" as any);
   }
 

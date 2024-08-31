@@ -22,30 +22,22 @@ import { useState } from "react";
 import { SignIn as login } from "@/lib/api.handler";
 import ButtonLoder from "@/components/ButtonLoder";
 import { useTheme } from "next-themes";
-import Image from "next/image";
-import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
 import "lazysizes";
 import "lazysizes/plugins/parent-fit/ls.parent-fit";
-import { isAuthenticated } from "@/lib/auth/isAuthenticated";
+import { useSelector } from "react-redux";
 
 export default function SignIn() {
   const { theme } = useTheme();
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const router = useRouter();
-  const { status } = useSession();
-  const isUser = isAuthenticated(status);
+  const { user } = useSelector((state: any) => state.user) as any;
 
-  if (isUser) {
-    if (isUser) {
-      setTimeout(() => {
-        router.replace("/");
-      }, 1000);
-    }
+  if (user) {
+    router.replace("/");
   }
-
   const form = useForm<z.infer<typeof SignInSchema>>({
     resolver: zodResolver(SignInSchema),
     defaultValues: {

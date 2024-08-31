@@ -19,22 +19,20 @@ import {
 import { toast } from "./ui/use-toast";
 import { SignOut } from "@/lib/api.handler";
 import Link from "next/link";
-import { useSession } from "next-auth/react";
 import HLine from "./HLine";
-import Image from "next/image";
 
 import "lazysizes";
 import "lazysizes/plugins/parent-fit/ls.parent-fit";
-import { useRouter } from "next/navigation";
+import { setUser } from "@/store/reducers/auth.reducer";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/store/auth.store";
 
-export function MenuDropDown() {
-  const { data, status, update } = useSession();
-  const router = useRouter();
-
+export function MenuDropDown({ profileImage, username }: any) {
+  const dispatch: AppDispatch = useDispatch();
   const Logout = async () => {
     try {
       await SignOut();
-      update(null);
+      dispatch(setUser({ user: {} }));
       toast({
         title: "Success",
         description: "Logged out successfully",
@@ -44,7 +42,7 @@ export function MenuDropDown() {
         window.location.reload();
       }, 1000);
     } catch (error) {
-      return toast({
+      toast({
         title: "Error",
         description: "Failed to log out",
         duration: 5000,
@@ -58,22 +56,19 @@ export function MenuDropDown() {
         <Menu className="cursor-pointer" />
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56">
-        {status === "authenticated" && (
-          <div className="px-3 py-2 gap-3 flex items-center">
-            <div className="w-8 h-8 rounded-full flex justify-center items-center overflow-hidden bg-gray-500">
-              <img
-                data-src={data.user?.image!}
-                src={data.user?.image!}
-                alt="User Image"
-                width={100}
-                height={100}
-                layout="responsive"
-                className="lazyload"
-              />
-            </div>
-            <p className="text-sm font-bold">{data.user?.name}</p>
+        <div className="px-3 py-2 gap-3 flex items-center">
+          <div className="w-8 h-8 rounded-full flex justify-center items-center overflow-hidden bg-gray-500">
+            <img
+              data-src={profileImage}
+              src={profileImage}
+              alt="User Image"
+              width={100}
+              height={100}
+              className="lazyload"
+            />
           </div>
-        )}
+          <p className="text-sm font-bold">{username}</p>
+        </div>
         <HLine />
         <DropdownMenuSeparator />
         <Link href={"/profile"}>
@@ -100,7 +95,6 @@ export function MenuDropDown() {
             <p>My files</p>
           </DropdownMenuCheckboxItem>
         </Link>
-
         <Link href={"/settings"}>
           <DropdownMenuCheckboxItem className="flex cursor-pointer gap-2 pl-4">
             <Settings />

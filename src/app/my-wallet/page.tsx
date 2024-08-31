@@ -17,15 +17,16 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { isAuthenticated } from "@/lib/auth/isAuthenticated";
 import { useSession } from "next-auth/react";
+import { useSelector } from "react-redux";
 
 export default function WalletComponent() {
   const [wallet, setWallet] = useState<Wallet | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const router = useRouter();
-  const { status } = useSession();
-  const isUser = isAuthenticated(status);
-  if (!isUser) {
-    router.replace("/sign-in");
+  const { user } = useSelector((state: any) => state.user) as any;
+
+  if (!user) {
+    router.replace("/");
   }
 
   useEffect(() => {
@@ -46,7 +47,7 @@ export default function WalletComponent() {
         };
         setWallet(formattedWallet);
         setTransactions(data.transactions.reverse());
-        console.log(data.transactions , formattedWallet)
+        console.log(data.transactions, formattedWallet);
       } catch (error) {
         console.error("Failed to fetch wallet data:", error);
       }

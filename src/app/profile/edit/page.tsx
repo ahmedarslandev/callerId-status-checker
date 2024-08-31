@@ -6,16 +6,13 @@ import { User } from "@/models/user.model"; // Adjust the import path
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { useTheme } from "next-themes";
 import { toast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
 import ButtonLoder from "@/components/ButtonLoder";
-import Image from "next/image";
 
 import "lazysizes";
 import "lazysizes/plugins/parent-fit/ls.parent-fit";
-import { isAuthenticated } from "@/lib/auth/isAuthenticated";
-import { useSession } from "next-auth/react";
+import { useSelector } from "react-redux";
 
 export default function EditProfilePage() {
   const [user, setUser] = useState<User | null>(null);
@@ -23,10 +20,10 @@ export default function EditProfilePage() {
   const [isLoading, setIsLoading] = useState(false);
 
   const router = useRouter();
-  const { status } = useSession();
-  const isUser = isAuthenticated(status);
-  if (!isUser) {
-    router.replace("/sign-in");
+  const { user: authUser } = useSelector((state: any) => state.user) as any;
+
+  if (!authUser) {
+    router.replace("/");
   }
 
   useEffect(() => {

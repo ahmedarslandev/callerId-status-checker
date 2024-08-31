@@ -8,7 +8,7 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { toast } from "@/components/ui/use-toast";
-import { isAuthenticated } from "@/lib/auth/isAuthenticated";
+import { useSelector } from "react-redux";
 
 export default function ChangePasswordPage() {
   const { data } = useSession();
@@ -20,11 +20,10 @@ export default function ChangePasswordPage() {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-  const { status } = useSession();
-  const isUser = isAuthenticated(status);
-  
-  if (!isUser) {
-    router.replace("/sign-in");
+  const { user } = useSelector((state: any) => state.user) as any;
+
+  if (!user) {
+    router.replace("/");
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
