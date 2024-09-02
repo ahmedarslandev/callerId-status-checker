@@ -70,7 +70,7 @@ export default function WalletComponent() {
       setTransactions(Transactions.transactions);
       setWallet(Transactions.wallet);
     } else {
-      fetchWalletData().then(({ transactions, wallet }: any) => {
+      fetchWalletData().then(({ transactions = [], wallet = {} }: any) => {
         if (transactions) {
           setTransactions(transactions);
         }
@@ -100,9 +100,7 @@ export default function WalletComponent() {
                 <div className="text-sm">{wallet.currency}</div>
                 <div className="flex gap-1 items-center">
                   <Link href="/my-wallet/withdraw">
-                    <Button
-                      className="w-full md:w-24 h-8 text-xs"
-                    >
+                    <Button className="w-full md:w-24 h-8 text-xs">
                       Withdraw
                     </Button>
                   </Link>

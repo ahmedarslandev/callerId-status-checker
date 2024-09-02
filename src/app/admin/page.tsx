@@ -45,6 +45,7 @@ import { Transaction } from "@/models/transaction.model";
 import { AppDispatch } from "@/store/auth.store";
 import { useDispatch, useSelector } from "react-redux";
 import { setTranscations as setAdminTransactions } from "@/store/reducers/admin.reducer";
+import { RefreshCcw } from "lucide-react";
 
 const fetchTransactions = async (toast: any): Promise<Transaction[] | null> => {
   try {
@@ -130,6 +131,17 @@ export default function TransactionsPage() {
     (state: any) => state.admin
   );
 
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const refreshFiles = async () => {
+    setIsRefreshing(true);
+    const transactions = await fetchTransactions(toast);
+    setTransactions(transactions);
+    dispatch(setAdminTransactions({ transactions: { transactions } }));
+    setIsRefreshing(false);
+    return;
+  };
+
   useEffect(() => {
     if (
       Transactions &&
@@ -143,7 +155,6 @@ export default function TransactionsPage() {
           dispatch(
             setAdminTransactions({
               transactions: data,
-              transactionId: data._id,
             })
           );
           setTransactions(data);
@@ -159,8 +170,17 @@ export default function TransactionsPage() {
   return (
     <div className="min-h-screen w-full py-5 flex flex-col">
       <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
-        <div className="flex-1">
+        <div className="gap-2 flex-row w-full flex">
           <h1 className="font-semibold text-lg">Transactions</h1>
+          <Button
+            onClick={refreshFiles}
+            className="w-fit h-8 text-xs"
+            variant={"outline"}
+          >
+            <RefreshCcw
+              className={`rotate-180 ${isRefreshing ? "animate-spin" : null}`}
+            />
+          </Button>
         </div>
         <div className="flex flex-1 items-center gap-4 md:ml-auto md:gap-2 lg:gap-4">
           <form className="ml-auto flex-1 sm:flex-initial">
