@@ -94,7 +94,7 @@ export default function WalletComponent() {
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between">
             <div className="mb-4 md:mb-0">
               <div className="text-2xl md:text-3xl font-bold">
-                {wallet.balance}
+                {wallet.balance.toFixed(3)}
               </div>
               <div className="flex flex-col md:flex-row gap-2 items-start md:items-center w-full">
                 <div className="text-sm">{wallet.currency}</div>
@@ -136,7 +136,7 @@ export default function WalletComponent() {
             />
             <InfoCard title="Total Withdrawn" value={wallet.totalWithdraw} />
             <InfoCard title="Total Deposited" value={wallet.totalDeposited} />
-            <InfoCard title="Total Balance" value={wallet.balance} />
+            <InfoCard title="Total Balance" value={wallet.balance.toFixed(3)} />
           </div>
           <TransactionsTable
             transactions={transactions}
