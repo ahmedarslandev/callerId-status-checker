@@ -1,0 +1,23 @@
+# Ignore node_modules and npm debug log
+node_modules
+npm-debug.log
+
+
+# Ignore build output
+.next
+out
+dist
+
+# Ignore Docker-related files
+Dockerfile
+.dockerignore
+
+# Ignore other sensitive or unnecessary files
+*.md
+*.log
+.git
+.gitignore
+.idea
+.vscode
+.DS_Store
+coverage

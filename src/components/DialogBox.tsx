@@ -1,4 +1,4 @@
-import { Copy } from "lucide-react";
+"use client";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -13,6 +13,9 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "./ui/use-toast";
 import axios from "axios";
+import { AppDispatch } from "@/store/auth.store";
+import { useDispatch } from "react-redux";
+import { updateFiles } from "@/store/reducers/user.reducer";
 
 export default function DialogBox({
   isOpen,
@@ -23,6 +26,8 @@ export default function DialogBox({
   setIsOpen: Function;
   fileData: any;
 }) {
+  const dispatch: AppDispatch = useDispatch();
+
   return (
     <Dialog
       open={isOpen}
@@ -37,7 +42,6 @@ export default function DialogBox({
               "Content-Type": "multipart/form-data",
             },
           });
-          console.log(response);
           if (response.data.success == false) {
             return toast({
               title: "Error",
@@ -45,6 +49,7 @@ export default function DialogBox({
               duration: 5000,
             });
           }
+          dispatch(updateFiles({ type: "add", file: response.data.file }));
           return toast({
             title: "Success",
             description: "File uploaded successfully",

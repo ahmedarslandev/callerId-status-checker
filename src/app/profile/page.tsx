@@ -11,12 +11,27 @@ import { useSession } from "next-auth/react";
 
 import "lazysizes";
 import "lazysizes/plugins/parent-fit/ls.parent-fit";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { setUser as setStoreUser } from "@/store/reducers/auth.reducer";
+import { AppDispatch } from "@/store/auth.store";
+import { RefreshCcw } from "lucide-react";
+
+const fetchUserData = async () => {
+  try {
+    const response = await axios.get("/api/u/me"); // Changed to GET request
+    return response.data.dbUser;
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+  }
+};
 
 export default function ProfilePage() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState<boolean>(true); // Add loading state
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
   const { data } = useSession();
+  const dispatch: AppDispatch = useDispatch();
 
   const router = useRouter();
   const { user: authUser } = useSelector((state: any) => state.user) as any;
@@ -25,19 +40,30 @@ export default function ProfilePage() {
     router.replace("/");
   }
 
-  useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const response = await axios.get("/api/u/me"); // Changed to GET request
-        setUser(response.data.dbUser);
-      } catch (error) {
-        console.error("Error fetching user data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const refreshFiles = async () => {
+    setIsRefreshing(true);
+    const user = await fetchUserData();
+    setUser(user);
+    dispatch(setStoreUser({ user }));
+    setIsRefreshing(false);
+    return;
+  };
 
-    fetchUserData();
+  useEffect(() => {
+    if (authUser) {
+      setUser(authUser);
+      setLoading(false);
+    } else {
+      setLoading(true);
+      fetchUserData().then((data) => {
+        if (!data) {
+          return router.replace("/sign-in");
+        }
+        setUser(data);
+        dispatch(setStoreUser({ user: data }));
+        setLoading(false);
+      });
+    }
   }, []);
 
   if (loading) {
@@ -55,8 +81,13 @@ export default function ProfilePage() {
   return (
     <div className="p-4 md:p-6">
       <Card className="max-w-lg md:w-full md:max-w-full mx-auto">
-        <CardHeader>
+        <CardHeader className=" w-full flex-row flex justify-between">
           <h2 className="text-xl md:text-2xl font-bold">Profile</h2>
+          <Button onClick={refreshFiles} variant={"outline"}>
+            <RefreshCcw
+              className={`rotate-180 ${isRefreshing ? "animate-spin" : null}`}
+            />
+          </Button>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col md:flex-row items-center md:items-start space-y-4 md:space-y-0 md:space-x-4">

@@ -15,44 +15,71 @@ import {
 import { Transaction } from "@/models/transaction.model";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { isAuthenticated } from "@/lib/auth/isAuthenticated";
-import { useSession } from "next-auth/react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { setTranscations as setStoreTransactions } from "@/store/reducers/user.reducer";
+import { RefreshCcw } from "lucide-react";
+
+const fetchWalletData = async () => {
+  try {
+    const { data } = await axios.post("/api/u/wallet");
+    const formattedWallet = {
+      ...data.dbUser.walletId,
+      lastUpdated: new Date(data.dbUser.walletId.lastUpdated).toLocaleString(),
+      lastWithdraw: data.dbUser.walletId.lastWithdraw
+        ? new Date(data.dbUser.walletId.lastWithdraw).toLocaleString()
+        : "N/A",
+      lastDeposited: data.dbUser.walletId.lastDeposited
+        ? new Date(data.dbUser.walletId.lastDeposited).toLocaleString()
+        : "N/A",
+    };
+    return { transactions: data.transactions, wallet: formattedWallet };
+  } catch (error) {
+    console.error("Failed to fetch wallet data:", error);
+  }
+};
 
 export default function WalletComponent() {
   const [wallet, setWallet] = useState<Wallet | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
   const router = useRouter();
+  const dispatch = useDispatch();
   const { user } = useSelector((state: any) => state.user) as any;
+
+  const refreshFiles = async () => {
+    setIsRefreshing(true);
+    const { transactions, wallet }: any = await fetchWalletData();
+    setTransactions(transactions);
+    setWallet(wallet);
+    dispatch(setStoreTransactions({ transactions: { transactions, wallet } }));
+    setIsRefreshing(false);
+    return;
+  };
+
+  const { transactions: Transactions } = useSelector(
+    (state: any) => state.userInfo
+  ) as any;
 
   if (!user) {
     router.replace("/");
   }
 
   useEffect(() => {
-    const fetchWalletData = async () => {
-      try {
-        const { data } = await axios.post("/api/u/wallet");
-        const formattedWallet = {
-          ...data.dbUser.walletId,
-          lastUpdated: new Date(
-            data.dbUser.walletId.lastUpdated
-          ).toLocaleString(),
-          lastWithdraw: data.dbUser.walletId.lastWithdraw
-            ? new Date(data.dbUser.walletId.lastWithdraw).toLocaleString()
-            : "N/A",
-          lastDeposited: data.dbUser.walletId.lastDeposited
-            ? new Date(data.dbUser.walletId.lastDeposited).toLocaleString()
-            : "N/A",
-        };
-        setWallet(formattedWallet);
-        setTransactions(data.transactions.reverse());
-        console.log(data.transactions, formattedWallet);
-      } catch (error) {
-        console.error("Failed to fetch wallet data:", error);
-      }
-    };
-
+    if (Object.keys(Transactions.wallet).length > 0) {
+      setTransactions(Transactions.transactions);
+      setWallet(Transactions.wallet);
+    } else {
+      fetchWalletData().then(({ transactions, wallet }: any) => {
+        if (transactions) {
+          setTransactions(transactions);
+        }
+        setWallet(wallet);
+        dispatch(
+          setStoreTransactions({ transactions: { transactions, wallet } })
+        );
+      });
+    }
     fetchWalletData();
   }, []);
 
@@ -67,14 +94,13 @@ export default function WalletComponent() {
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between">
             <div className="mb-4 md:mb-0">
               <div className="text-2xl md:text-3xl font-bold">
-                {wallet.balance.toFixed(2)}
+                {wallet.balance}
               </div>
               <div className="flex flex-col md:flex-row gap-2 items-start md:items-center w-full">
                 <div className="text-sm">{wallet.currency}</div>
                 <div className="flex gap-1 items-center">
                   <Link href="/my-wallet/withdraw">
                     <Button
-                      variant="outline"
                       className="w-full md:w-24 h-8 text-xs"
                     >
                       Withdraw
@@ -85,6 +111,17 @@ export default function WalletComponent() {
                       Deposit
                     </Button>
                   </Link>
+                  <Button
+                    className="w-full md:w-24 h-8 text-xs"
+                    onClick={refreshFiles}
+                    variant={"outline"}
+                  >
+                    <RefreshCcw
+                      className={`rotate-180 ${
+                        isRefreshing ? "animate-spin" : null
+                      }`}
+                    />
+                  </Button>
                 </div>
               </div>
             </div>
@@ -101,7 +138,7 @@ export default function WalletComponent() {
             />
             <InfoCard title="Total Withdrawn" value={wallet.totalWithdraw} />
             <InfoCard title="Total Deposited" value={wallet.totalDeposited} />
-            <InfoCard title="Total Balance" value={wallet.balance.toFixed(2)} />
+            <InfoCard title="Total Balance" value={wallet.balance} />
           </div>
           <TransactionsTable
             transactions={transactions}

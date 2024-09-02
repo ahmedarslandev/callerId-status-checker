@@ -84,6 +84,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       success: true,
       message: "File uploaded successfully",
+      file: dbFile,
     });
   } catch (error) {
     console.error("Error processing file:", error);

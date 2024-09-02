@@ -25,20 +25,25 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import Link from "next/link";
 import { FileIcon } from "@/components/admin/icons";
-import { FileTypeIcon, FilterIcon, ListOrderedIcon } from "lucide-react";
+import {
+  FileTypeIcon,
+  FilterIcon,
+  ListOrderedIcon,
+  RefreshCcw,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
-import { isAuthenticated } from "@/lib/auth/isAuthenticated";
-import { useSession } from "next-auth/react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch } from "@/store/auth.store";
+import { setFiles as setStoreFiles } from "@/store/reducers/user.reducer";
 
-const fetchFiles = async (setFiles: any, toast: any) => {
+const fetchFiles = async (toast: any) => {
   try {
     const { data } = await axios.get("/api/u/file");
     if (!data.success) {
       toast({ title: "Error", description: data.message, duration: 5000 });
       return;
     }
-    setFiles(data.files);
+    return data.files;
   } catch (error) {
     toast({
       title: "Error",
@@ -50,17 +55,36 @@ const fetchFiles = async (setFiles: any, toast: any) => {
 
 export default function Component() {
   const [files, setFiles] = useState<File[] | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const dispatch: AppDispatch = useDispatch();
   const toast = useToast();
   const router = useRouter();
 
   const { user } = useSelector((state: any) => state.user) as any;
+  const { files: Files } = useSelector((state: any) => state.userInfo) as any;
 
   if (!user) {
     router.replace("/");
   }
 
+  const refreshFiles = async () => {
+    setIsRefreshing(true);
+    const newFiles = await fetchFiles(toast);
+    setFiles(newFiles);
+    dispatch(setStoreFiles({ files: newFiles }));
+    setIsRefreshing(false);
+    return;
+  };
+
   useEffect(() => {
-    fetchFiles(setFiles, toast);
+    if (Files.length > 0) {
+      setFiles(Files);
+    } else {
+      fetchFiles(toast).then((files) => {
+        setFiles(files);
+        dispatch(setStoreFiles({ files: files }));
+      });
+    }
   }, []);
 
   if (!files) return <div>Loading...</div>;
@@ -68,8 +92,13 @@ export default function Component() {
   return (
     <div className="flex justify-center items-center p-4 md:p-16">
       <div className="flex flex-col w-full min-h-screen border border-zinc-300 rounded-lg">
-        <header className="bg-background border-b px-4 sm:px-6 flex items-center h-14">
+        <header className="bg-background border-b px-4 sm:px-6 flex justify-between items-center h-14">
           <h1 className="text-lg md:text-xl font-semibold">Files</h1>
+          <Button onClick={refreshFiles} variant={"outline"}>
+            <RefreshCcw
+              className={`rotate-180 ${isRefreshing ? "animate-spin" : null}`}
+            />
+          </Button>
         </header>
         <main className="flex-1 py-6 px-4 sm:px-6">
           <div className="flex flex-col md:flex-row md:items-center justify-between mb-6">

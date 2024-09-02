@@ -19,6 +19,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { isAuthenticated } from "@/lib/auth/isAuthenticated";
 import { useSelector } from "react-redux";
+import { AppDispatch } from "@/store/auth.store";
 
 interface FileData {
   file: File | null;
@@ -28,7 +29,6 @@ interface FileData {
 export default function Page() {
   const router = useRouter();
   const { user } = useSelector((state: any) => state.user) as any;
-
   if (!user) {
     router.replace("/");
   }
