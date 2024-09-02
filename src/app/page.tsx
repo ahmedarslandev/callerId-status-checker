@@ -9,7 +9,8 @@ import { useSelector } from "react-redux";
 export default function Page() {
   const router = useRouter();
   const { user } = useSelector((state: any) => state.user) as any;
-  if (!user) {
+
+  if (Object.keys(user).length <= 0) {
     router.replace("/sign-in" as any);
   }
 

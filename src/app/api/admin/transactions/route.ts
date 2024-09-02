@@ -12,7 +12,7 @@ type AuthData = {
 async function getAuthorizedUser(req: NextRequest): Promise<AuthData> {
   await connectMongo();
   const { data }: any = await auth();
-  
+
   if (!data) {
     throw new Error("Unauthorized");
   }
@@ -31,7 +31,10 @@ export async function POST(req: NextRequest) {
     const { transactionId } = await req.json();
 
     if (!transactionId) {
-      return NextResponse.json({ success: false, message: "Invalid Transaction ID" });
+      return NextResponse.json({
+        success: false,
+        message: "Invalid Transaction ID",
+      });
     }
 
     await getAuthorizedUser(req);
@@ -39,7 +42,10 @@ export async function POST(req: NextRequest) {
     const transaction = await transactionModel.findById(transactionId);
 
     if (!transaction) {
-      return NextResponse.json({ success: false, message: "Invalid Transaction" });
+      return NextResponse.json({
+        success: false,
+        message: "Invalid Transaction",
+      });
     }
 
     return NextResponse.json({
@@ -93,12 +99,16 @@ export async function PUT(req: NextRequest) {
     );
 
     if (!transaction) {
-      return NextResponse.json({ success: false, message: "Transaction not found" });
+      return NextResponse.json({
+        success: false,
+        message: "Transaction not found",
+      });
     }
 
     return NextResponse.json({
       success: true,
       message: "Transaction status updated",
+      transaction,
     });
   } catch (error: any) {
     return NextResponse.json({
@@ -114,7 +124,10 @@ export async function PATCH(req: NextRequest) {
     const { transactionId } = await req.json();
 
     if (!transactionId) {
-      return NextResponse.json({ success: false, message: "Invalid Transaction ID" });
+      return NextResponse.json({
+        success: false,
+        message: "Invalid Transaction ID",
+      });
     }
 
     await getAuthorizedUser(req);
@@ -122,7 +135,10 @@ export async function PATCH(req: NextRequest) {
     const result = await transactionModel.deleteOne({ _id: transactionId });
 
     if (result.deletedCount === 0) {
-      return NextResponse.json({ success: false, message: "Transaction not found" });
+      return NextResponse.json({
+        success: false,
+        message: "Transaction not found",
+      });
     }
 
     return NextResponse.json({

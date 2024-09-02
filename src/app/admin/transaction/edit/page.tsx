@@ -18,9 +18,13 @@ import {
   SelectLabel,
 } from "@/components/ui/select";
 import { DownloadIcon, ShareIcon } from "lucide-react"; // Moved icons to a separate file
+import { AppDispatch } from "@/store/auth.store";
+import { useDispatch } from "react-redux";
+import { updateTransactions } from "@/store/reducers/admin.reducer";
 
 export default function TransactionDetails() {
   const params = useSearchParams();
+  const dispatch: AppDispatch = useDispatch();
   const transactionId = params.get("transactionId");
 
   const [transaction, setTransaction] = useState<Transaction | null>(null);
@@ -43,7 +47,8 @@ export default function TransactionDetails() {
 
       setTransaction(response.data.transaction);
       setStatus(response.data.transaction.status);
-    } catch (error) {
+    } catch (error: any) {
+      console.log(error, error.message);
       toast({
         title: "Error",
         description: "Something went wrong",
@@ -71,14 +76,21 @@ export default function TransactionDetails() {
         });
         return;
       }
-
       setStatus(newStatus);
+      dispatch(
+        updateTransactions({
+          transaction: response.data.transaction,
+          transactionId: response.data.transaction._id,
+          type: "update",
+        })
+      );
       toast({
         title: "Success",
         description: response.data.message,
         duration: 3000,
       });
     } catch (error) {
+      console.log(error);
       toast({
         title: "Error",
         description: "Failed to update status",
@@ -116,15 +128,15 @@ export default function TransactionDetails() {
       <CardContent className="grid gap-6 p-6">
         <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
           <DetailItem label="Transaction ID" value={String(transaction._id)} />
-          <DetailItem label="Wallet ID" value={transaction.wallet_id.toString()} />
+          <DetailItem
+            label="Wallet ID"
+            value={transaction.wallet_id.toString()}
+          />
           <DetailItem label="Amount" value={`$${transaction.amount}`} isBold />
           <DetailItem label="Transaction Type" value={transaction.type} />
           <div className="space-y-1">
             <div className="text-sm font-medium">Status</div>
-            <Select
-              value={status}
-              onValueChange={handleStatusChange}
-            >
+            <Select value={status} onValueChange={handleStatusChange}>
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Select status" />
               </SelectTrigger>
@@ -132,13 +144,20 @@ export default function TransactionDetails() {
                 <SelectGroup>
                   <SelectLabel>Status</SelectLabel>
                   <SelectItem value="pending">Pending</SelectItem>
-                  <SelectItem className="text-green-500" value="completed">Completed</SelectItem>
-                  <SelectItem className="text-red-500" value="failed">Failed</SelectItem>
+                  <SelectItem className="text-green-500" value="completed">
+                    Completed
+                  </SelectItem>
+                  <SelectItem className="text-red-500" value="failed">
+                    Failed
+                  </SelectItem>
                 </SelectGroup>
               </SelectContent>
             </Select>
           </div>
-          <DetailItem label="Timestamp" value={new Date(transaction.timeStamp).toLocaleString()} />
+          <DetailItem
+            label="Timestamp"
+            value={new Date(transaction.timeStamp).toLocaleString()}
+          />
         </div>
         <Separator />
         <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
@@ -169,7 +188,11 @@ interface DetailItemProps {
 const DetailItem: React.FC<DetailItemProps> = ({ label, value, isBold }) => (
   <div className="space-y-1">
     <div className="text-sm font-medium">{label}</div>
-    <div className={`text-sm ${isBold ? "font-medium text-primary" : "text-muted-foreground"}`}>
+    <div
+      className={`text-sm ${
+        isBold ? "font-medium text-primary" : "text-muted-foreground"
+      }`}
+    >
       {value}
     </div>
   </div>

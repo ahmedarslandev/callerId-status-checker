@@ -38,12 +38,15 @@ import {
   PlusIcon,
   SearchIcon,
 } from "@/components/admin/icons";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "@/components/ui/use-toast";
 import { Transaction } from "@/models/transaction.model";
+import { AppDispatch } from "@/store/auth.store";
+import { useDispatch, useSelector } from "react-redux";
+import { setTranscations as setAdminTransactions } from "@/store/reducers/admin.reducer";
 
-const fetchTransactions = async (): Promise<Transaction[] | null> => {
+const fetchTransactions = async (toast: any): Promise<Transaction[] | null> => {
   try {
     const response = await axios.get("/api/admin/transactions");
     if (response.data.success === false) {
@@ -122,15 +125,32 @@ const TransactionRow = ({
 
 export default function TransactionsPage() {
   const [transactions, setTransactions] = useState<Transaction[] | null>(null);
-
-  const fetchFiles = useCallback(async () => {
-    const fetchedTransactions = await fetchTransactions();
-    setTransactions(fetchedTransactions);
-  }, []);
+  const dispatch: AppDispatch = useDispatch();
+  const { transactions: Transactions } = useSelector(
+    (state: any) => state.admin
+  );
 
   useEffect(() => {
-    fetchFiles();
-  }, [fetchFiles]);
+    if (
+      Transactions &&
+      Transactions.transactions &&
+      Transactions.transactions.length > 0
+    ) {
+      setTransactions(Transactions.transactions);
+    } else {
+      fetchTransactions(toast).then((data: any) => {
+        if (data) {
+          dispatch(
+            setAdminTransactions({
+              transactions: data,
+              transactionId: data._id,
+            })
+          );
+          setTransactions(data);
+        }
+      });
+    }
+  }, [Transactions]);
 
   if (!transactions) {
     return <div>Loading...</div>;

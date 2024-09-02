@@ -22,6 +22,9 @@ import axios from "axios";
 import { toast } from "@/components/ui";
 import ButtonLoder from "@/components/ButtonLoder";
 import { useRouter } from "next/navigation";
+import { updateTransactions } from "@/store/reducers/admin.reducer";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/store/auth.store";
 
 const FormField = ({ label, id, ...props }: any) => (
   <div className="space-y-2">
@@ -50,6 +53,7 @@ const SelectField = ({ label, id, options, onValueChange }: any) => (
 
 export default function Component() {
   const router = useRouter();
+  const dispatch: AppDispatch = useDispatch();
 
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -88,6 +92,12 @@ export default function Component() {
           variant: "destructive",
         });
       }
+      dispatch(
+        updateTransactions({
+          transaction: res.data.transaction,
+          transactionId: res.data.transaction._id,
+        })
+      );
       router.replace("/admin");
       return toast({
         title: "Success",

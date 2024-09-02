@@ -112,6 +112,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
     return NextResponse.json({
       success: true,
       message: "Transaction created successfully",
+      transaction
     });
   } catch (error: any) {
     return NextResponse.json({
