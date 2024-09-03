@@ -121,44 +121,40 @@ export default function Component() {
           ) : (
             <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
               {files.map((file: any, index) => (
-                <Link
+                <a
                   key={index}
                   href={
                     file.status === "completed"
-                      ? `/uploads/${file.owner}/${file.filename}_Completed.${file.extentionName}`
+                      ? `http://localhost:5000/download/${file.owner}/${file.filename}_Completed.${file.extentionName}`
                       : "#"
                   }
-                  passHref
-                  legacyBehavior
                 >
-                  <a download>
-                    <Card>
-                      <CardContent className="grid py-5 gap-2">
-                        <div className="flex items-center justify-between">
-                          <div className="font-medium">
-                            <FileIcon className="w-4 h-4 mr-2 inline" />
-                            {file.realname}
-                          </div>
-                          <div className="text-muted-foreground text-sm">
-                            <FileTypeIcon className="w-4 h-4 mr-1 inline" />
-                            {file.extentionName}
-                          </div>
+                  <Card>
+                    <CardContent className="grid py-5 gap-2">
+                      <div className="flex items-center justify-between">
+                        <div className="font-medium">
+                          <FileIcon className="w-4 h-4 mr-2 inline" />
+                          {file.realname}
                         </div>
                         <div className="text-muted-foreground text-sm">
-                          <FileIcon className="w-4 h-4 mr-1 inline" />
-                          {Math.round(file.size / 1000)} KB
+                          <FileTypeIcon className="w-4 h-4 mr-1 inline" />
+                          {file.extentionName}
                         </div>
-                        <div className="text-muted-foreground text-sm">
-                          Status:
-                          <span className={getStatusClass(file.status)}>
-                            {" "}
-                            {file.status}
-                          </span>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </a>
-                </Link>
+                      </div>
+                      <div className="text-muted-foreground text-sm">
+                        <FileIcon className="w-4 h-4 mr-1 inline" />
+                        {Math.round(file.size / 1000)} KB
+                      </div>
+                      <div className="text-muted-foreground text-sm">
+                        Status:
+                        <span className={getStatusClass(file.status)}>
+                          {" "}
+                          {file.status}
+                        </span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </a>
               ))}
             </div>
           )}

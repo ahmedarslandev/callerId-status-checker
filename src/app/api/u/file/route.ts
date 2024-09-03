@@ -23,7 +23,6 @@ export async function POST(req: NextRequest) {
       .findById(data.id)
       .populate("walletId")
       .exec();
-
     if (!dbUser || !dbUser.isVerified) {
       return NextResponse.json({ message: "Invalid User", success: false });
     }
@@ -50,7 +49,11 @@ export async function POST(req: NextRequest) {
     const extension = file.name.split(".").pop();
     const buffer = Buffer.from(await file.arrayBuffer());
 
-    const userDirectory = join("./public/uploads", dbUser._id.toString());
+    const userDirectory = join(
+      process.cwd(),
+      "../file-server-handler/uploads",
+      dbUser._id.toString()
+    );
     await mkdir(userDirectory, { recursive: true });
 
     const filePath = join(userDirectory, `${filename}.${extension}`);
@@ -64,12 +67,12 @@ export async function POST(req: NextRequest) {
       noOfCallerIds: callerIds,
       type: file.type,
       lastModified: file.lastModified,
-      extentionName: extension,
+      extentionName: extension?.toString(),
       realname: file.name,
     });
 
     dbUser.files.push(dbFile._id);
-
+    console.log(dbFile);
     await Promise.all([dbFile.save(), dbUser.walletId.save(), dbUser.save()]);
 
     startProcessingInterval();

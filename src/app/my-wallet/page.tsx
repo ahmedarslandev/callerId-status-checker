@@ -32,7 +32,7 @@ const fetchWalletData = async () => {
         ? new Date(data.dbUser.walletId.lastDeposited).toLocaleString()
         : "N/A",
     };
-    return { transactions: data.transactions, wallet: formattedWallet };
+    return { transactions: data.transactions.reverse(), wallet: formattedWallet };
   } catch (error) {
     console.error("Failed to fetch wallet data:", error);
   }

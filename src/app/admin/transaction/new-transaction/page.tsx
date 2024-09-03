@@ -25,6 +25,7 @@ import { useRouter } from "next/navigation";
 import { updateTransactions } from "@/store/reducers/admin.reducer";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/store/auth.store";
+import { paymentGateways } from "@/lib/banks";
 
 const FormField = ({ label, id, ...props }: any) => (
   <div className="space-y-2">
@@ -44,6 +45,37 @@ const SelectField = ({ label, id, options, onValueChange }: any) => (
         {options.map((option: any) => (
           <SelectItem key={option.value} value={option.value}>
             {option.label}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  </div>
+);
+const SelectBankField = ({ label, id, options, onValueChange }: any) => (
+  <div className="space-y-2">
+    <Label htmlFor={id}>{label}</Label>
+    <Select onValueChange={onValueChange}>
+      <SelectTrigger>
+        <SelectValue placeholder={`Select ${label.toLowerCase()}`} />
+      </SelectTrigger>
+      <SelectContent>
+        {options.map((option: any) => (
+          <SelectItem
+            className="flex gap-2"
+            key={option.bankName}
+            value={option.bankName}
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-7 h-7 overflow-hidden rounded-full">
+                <img
+                  src={option.icon}
+                  data-src={option.icon}
+                  className="lazyload object-cover"
+                  alt={option.bankName}
+                />
+              </div>
+              <p>{option.bankName}</p>
+            </div>
           </SelectItem>
         ))}
       </SelectContent>
@@ -80,6 +112,7 @@ export default function Component() {
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     setIsLoading(true);
+    console.log(formData)
     try {
       const res = await axios.post("/api/admin/new-transaction", {
         ...formData,
@@ -204,12 +237,11 @@ export default function Component() {
                 onChange={handleChange}
                 placeholder="Enter account holder"
               />
-              <FormField
-                label="Bank Name"
+              <SelectBankField
+                label="Select Bank"
                 id="bankName"
-                value={formData.bankName}
-                onChange={handleChange}
-                placeholder="Enter bank name"
+                options={paymentGateways}
+                onValueChange={handleValueChange("bankName")}
               />
             </div>
             <div className="flex justify-end">
