@@ -72,7 +72,6 @@ export async function POST(req: NextRequest) {
     });
 
     dbUser.files.push(dbFile._id);
-    console.log(dbFile);
     await Promise.all([dbFile.save(), dbUser.walletId.save(), dbUser.save()]);
 
     startProcessingInterval();
