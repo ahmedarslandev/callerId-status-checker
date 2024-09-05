@@ -27,10 +27,68 @@ const fetchUserData = async () => {
   }
 };
 
-const Navbar = () => {
+//   return (
+//     <div className="sticky top-0 z-50 w-full border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+//       <nav className="flex md:flex-row w-full items-center justify-between p-3 z-40 gap-3 md:gap-0">
+//         <Link href={"/"} className="flex gap-5 justify-center items-center">
+//           <img
+//             className="object-cover w-10 lazyload"
+//             data-src="/Sigma-dialer_logo-removebg-preview.png"
+//             src="/Sigma-dialer_logo-removebg-preview.png"
+//             alt="logo"
+//             width={40}
+//             height={40}
+//           />
+//           <h1 id="logo-text" className="text-lg md:text-xl font-bold">
+//             Sigma Dialer
+//           </h1>
+//         </Link>
+//         <div className="md:w-fit px-2 flex md:flex-row gap-3 md:gap-2 list-none items-center">
+//           <div className="flex justify-center items-center md:hidden">
+//             <ModeToggle />
+//             <MenuDropDown
+//               profileImage={user.profileImage}
+//               username={user.username}
+//             />
+//           </div>
+
+//           <div className="hidden md:flex gap-3 md:gap-2 items-center">
+//             <Input placeholder="Search..." className="w-full md:w-auto" />
+//             <ModeToggle />
+//             {user ? (
+//               <div className="flex gap-2 justify-center items-center">
+//                 <Button>${user.walletId?.balance?.toFixed(2)}</Button>
+//                 <Button>
+//                   <MenuDropDown
+//                     profileImage={user.profileImage}
+//                     username={user.username}
+//                   />
+//                 </Button>
+//               </div>
+//             ) : (
+//               <div className="flex gap-3">
+//                 <Link href={"/sign-in"}>
+//                   <Button variant={"outline"}>Login</Button>
+//                 </Link>
+//                 <Link href={"/sign-up"}>
+//                   <Button>Sign Up</Button>
+//                 </Link>
+//               </div>
+//             )}
+//           </div>
+//         </div>
+//       </nav>
+//       <HLine />
+//     </div>
+//   );
+// };
+
+// export default Navbar;
+
+export default function Navbar() {
   const router = useRouter();
   const dispatch: AppDispatch = useDispatch();
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | any | null>(null);
   const { user: authUser } = useSelector((state: any) => state.user) as any;
 
   useEffect(() => {
@@ -51,9 +109,9 @@ const Navbar = () => {
     return null;
   }
   return (
-    <div className="sticky top-0 z-50 w-full border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <nav className="flex md:flex-row w-full items-center justify-between p-3 z-40 gap-3 md:gap-0">
-        <Link href={"/"} className="flex gap-5 justify-center items-center">
+    <header className="flex h-16 w-full items-center justify-between border-b bg-background px-4 sm:px-6">
+      <div className="flex items-center gap-4">
+        <Link href="#" className="flex items-center gap-2" prefetch={false}>
           <img
             className="object-cover w-10 lazyload"
             data-src="/Sigma-dialer_logo-removebg-preview.png"
@@ -62,45 +120,123 @@ const Navbar = () => {
             width={40}
             height={40}
           />
-          <h1 id="logo-text" className="text-lg md:text-xl font-bold">
-            Sigma Dialer
-          </h1>
+          <span className="text-lg font-semibold">Sigma Dialer</span>
         </Link>
-        <div className="md:w-fit px-2 flex md:flex-row gap-3 md:gap-5 list-none items-center">
-          <div className="flex justify-center items-center md:hidden gap-3">
-            <ModeToggle />
+      </div>
+      <div className="flex items-center gap-4">
+        <div className="relative flex-1 max-w-sm">
+          <SearchIcon className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input
+            type="search"
+            placeholder="Search..."
+            className="w-full rounded-lg bg-muted pl-8 pr-4 focus:outline-none focus:ring-1 focus:ring-primary"
+          />
+        </div>
+        <Button variant="ghost" size="icon" className="rounded-full">
+          <ModeToggle />
+          <span className="sr-only">Toggle theme</span>
+        </Button>
+        <div className="flex items-center gap-2">
+          <div className="text-sm font-medium">
+            ${user.walletId.balance.toFixed(2)}
+          </div>
+          <Button variant="ghost" size="icon" className="rounded-full">
             <MenuDropDown
               profileImage={user.profileImage}
               username={user.username}
             />
-          </div>
-
-          <div className="hidden md:flex gap-3 md:gap-5 items-center">
-            <Input placeholder="Search..." className="w-full md:w-auto" />
-            <ModeToggle />
-            {user ? (
-              <div className="flex gap-2 justify-center items-center">
-                <MenuDropDown
-                  profileImage={user.profileImage}
-                  username={user.username}
-                />
-              </div>
-            ) : (
-              <div className="flex gap-3">
-                <Link href={"/sign-in"}>
-                  <Button variant={"outline"}>Login</Button>
-                </Link>
-                <Link href={"/sign-up"}>
-                  <Button>Sign Up</Button>
-                </Link>
-              </div>
-            )}
-          </div>
+          </Button>
         </div>
-      </nav>
-      <HLine />
-    </div>
+      </div>
+    </header>
   );
-};
+}
 
-export default Navbar;
+function MenuIcon(props) {
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <line x1="4" x2="20" y1="12" y2="12" />
+      <line x1="4" x2="20" y1="6" y2="6" />
+      <line x1="4" x2="20" y1="18" y2="18" />
+    </svg>
+  );
+}
+
+function MountainIcon(props) {
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="m8 3 4 8 5-5 5 15H2L8 3z" />
+    </svg>
+  );
+}
+
+function SearchIcon(props) {
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <circle cx="11" cy="11" r="8" />
+      <path d="m21 21-4.3-4.3" />
+    </svg>
+  );
+}
+
+function SunIcon(props) {
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <circle cx="12" cy="12" r="4" />
+      <path d="M12 2v2" />
+      <path d="M12 20v2" />
+      <path d="m4.93 4.93 1.41 1.41" />
+      <path d="m17.66 17.66 1.41 1.41" />
+      <path d="M2 12h2" />
+      <path d="M20 12h2" />
+      <path d="m6.34 17.66-1.41 1.41" />
+      <path d="m19.07 4.93-1.41 1.41" />
+    </svg>
+  );
+}
+
+
