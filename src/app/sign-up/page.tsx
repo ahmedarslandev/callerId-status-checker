@@ -32,7 +32,7 @@ export default function SignIn() {
   const router = useRouter();
   const { user } = useSelector((state: any) => state.user) as any;
 
-  if (user) {
+  if (Object.keys(user).length > 0) {
     router.replace("/");
   }
   const form = useForm<z.infer<typeof SignUpSchema>>({

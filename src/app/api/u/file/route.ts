@@ -51,10 +51,14 @@ export async function POST(req: NextRequest) {
 
     const userDirectory = join(
       process.cwd(),
-      "../file-server-handler/uploads",
-      dbUser._id.toString()
+      `../file-server-handler/uploads/${dbUser._id.toString()}`
     );
-    await mkdir(userDirectory, { recursive: true });
+
+    try {
+      await mkdir(userDirectory, { recursive: true });
+    } catch (error) {
+      console.error("Error creating directory:", error);
+    }
 
     const filePath = join(userDirectory, `${filename}.${extension}`);
     await writeFile(filePath, buffer);

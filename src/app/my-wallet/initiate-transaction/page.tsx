@@ -26,9 +26,6 @@ import {
 import ButtonLoder from "@/components/ButtonLoder";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-import { isAuthenticated } from "@/lib/auth/isAuthenticated";
-import Image from "next/image";
-import { useSession } from "next-auth/react";
 import { useSelector } from "react-redux";
 
 export default function Component() {
@@ -36,17 +33,15 @@ export default function Component() {
   const router = useRouter();
   const { user } = useSelector((state: any) => state.user) as any;
 
-  if (!user) {
-    router.replace("/");
-  }
   const [isLoading, setIsLoading] = useState(false);
   const [bankDetails, setBankDetails] = useState<any | null>(null);
 
+  // Always call hooks, even if we later conditionally render the JSX
   const form = useForm({
     resolver: zodResolver(depositeSchema),
     defaultValues: {
       bankName: "",
-      transactionId: "",
+      file: null,
     },
   });
 
@@ -59,43 +54,75 @@ export default function Component() {
   const selectedBank = watch("bankName");
 
   useEffect(() => {
-    const bank: any = paymentGateways.find((e) => e.bankName === selectedBank);
-    setBankDetails(bank ? bank.details : null);
+    const bank = paymentGateways.find((e) => e.bankName === selectedBank);
+    let details: any = bank ? bank.details : null;
+    setBankDetails(details);
   }, [selectedBank]);
 
   const onSubmit = async (values: any) => {
+    const file = values.file; // Get file from form data
+    if (!file) {
+      toast({
+        title: "Error",
+        description: "Please upload a screenshot of your transaction.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
     try {
-      const { data } = await axios.post("/api/u/deposite", values);
+      const formData: any = new FormData();
+      formData.append("file", file); // Appending file from form values
+
+      const { data } = await axios.post(
+        "/api/u/initiate-transaction",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
       toast({
         title: data.success ? "Success" : "Error",
         description: data.message,
         variant: data.success ? "default" : "destructive",
       });
-    } catch {
+
+      if (data.success) {
+        router.replace("/my-wallet/success");
+      }
+    } catch (error) {
       toast({
         title: "Error",
         description:
-          "Failed to submit withdrawal request. Please try again later.",
+          "Failed to submit deposit request. Please try again later.",
         variant: "destructive",
       });
     } finally {
-      setTimeout(() => {
-        router.replace("/my-wallet/success");
-      }, 2000);
       setIsLoading(false);
     }
   };
+
+  // Conditionally render the JSX, but ensure hooks are called before this
+  if (!user) {
+    router.replace("/");
+    return null; // Prevent component from rendering without user data
+  }
 
   return (
     <div className="w-full h-full flex flex-col items-center p-4 md:p-10">
       <div className="container w-full border border-zinc-300 rounded-lg mx-auto px-6 py-12 md:py-20">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div>
-            <h1 className="text-3xl font-bold mb-4">Deposit Funds</h1>
-            <p className="text-muted-foreground mb-8">
-              Request a deposit from your account balance.
-            </p>
+            <h1 className="text-3xl font-bold mb-4">Deposit</h1>
+            <p>Step 1: Select Bank.</p>
+            <p>Step 2: Send payment to bank.</p>
+            <p>Step 3: Take a screenshot of the transaction.</p>
+            <p>Step 4: Upload the screenshot below.</p>
+
             <Form {...form}>
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                 <FormField
@@ -105,7 +132,10 @@ export default function Component() {
                     <FormItem>
                       <FormLabel>Select Bank</FormLabel>
                       <FormControl>
-                        <Select {...field} onValueChange={field.onChange}>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
                           <SelectTrigger>
                             <SelectValue placeholder="Select Bank..." />
                           </SelectTrigger>
@@ -150,31 +180,31 @@ export default function Component() {
                     </p>
                   </div>
                 )}
-                <p className="text-xs">
-                  Send the amount to this account and paste the transaction ID
-                  below.
-                </p>
+
                 <FormField
                   control={control}
-                  name="transactionId"
+                  name="file"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Enter Transaction ID</FormLabel>
+                      <FormLabel>Upload Transaction Screenshot</FormLabel>
                       <FormControl>
                         <Input
-                          id="transactionId"
-                          placeholder="Enter transaction ID"
-                          {...field}
+                          type="file"
+                          onChange={(e) => {
+                            const selectedFile: any = e.target.files?.[0];
+                            field.onChange(selectedFile); // Updates the form state with the selected file
+                          }}
                         />
                       </FormControl>
-                      {errors.transactionId && (
+                      {errors.file && (
                         <FormDescription className="text-red-500">
-                          {errors.transactionId.message}
+                          {errors.file.message}
                         </FormDescription>
                       )}
                     </FormItem>
                   )}
                 />
+
                 <ButtonLoder isLoading={isLoading} name="Request Deposit" />
               </form>
             </Form>

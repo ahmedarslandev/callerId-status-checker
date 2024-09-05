@@ -32,7 +32,10 @@ const fetchWalletData = async () => {
         ? new Date(data.dbUser.walletId.lastDeposited).toLocaleString()
         : "N/A",
     };
-    return { transactions: data.transactions.reverse(), wallet: formattedWallet };
+    return {
+      transactions: data.transactions.reverse(),
+      wallet: formattedWallet,
+    };
   } catch (error) {
     console.error("Failed to fetch wallet data:", error);
   }
@@ -99,14 +102,9 @@ export default function WalletComponent() {
               <div className="flex flex-col md:flex-row gap-2 items-start md:items-center w-full">
                 <div className="text-sm">{wallet.currency}</div>
                 <div className="flex gap-1 items-center">
-                  <Link href="/my-wallet/withdraw">
-                    <Button className="w-full md:w-24 h-8 text-xs">
-                      Withdraw
-                    </Button>
-                  </Link>
-                  <Link href="/my-wallet/deposite">
-                    <Button className="w-full md:w-24 h-8 text-xs">
-                      Deposit
+                  <Link href="/my-wallet/initiate-transaction">
+                    <Button className="w-full h-8 text-xs">
+                      Initiate Transaction
                     </Button>
                   </Link>
                   <Button
