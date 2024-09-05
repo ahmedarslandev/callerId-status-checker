@@ -116,7 +116,7 @@ export function MenuDropDown({ profileImage, username }: any) {
   );
 }
 
-function UserIcon(props) {
+function UserIcon(props:any) {
   return (
     <svg
       {...props}
