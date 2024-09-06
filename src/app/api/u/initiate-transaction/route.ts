@@ -1,26 +1,13 @@
-import { auth } from "@/auth";
 import connectMongo from "@/lib/dbConfig";
 import { uploadToS3 } from "@/lib/upload.to.s3";
-import { userModel } from "@/models/user.model";
 import { NextResponse, NextRequest } from "next/server";
+import { IsUser } from "../checkDbUser";
 
 export async function POST(req: NextRequest) {
   await connectMongo();
 
   try {
-    const { data, user }: any = await auth();
-    if (!data || !user) {
-      return NextResponse.json({ message: "Unauthorized", success: false });
-    }
-
-    const dbUser = await userModel
-      .findById(data.id)
-      .populate("walletId")
-      .exec();
-    if (!dbUser || !dbUser.isVerified) {
-      return NextResponse.json({ message: "Invalid User", success: false });
-    }
-
+    const dbUser = await IsUser();
     const formData = await req.formData();
     const file = formData.get("file") as File | null;
 

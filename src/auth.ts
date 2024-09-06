@@ -10,6 +10,7 @@ import { SignInSchema } from "@/zod-schemas/signin-schema";
 import { walletModel } from "@/models/wallet.model";
 import { securityModel } from "@/models/security.model";
 
+
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
     CredentialsProvider({

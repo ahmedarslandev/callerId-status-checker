@@ -37,6 +37,7 @@
     "jsonwebtoken": "^9.0.2",
     "lazysizes": "^5.3.2",
     "lucide-react": "^0.426.0",
+    "mongodb-adapter": "^0.0.4",
     "mongoose": "^8.5.2",
     "multer": "^1.4.5-lts.1",
     "nanoid": "^5.0.7",

@@ -5,31 +5,14 @@ import { userModel } from "@/models/user.model";
 import { securityModel } from "@/models/security.model";
 import { cookies } from "next/headers";
 import sendEmail from "@/resendEmailConfig/sendEmail";
+import { IsUser } from "../checkDbUser";
 
 // Handler for POST requests
 export async function POST(req: NextRequest) {
   await connectMongo();
 
   try {
-    const { data, user }: any = await auth();
-
-    // Check if user is authenticated
-    if (!data || !user) {
-      return NextResponse.json({
-        success: false,
-        message: "Unauthorized",
-      });
-    }
-
-    const dbUser = await userModel.findById(data.id);
-
-    // Check if user exists
-    if (!dbUser) {
-      return NextResponse.json({
-        success: false,
-        message: "Invalid User",
-      });
-    }
+    const dbUser = await IsUser();
 
     const security = await securityModel.findOne({ user_id: dbUser._id });
 
@@ -85,25 +68,32 @@ export async function PUT(req: NextRequest) {
       }
     }
 
-    const { user, data }: any = await auth();
+    const data = await auth();
 
     // Check if user is authenticated
-    if (!user || !data) {
-      return NextResponse.json({
-        success: false,
-        message: "Unauthorized",
-      });
+    if (!data || !data?.user) {
+      return NextResponse.json(
+        { message: "Unauthorized", success: false },
+        { status: 401 }
+      );
     }
 
-    const dbUser = await userModel.findById(data.id);
+    console.log("Authentication successful");
 
-    // Check if user exists
-    if (!dbUser) {
-      return NextResponse.json({
-        success: false,
-        message: "Invalid User",
-      });
+    // Fetch the user from the database and populate the walletId field
+    const dbUser = await userModel
+      .findById(data?.data?.id)
+      .populate("walletId");
+    console.log("User fetched");
+
+    // Check if user exists and is verified
+    if (!dbUser || !dbUser.isVerified) {
+      return NextResponse.json(
+        { message: "Invalid User", success: false },
+        { status: 403 }
+      );
     }
+
 
     const security = await securityModel.findOne({ user_id: dbUser._id });
 
