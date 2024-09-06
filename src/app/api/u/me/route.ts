@@ -4,14 +4,38 @@ import connectMongo from "@/lib/dbConfig";
 import sendEmail from "@/resendEmailConfig/sendEmail";
 import { cookies } from "next/headers";
 import { securityModel } from "@/models/security.model";
-import { IsUser } from "../checkDbUser";
+import { auth } from "@/auth";
 
 // Handler for GET requests
 export async function GET(req: NextRequest) {
   await connectMongo();
 
   try {
-    const dbUser = await IsUser();
+    const data = await auth();
+
+    // Check if user is authenticated
+    if (!data || !data?.user) {
+      return NextResponse.json(
+        { message: "Unauthorized", success: false },
+        { status: 401 }
+      );
+    }
+
+    console.log("Authentication successful");
+
+    // Fetch the user from the database and populate the walletId field
+    const dbUser = await userModel
+      .findById(data?.data?.id)
+      .populate("walletId");
+    console.log("User fetched");
+
+    // Check if user exists and is verified
+    if (!dbUser || !dbUser.isVerified) {
+      return NextResponse.json(
+        { message: "Invalid User", success: false },
+        { status: 403 }
+      );
+    }
 
     console.log("User verified");
 
@@ -36,7 +60,15 @@ export async function PUT(req: NextRequest) {
   await connectMongo();
 
   try {
-    const dbUser = await IsUser();
+    const data = await auth();
+
+    // Check if user is authenticated
+    if (!data || !data?.user) {
+      return NextResponse.json(
+        { message: "Unauthorized", success: false },
+        { status: 401 }
+      );
+    }
 
     const { username, email, bio } = await req.json();
 
@@ -50,6 +82,8 @@ export async function PUT(req: NextRequest) {
         success: false,
       });
     }
+
+    const dbUser = await userModel.findById(data?.data?.id);
 
     // Handle email verification if the email length is greater than 8
     if (email.length > 8) {
@@ -80,7 +114,7 @@ export async function PUT(req: NextRequest) {
 
     // Update user profile without email verification
     const updatedUser = await userModel.findByIdAndUpdate(
-      dbUser._id,
+      data?.data?.id,
       { username, email, bio },
       { new: true }
     );

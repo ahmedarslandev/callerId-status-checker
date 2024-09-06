@@ -9,13 +9,36 @@ import { fileModel } from "@/models/file.model";
 import connectMongo from "@/lib/dbConfig";
 import { processFile } from "@/lib/fileProcessing";
 import { startProcessingInterval } from "@/lib/intervalSetup";
-import { IsUser } from "../checkDbUser";
 
 export async function POST(req: NextRequest) {
   await connectMongo();
 
   try {
-    const dbUser = await IsUser();
+    const data = await auth();
+
+    // Check if user is authenticated
+    if (!data || !data?.user) {
+      return NextResponse.json(
+        { message: "Unauthorized", success: false },
+        { status: 401 }
+      );
+    }
+
+    console.log("Authentication successful");
+
+    // Fetch the user from the database and populate the walletId field
+    const dbUser = await userModel
+      .findById(data?.data?.id)
+      .populate("walletId");
+    console.log("User fetched");
+
+    // Check if user exists and is verified
+    if (!dbUser || !dbUser.isVerified) {
+      return NextResponse.json(
+        { message: "Invalid User", success: false },
+        { status: 403 }
+      );
+    }
 
     const formData = await req.formData();
     const file = formData.get("file") as File | null;
@@ -94,16 +117,29 @@ export async function POST(req: NextRequest) {
 export async function GET(req: NextRequest) {
   await connectMongo();
   try {
-    const { data }: any = await auth();
+    const data = await auth();
 
-    if (!data) {
-      return NextResponse.json({ success: false, message: "Unauthorized" });
+    // Check if user is authenticated
+    if (!data || !data?.user) {
+      return NextResponse.json(
+        { message: "Unauthorized", success: false },
+        { status: 401 }
+      );
     }
 
-    const dbUser = await userModel.findById(data.id).populate("files").exec();
+    console.log("Authentication successful");
 
-    if (!dbUser) {
-      return NextResponse.json({ success: false, message: "Invalid User" });
+    // Fetch the user from the database and populate the walletId field
+    const dbUser = await userModel
+      .findById(data?.data?.id)
+      .populate("files").exec()
+
+    // Check if user exists and is verified
+    if (!dbUser || !dbUser.isVerified) {
+      return NextResponse.json(
+        { message: "Invalid User", success: false },
+        { status: 403 }
+      );
     }
 
     return NextResponse.json({ success: true, files: dbUser.files });
