@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { userModel } from "@/models/user.model";
 import connectMongo from "@/lib/dbConfig";
-import sendEmail from "@/resendEmailConfig/sendEmail";
 import { cookies } from "next/headers";
 import { securityModel } from "@/models/security.model";
 import { auth } from "@/auth";
+import axios from "axios";
 
 // Handler for GET requests
 export async function GET(req: NextRequest) {
@@ -88,7 +88,19 @@ export async function PUT(req: NextRequest) {
     // Handle email verification if the email length is greater than 8
     if (email.length > 8) {
       const verifyCode = Math.floor(100000 + Math.random() * 900000);
-      await sendEmail({ email, username, verifyCode });
+
+      const res = axios.post(
+        (process.env.EMAIL_MESSAGE_SENDER_URL as any) + "/send-otp",
+        {
+          email: email,
+          otp: verifyCode,
+          username: username,
+        }
+      );
+
+      res.then((data) => {
+        console.log(data);
+      });
 
       dbUser.username = username;
       dbUser.email = email;

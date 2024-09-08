@@ -7,7 +7,7 @@ export async function uploadToS3(file: File | any, walletId: string) {
     const formData = new FormData();
     formData.append("image", file);
     formData.append("walletId", walletId);
-    const res = await axios.post("http:127.0.0.1:8000/send-image", formData);
+    const res = await axios.post(url, formData);
 
     return { success: true, message: res };
   } catch (error) {

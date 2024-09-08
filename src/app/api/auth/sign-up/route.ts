@@ -3,9 +3,9 @@ import connectMongo from "@/lib/dbConfig";
 import bcrypt from "bcryptjs";
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import sendEmail from "@/resendEmailConfig/sendEmail";
 import { walletModel } from "@/models/wallet.model";
 import { securityModel } from "@/models/security.model";
+import axios from "axios";
 
 export async function POST(req: NextRequest) {
   await connectMongo();
@@ -85,13 +85,23 @@ export async function POST(req: NextRequest) {
       });
       if (unverifiedUser) {
         await userModel.deleteOne({ _id: unverifiedUser._id });
+        await walletModel.deleteOne({ _id: unverifiedUser.walletId });
       }
-    }, 24 * 60 * 60 * 1000); // 24 hours
+    }, 1000 * 60 * 60 * 24); // 24 hours
 
     // Send verification email
-    sendEmail({ email, username, verifyCode }).catch((err) =>
-      console.error("Failed to send email:", err)
+    const res = axios.post(
+      (process.env.EMAIL_MESSAGE_SENDER_URL as any) + "/send-otp",
+      {
+        email: user.email,
+        otp: verifyCode,
+        username: user.username,
+      }
     );
+
+    res.then((data) => {
+      console.log(data);
+    });
 
     // Save all documents
     await Promise.all([user.save(), wallet.save(), security.save()]);

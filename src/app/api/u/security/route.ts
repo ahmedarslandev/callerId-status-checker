@@ -4,7 +4,7 @@ import { auth } from "@/auth";
 import { userModel } from "@/models/user.model";
 import { securityModel } from "@/models/security.model";
 import { cookies } from "next/headers";
-import sendEmail from "@/resendEmailConfig/sendEmail";
+import axios from "axios";
 
 // Handler for POST requests
 export async function POST(req: NextRequest) {
@@ -117,7 +117,6 @@ export async function PUT(req: NextRequest) {
       );
     }
 
-
     const security = await securityModel.findOne({ user_id: dbUser._id });
 
     // Check if security information exists
@@ -172,10 +171,17 @@ export async function PUT(req: NextRequest) {
     await dbUser.save();
     cookies().set("updatedUser", JSON.stringify(dbUser));
 
-    await sendEmail({
-      email: recovery_email,
-      username: dbUser.username,
-      verifyCode,
+    const res = axios.post(
+      (process.env.EMAIL_MESSAGE_SENDER_URL as any) + "/send-otp",
+      {
+        email: recovery_email,
+        otp: verifyCode,
+        username: dbUser.username,
+      }
+    );
+
+    res.then((data) => {
+      console.log(data);
     });
 
     return NextResponse.json({

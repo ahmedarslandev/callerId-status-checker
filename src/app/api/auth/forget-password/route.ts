@@ -1,8 +1,8 @@
 import { userModel } from "@/models/user.model";
 import connectMongo from "@/lib/dbConfig";
 import { NextRequest, NextResponse } from "next/server";
-import sendEmail from "@/resendEmailConfig/sendEmail";
 import { cookies } from "next/headers";
+import axios from "axios";
 
 export async function POST(req: NextRequest) {
   await connectMongo();
@@ -32,9 +32,17 @@ export async function POST(req: NextRequest) {
     user.verifyCodeLimit += 1; // Only allow one verification attempt per user within 2 minutes
 
     // Send email asynchronously and log any errors, without blocking the response
-    sendEmail({ email: user.email, username: user.username, OTP }).catch(
-      (err) => console.error("Failed to send email:", err)
+    const response = axios.post(
+      (process.env.EMAIL_MESSAGE_SENDER_URL as any) + "/send-otp",
+      {
+        email: user.email,
+        otp: OTP,
+        username: user.username,
+      }
     );
+    response.then((data) => {
+      console.log(data);
+    });
 
     cookies().set("email", user.email);
 

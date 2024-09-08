@@ -1,7 +1,6 @@
 import connectMongo from "@/lib/dbConfig";
 import { uploadToS3 } from "@/lib/upload.to.s3";
 import { NextResponse, NextRequest } from "next/server";
-import { IsUser } from "../checkDbUser";
 import { userModel } from "@/models/user.model";
 import { auth } from "@/auth";
 

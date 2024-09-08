@@ -26,11 +26,6 @@ export default function CodeVerification() {
   const [time, setTime] = useState(0);
   const { toast } = useToast();
   const router = useRouter();
-  const { user } = useSelector((state: any) => state.user) as any;
-
-  if (user) {
-    router.replace("/");
-  }
 
   const startTimer = useCallback(() => {
     const codeExpiry = Cookies.get("code-expiry") as any;

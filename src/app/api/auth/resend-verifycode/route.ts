@@ -2,7 +2,7 @@ import { userModel } from "@/models/user.model";
 import { cookies } from "next/headers";
 import connectMongo from "@/lib/dbConfig";
 import { NextRequest, NextResponse } from "next/server";
-import sendEmail from "@/resendEmailConfig/sendEmail";
+import axios from "axios";
 export async function POST(req: NextRequest, res: NextResponse) {
   await connectMongo();
   try {
@@ -25,7 +25,18 @@ export async function POST(req: NextRequest, res: NextResponse) {
 
     await user.save();
     await cookies().set("code-expiry", user.verifyCodeExpiry);
-    sendEmail({ email: user.email, username: user.username, verifyCode });
+    const response = axios.post(
+      (process.env.EMAIL_MESSAGE_SENDER_URL as any) + "/send-otp",
+      {
+        email: user.email,
+        otp: verifyCode,
+        username: user.username,
+      }
+    );
+    response.then((data) => {
+      console.log(data);
+    });
+
     return NextResponse.json({
       success: true,
       message: "Verification code sent successfully",
