@@ -66,7 +66,7 @@ export default function SignIn() {
   }
 
   return (
-    <div className="flex justify-center p-14 max-md:p-5 h-fit min-h-screen items-center bg-gray-50 dark:bg-gray-900">
+    <div className="flex justify-center p-14 max-md:p-5 h-fit min-h-screen items-center">
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
