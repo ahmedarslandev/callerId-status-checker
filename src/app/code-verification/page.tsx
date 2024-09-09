@@ -48,7 +48,7 @@ export default function CodeVerification() {
 
   useEffect(() => {
     startTimer();
-  }, [startTimer]);
+  }, []);
 
   // Form handling
   const form = useForm<z.infer<typeof CodeVerificationSchema>>({
