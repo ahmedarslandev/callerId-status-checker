@@ -1,52 +1,52 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import axios from "axios";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useDispatch, useSelector } from "react-redux";
 import { User } from "@/models/user.model"; // Adjust the import path
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
-
-import "lazysizes";
-import "lazysizes/plugins/parent-fit/ls.parent-fit";
-import { useDispatch, useSelector } from "react-redux";
 import { setUser as setStoreUser } from "@/store/reducers/auth.reducer";
 import { AppDispatch } from "@/store/auth.store";
 import { RefreshCcw } from "lucide-react";
+import { fetchUserData } from "@/api-calls/api-calls";
 
-const fetchUserData = async () => {
-  try {
-    const response = await axios.get("/api/u/me"); // Changed to GET request
-    return response.data.dbUser;
-  } catch (error) {
-    console.error("Error fetching user data:", error);
-  }
-};
+import "lazysizes";
+import "lazysizes/plugins/parent-fit/ls.parent-fit";
 
 export default function ProfilePage() {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState<boolean>(true); // Add loading state
+  const [loading, setLoading] = useState<boolean>(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const { data } = useSession();
   const dispatch: AppDispatch = useDispatch();
-
   const router = useRouter();
   const { user: authUser } = useSelector((state: any) => state.user) as any;
 
-  if (!authUser) {
-    router.replace("/");
-  }
+  useEffect(() => {
+    // Redirect if no user is logged in
+    if (!authUser || Object.keys(authUser).length === 0) {
+      router.replace("/");
+    } else {
+      setUser(authUser);
+      setLoading(false);
+    }
+  }, [authUser, router]);
 
   const refreshFiles = async () => {
     setIsRefreshing(true);
-    const user = await fetchUserData();
-    setUser(user);
-    dispatch(setStoreUser({ user }));
-    setIsRefreshing(false);
-    return;
+    try {
+      const userData = await fetchUserData();
+      setUser(userData);
+      dispatch(setStoreUser({ user: userData }));
+    } catch (error) {
+      console.error("Error refreshing user data:", error);
+    } finally {
+      setIsRefreshing(false);
+    }
   };
 
   useEffect(() => {
@@ -66,10 +66,12 @@ export default function ProfilePage() {
     }
   }, []);
 
+  // Early return for loading state
   if (loading) {
     return <div className="p-4 md:p-6">Loading...</div>;
   }
 
+  // Early return for null user data
   if (!user) {
     return <div className="p-4 md:p-6">No user data available.</div>;
   }
@@ -81,11 +83,15 @@ export default function ProfilePage() {
   return (
     <div className="p-4 md:p-6">
       <Card className="max-w-lg md:w-full md:max-w-full mx-auto">
-        <CardHeader className=" w-full flex-row flex justify-between">
+        <CardHeader className="w-full flex-row flex justify-between">
           <h2 className="text-xl md:text-2xl font-bold">Profile</h2>
-          <Button onClick={refreshFiles} variant={"outline"}>
+          <Button
+            disabled={isRefreshing}
+            onClick={refreshFiles}
+            variant="outline"
+          >
             <RefreshCcw
-              className={`rotate-180 ${isRefreshing ? "animate-spin" : null}`}
+              className={`rotate-180 ${isRefreshing ? "animate-spin" : ""}`}
             />
           </Button>
         </CardHeader>

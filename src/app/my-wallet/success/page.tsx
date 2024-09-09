@@ -1,18 +1,21 @@
 "use client";
 
-import { isAuthenticated } from "@/lib/auth/isAuthenticated";
-import { useSession } from "next-auth/react";
+import { CircleCheckIcon } from "@/components/icons/icons";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
+import { useEffect } from "react";
 
 export default function Component() {
   const router = useRouter();
-  const { user } = useSelector((state: any) => state.user) as any;
+  const { user } = useSelector((state: any) => state.user);
 
-  if (!user) {
-    router.replace("/");
-  }
+  useEffect(() => {
+    if (!user) {
+      router.replace("/");
+    }
+  }, [user, router]);
+
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4 py-12 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-md text-center">
@@ -35,23 +38,5 @@ export default function Component() {
         </div>
       </div>
     </div>
-  );
-}
-
-function CircleCheckIcon({ className }: any) {
-  return (
-    <svg
-      className={className}
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <circle cx="12" cy="12" r="10" />
-      <path d="m9 12 2 2 4-4" />
-    </svg>
   );
 }

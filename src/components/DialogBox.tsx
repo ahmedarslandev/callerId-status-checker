@@ -50,6 +50,7 @@ export default function DialogBox({
             });
           }
           dispatch(updateFiles({ type: "add", file: response.data.file }));
+          window.location.reload();
           return toast({
             title: "Success",
             description: "File uploaded successfully",

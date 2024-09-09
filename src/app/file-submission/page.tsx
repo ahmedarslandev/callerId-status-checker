@@ -11,93 +11,160 @@ import {
 import { toast } from "@/components/ui/use-toast";
 import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
-import * as XLSX from "xlsx"; // Import the XLSX library
+import * as XLSX from "xlsx";
 import DialogBox from "@/components/DialogBox";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import ButtonLoder from "@/components/ButtonLoder";
-import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { isAuthenticated } from "@/lib/auth/isAuthenticated";
 import { useSelector } from "react-redux";
-import { AppDispatch } from "@/store/auth.store";
+import { Textarea } from "@/components/ui";
 
 interface FileData {
   file: File | null;
   numberOfCallerIds: number;
+  externalCallerIds: string[];
 }
 
 export default function Page() {
   const router = useRouter();
   const { user } = useSelector((state: any) => state.user) as any;
-  if (!user) {
-    router.replace("/");
-  }
 
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [textArea, setTextArea] = useState("");
   const [fileData, setFileData] = useState<FileData>({
     file: null,
     numberOfCallerIds: 0,
+    externalCallerIds: [],
   });
 
   const form = useForm();
 
-  const onSubmit = useCallback(async (values: any) => {
-    const file: File | null = values.file?.[0] || null;
-
-    if (!file) {
-      toast({
-        title: "Error",
-        description: "Please select a file",
-        duration: 5000,
-      });
-      return;
+  // Redirect to home if user is not authenticated
+  useEffect(() => {
+    if (!user) {
+      router.replace("/");
     }
+  }, [user, router]);
 
-    setIsLoading(true);
+  const handleTextAreaChange = useCallback(
+    (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+      const text = e.target.value;
+      setTextArea(text);
 
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      if (!e.target?.result) {
+      const callerIds = text
+        .split("\n")
+        .map((id) => id.trim())
+        .filter((id) => /^\d{10}$/.test(id)); // Ensure IDs are exactly 10 digits
+
+      setFileData((prev) => ({
+        ...prev,
+        externalCallerIds: callerIds,
+      }));
+    },
+    []
+  );
+
+  const onSubmit = useCallback(
+    async (values: any) => {
+      const file: File | null = values.file?.[0] || null;
+
+      if (!file) {
         toast({
           title: "Error",
-          description: "Failed to read file",
+          description: "Please select a file",
           duration: 5000,
-          variant: "destructive",
         });
-        setIsLoading(false);
         return;
       }
 
-      const data = new Uint8Array(e.target.result as ArrayBuffer);
-      const workbook = XLSX.read(data, { type: "array" });
-      const sheet = workbook.Sheets[workbook.SheetNames[0]];
-      const json = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+      setIsLoading(true);
 
-      const callerIds: any = json.slice(1);
-
-      for (let i = 0; i < callerIds.length; i++) {
-        const callerId = callerIds[i][0];
-        if (!/^\d{10}$/.test(callerId)) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        if (!e.target?.result) {
           toast({
-            title: "Invalid Caller ID",
-            description: `Invalid caller ID at row ${
-              i + 2
-            }. Ensure all IDs are 10 digits and there are no empty rows.`,
+            title: "Error",
+            description: "Failed to read file",
             duration: 5000,
             variant: "destructive",
           });
           setIsLoading(false);
           return;
         }
-      }
 
-      setFileData({ file, numberOfCallerIds: callerIds.length });
-      setIsOpen(true);
-      setIsLoading(false);
-    };
-    reader.readAsArrayBuffer(file);
-  }, []);
+        const data = new Uint8Array(e.target.result as ArrayBuffer);
+        const workbook = XLSX.read(data, { type: "array" });
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const json = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+
+        const callerIdsFromFile = json.slice(1).map((row: any) => row[0]); // Extract caller IDs from file
+
+        // Combine externalCallerIds from text area and callerIdsFromFile
+        const combinedCallerIds = [
+          ...callerIdsFromFile,
+          ...fileData.externalCallerIds,
+        ];
+
+        // Validate all IDs
+        const invalidCallerId = combinedCallerIds.find(
+          (id) => !/^\d{10}$/.test(id)
+        );
+        if (invalidCallerId) {
+          toast({
+            title: "Invalid Caller ID",
+            description: `Caller ID '${invalidCallerId}' is invalid. Ensure all IDs are 10 digits.`,
+            duration: 5000,
+            variant: "destructive",
+          });
+          setIsLoading(false);
+          return;
+        }
+
+        // Prepare updated data for the new sheet
+        const updatedData = [
+          ["Caller ID"],
+          ...combinedCallerIds.map((id) => [id]),
+        ]; // Include header row
+        const updatedSheet = XLSX.utils.aoa_to_sheet(updatedData);
+
+        // Create a new workbook with the updated sheet
+        const newWorkbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(
+          newWorkbook,
+          updatedSheet,
+          "UpdatedCallerIDs"
+        );
+
+        // Generate a new Blob from the updated workbook
+        const updatedWorkbookBlob = XLSX.write(newWorkbook, {
+          bookType: "xlsx",
+          type: "array",
+        });
+
+        // Create a new file from the Blob
+        const updatedFile = new File(
+          [updatedWorkbookBlob],
+          "updated_caller_ids.xlsx",
+          {
+            type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          }
+        );
+
+        // Update the fileData with the new file
+        setFileData({
+          file: updatedFile,
+          numberOfCallerIds: combinedCallerIds.length,
+          externalCallerIds: combinedCallerIds,
+        });
+
+        setIsOpen(true);
+        setIsLoading(false);
+      };
+      reader.readAsArrayBuffer(file);
+    },
+    [fileData.externalCallerIds]
+  );
 
   return (
     <div className="flex p-4 md:p-14 justify-center h-fit min-h-screen items-center">
@@ -126,7 +193,22 @@ export default function Page() {
               </FormItem>
             )}
           />
-          <ButtonLoder name={"Upload"} isLoading={isLoading} />
+          <FormField
+            control={form.control}
+            name="textArea"
+            render={() => (
+              <FormItem>
+                <FormLabel>Paste callerIds</FormLabel>
+                <FormControl>
+                  <Textarea value={textArea} onChange={handleTextAreaChange} />
+                </FormControl>
+                <FormDescription>
+                  Paste additional callerIds (one per line)
+                </FormDescription>
+              </FormItem>
+            )}
+          />
+          <ButtonLoder name="Upload" isLoading={isLoading} />
         </form>
       </Form>
     </div>

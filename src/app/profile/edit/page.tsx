@@ -9,52 +9,46 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
 import ButtonLoder from "@/components/ButtonLoder";
-
 import "lazysizes";
 import "lazysizes/plugins/parent-fit/ls.parent-fit";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch } from "@/store/auth.store";
+import { setUser } from "@/store/reducers/auth.reducer";
 
 export default function EditProfilePage() {
-  const [user, setUser] = useState<User | null>(null);
-  const [form, setForm] = useState<Partial<User>>({});
+  const [form, setForm] = useState<Partial<User>>({
+    username: "",
+    email: "",
+    bio: "",
+  });
   const [isLoading, setIsLoading] = useState(false);
 
   const router = useRouter();
   const { user: authUser } = useSelector((state: any) => state.user) as any;
-
-  if (!authUser) {
-    router.replace("/");
-  }
+  const dispatch: AppDispatch = useDispatch(); // Adjust the import path
 
   useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const response = await axios.get("/api/u/me");
-        const { dbUser } = response.data;
-        setUser(dbUser);
-        setForm({
-          username: dbUser.username,
-          email: dbUser.email,
-          bio: dbUser.bio,
-        });
-      } catch (error) {
-        console.error("Error fetching user data:", error);
-      }
-    };
+    if (!authUser) {
+      router.replace("/sign-in");
+    } else {
+      // Initialize form state with user data
+      setForm({
+        username: authUser.username || "",
+        email: authUser.email || "",
+        bio: authUser.bio || "",
+      });
+    }
+  }, [authUser, router]);
 
-    fetchUserData();
-  }, []);
-
+  // Handle input change
   const handleChange = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
-    setForm((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setForm((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Handle form submission
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -73,7 +67,7 @@ export default function EditProfilePage() {
         return;
       }
 
-      setUser(dbUser);
+      dispatch(setUser({ user: dbUser }));
 
       if (isEmailSent) {
         toast({
@@ -81,24 +75,21 @@ export default function EditProfilePage() {
           description: "Email has been sent successfully.",
           duration: 5000,
         });
-        setTimeout(() => {
-          router.replace("/code-verification");
-        }, 2000);
+        router.replace("/code-verification");
         return;
       }
 
       toast({
         title: "Success",
-        description: message,
+        description: "Profile updated successfully",
         duration: 5000,
       });
-      setTimeout(() => {
-        router.replace("/profile");
-      }, 2000);
+      router.replace("/profile");
     } catch (error: any) {
       toast({
         title: "Error",
-        description: error.message,
+        description:
+          error.response?.data?.message || error.message || "An error occurred",
         variant: "destructive",
         duration: 5000,
       });
@@ -107,7 +98,7 @@ export default function EditProfilePage() {
     }
   };
 
-  if (!user) {
+  if (!authUser) {
     return <div>Loading...</div>;
   }
 
@@ -121,21 +112,21 @@ export default function EditProfilePage() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="flex items-center space-x-4">
               <img
-                data-src={user.profileImage}
-                src={user.profileImage || "/default-profile.png"}
-                alt={`${user.username}'s profile image`}
+                data-src={authUser.profileImage || "/default-profile.png"}
+                src={authUser.profileImage || "/default-profile.png"}
+                alt={`${authUser.username}'s profile image`}
                 width={100}
                 height={100}
                 className="rounded-full lazyload"
               />
               <div>
-                <h3 className="text-xl font-semibold">{user.username}</h3>
+                <h3 className="text-xl font-semibold">{authUser.username}</h3>
               </div>
             </div>
             <Input
               type="text"
               name="username"
-              value={form.username || ""}
+              value={form.username}
               onChange={handleChange}
               placeholder="Username"
               className="w-full"
@@ -143,14 +134,14 @@ export default function EditProfilePage() {
             <Input
               type="email"
               name="email"
-              value={form.email || ""}
+              value={form.email}
               onChange={handleChange}
               placeholder="Email"
               className="w-full"
             />
             <Textarea
               name="bio"
-              value={form.bio || ""}
+              value={form.bio}
               onChange={handleChange}
               placeholder="Bio"
               className="w-full"

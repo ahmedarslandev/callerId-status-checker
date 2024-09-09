@@ -6,30 +6,36 @@ import { securityModel } from "@/models/security.model";
 import { auth } from "@/auth";
 import axios from "axios";
 
-// Handler for GET requests
-export async function GET(req: NextRequest) {
+// Utility to handle authentication and DB connection
+async function authenticateAndConnect() {
   await connectMongo();
+  const data = await auth();
 
-  try {
-    const data = await auth();
-
-    // Check if user is authenticated
-    if (!data || !data?.user) {
-      return NextResponse.json(
+  if (!data || !data.user) {
+    return {
+      user: null,
+      errorResponse: NextResponse.json(
         { message: "Unauthorized", success: false },
         { status: 401 }
-      );
-    }
+      ),
+    };
+  }
+
+  return { user: data.user, userId: data.data.id };
+}
+
+// Handler for GET requests
+export async function GET(req: NextRequest) {
+  try {
+    const { user, userId, errorResponse } = await authenticateAndConnect();
+
+    if (!user) return errorResponse;
 
     console.log("Authentication successful");
 
-    // Fetch the user from the database and populate the walletId field
-    const dbUser = await userModel
-      .findById(data?.data?.id)
-      .populate("walletId");
-    console.log("User fetched");
+    // Fetch user and populate walletId
+    const dbUser = await userModel.findById(userId).populate("walletId");
 
-    // Check if user exists and is verified
     if (!dbUser || !dbUser.isVerified) {
       return NextResponse.json(
         { message: "Invalid User", success: false },
@@ -39,7 +45,6 @@ export async function GET(req: NextRequest) {
 
     console.log("User verified");
 
-    // Return success response with the user data
     return NextResponse.json({
       success: true,
       message: "Signed In Successfully",
@@ -57,63 +62,54 @@ export async function GET(req: NextRequest) {
 
 // Handler for PUT requests (updating user profile)
 export async function PUT(req: NextRequest) {
-  await connectMongo();
-
   try {
-    const data = await auth();
+    const { user, userId, errorResponse } = await authenticateAndConnect();
 
-    // Check if user is authenticated
-    if (!data || !data?.user) {
-      return NextResponse.json(
-        { message: "Unauthorized", success: false },
-        { status: 401 }
-      );
-    }
+    if (!user) return errorResponse;
 
     const { username, email, bio } = await req.json();
 
-    // Check if email already exists in userModel or securityModel
-    const emailExists =
-      (await userModel.exists({ email })) ||
-      (await securityModel.exists({ recovery_email: email }));
-    if (emailExists) {
-      return NextResponse.json({
-        message: "User with provided email already exists",
-        success: false,
-      });
+    // Check if the email is already taken by another user
+    const emailExists = await userModel.findOne({ email });
+    const securityExists = await securityModel.findOne({
+      recovery_email: email,
+    });
+
+    if (emailExists && emailExists._id.toString() !== userId) {
+      if (!securityExists || securityExists.user_id.toString() !== userId) {
+        return NextResponse.json({
+          message: "User with provided email already exists",
+          success: false,
+        });
+      }
     }
 
-    const dbUser = await userModel.findById(data?.data?.id);
+    const dbUser = await userModel.findById(userId);
 
-    // Handle email verification if the email length is greater than 8
-    if (email.length > 8) {
+    // Check if email is changing and send verification if needed
+    if (dbUser.email !== email && email.length > 8) {
       const verifyCode = Math.floor(100000 + Math.random() * 900000);
 
-      const res = axios.post(
-        (process.env.EMAIL_MESSAGE_SENDER_URL as any) + "/send-otp",
-        {
-          email: email,
-          otp: verifyCode,
-          username: username,
-        }
-      );
-
-      res.then((data) => {
-        console.log(data);
+      await axios.post(`${process.env.EMAIL_MESSAGE_SENDER_URL}/send-otp`, {
+        email,
+        otp: verifyCode,
+        username,
       });
 
-      dbUser.username = username;
-      dbUser.email = email;
-      dbUser.bio = bio;
+      // Update the user with verification data
       dbUser.verifyCode = verifyCode;
-      dbUser.verifyCodeExpiry = Date.now() + 1000 * 60 * 2; // 2 minutes expiry
+      dbUser.verifyCodeExpiry = Date.now() + 1000 * 60 * 2; // 2 minutes
       dbUser.verifyCodeLimit = 1;
+      dbUser.username = username;
+      dbUser.bio = bio;
 
       await dbUser.save();
 
+      console.log(verifyCode);
       // Set the cookies
       const cookiesInstance = cookies();
       cookiesInstance.set("email", dbUser.email);
+      dbUser.email = email;
       cookiesInstance.set("updatedUser", JSON.stringify(dbUser));
 
       return NextResponse.json({
@@ -124,15 +120,14 @@ export async function PUT(req: NextRequest) {
       });
     }
 
-    // Update user profile without email verification
-    const updatedUser = await userModel.findByIdAndUpdate(
-      data?.data?.id,
-      { username, email, bio },
-      { new: true }
-    );
+    // Update user profile without email change
+    dbUser.username = username;
+    dbUser.bio = bio;
+
+    await dbUser.save();
 
     return NextResponse.json({
-      dbUser: updatedUser,
+      dbUser,
       success: true,
       message: "Updated user successfully",
     });

@@ -19,7 +19,6 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 import { CodeVerificationSchema } from "@/zod-schemas/code-verification.schema";
 import Cookies from "js-cookie";
-import { useSelector } from "react-redux";
 
 export default function CodeVerification() {
   const [isLoading, setIsLoading] = useState(false);
@@ -27,10 +26,13 @@ export default function CodeVerification() {
   const { toast } = useToast();
   const router = useRouter();
 
+  // Timer logic
   const startTimer = useCallback(() => {
-    const codeExpiry = Cookies.get("code-expiry") as any;
+    const codeExpiry = Cookies.get("code-expiry");
+    if (!codeExpiry) return;
+
     const remainingTime = Math.max(
-      Math.floor((codeExpiry - Date.now()) / 1000),
+      Math.floor((+codeExpiry - Date.now()) / 1000),
       0
     );
     setTime(remainingTime);
@@ -40,7 +42,7 @@ export default function CodeVerification() {
         setTime((prev) => (prev > 0 ? prev - 1 : 0));
       }, 1000);
 
-      return () => clearInterval(interval);
+      return () => clearInterval(interval); // Clean up interval on unmount
     }
   }, []);
 
@@ -48,64 +50,69 @@ export default function CodeVerification() {
     startTimer();
   }, [startTimer]);
 
+  // Form handling
   const form = useForm<z.infer<typeof CodeVerificationSchema>>({
     resolver: zodResolver(CodeVerificationSchema),
-    defaultValues: {},
   });
 
-  async function onSubmit(values: z.infer<typeof CodeVerificationSchema>) {
-    setIsLoading(true);
+  // On form submit
+  const onSubmit = useCallback(
+    async (values: z.infer<typeof CodeVerificationSchema>) => {
+      setIsLoading(true);
+      try {
+        const { data } = await axios.post(
+          "/api/auth/code-verification",
+          values
+        );
+        toast({
+          title: data.success ? "Success" : "Error",
+          description: data.message,
+          variant: data.success ? "default" : "destructive",
+          duration: 5000,
+        });
 
+        if (data.success) router.replace("/sign-in");
+      } catch (error: any) {
+        toast({
+          title: "Error",
+          description: error.response?.data?.message || error.message,
+          variant: "destructive",
+          duration: 5000,
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [toast, router]
+  );
+
+  // Resend code logic
+  const resendVerifyCode = useCallback(async () => {
+    setIsLoading(true);
     try {
-      const res = await axios.post("/api/auth/code-verification", values);
+      const { data } = await axios.post("/api/auth/resend-verifycode");
       toast({
-        title: res.data.success ? "Success" : "Error",
-        description: res.data.message,
-        variant: res.data.success ? "default" : "destructive",
+        title: data.success ? "Success" : "Error",
+        description: data.message,
+        variant: data.success ? "default" : "destructive",
         duration: 5000,
       });
 
-      if (res.data.success) {
-        router.replace("/sign-in");
+      if (data.success) {
+        Cookies.set("code-expiry", JSON.stringify(Date.now() + 5 * 60 * 1000)); // Set new expiry time in cookies
+        startTimer(); // Restart the timer after resending the code
       }
     } catch (error: any) {
       toast({
         title: "Error",
-        description: error.message,
+        description: error.response?.data?.message || error.message,
         variant: "destructive",
         duration: 5000,
       });
     } finally {
       setIsLoading(false);
     }
-  }
-
-  async function resendVerifyCode() {
-    setIsLoading(true);
-
-    try {
-      const res = await axios.post("/api/auth/resend-verifycode");
-      toast({
-        title: res.data.success ? "Success" : "Error",
-        description: res.data.message,
-        variant: res.data.success ? "default" : "destructive",
-        duration: 5000,
-      });
-
-      if (res.data.success) {
-        startTimer();
-      }
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-        duration: 5000,
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  }
+  }, [toast, startTimer]);
 
   return (
     <div className="flex justify-center items-center min-h-screen p-4 md:p-8">
@@ -136,7 +143,7 @@ export default function CodeVerification() {
             Please enter the verification code sent to your registered email
             address.{" "}
             <span
-              onClick={time > 0 ? () => {} : resendVerifyCode}
+              onClick={time > 0 ? undefined : resendVerifyCode}
               className={`${
                 time > 0
                   ? "hidden"

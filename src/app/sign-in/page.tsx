@@ -18,7 +18,7 @@ import { SignInSchema } from "@/zod-schemas/signin-schema";
 import Link from "next/link";
 import HLine from "@/components/HLine";
 import { useToast } from "@/components/ui/use-toast";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { SignIn as login } from "@/lib/api.handler";
 import ButtonLoder from "@/components/ButtonLoder";
 import { useTheme } from "next-themes";
@@ -35,9 +35,12 @@ export default function SignIn() {
   const router = useRouter();
   const { user } = useSelector((state: any) => state.user) as any;
 
-  if (Object.keys(user).length > 0) {
-    router.replace("/");
-  }
+  useEffect(() => {
+    if (Object.keys(user).length > 0) {
+      router.replace("/");
+    }
+  }, [user]);
+
   const form = useForm<z.infer<typeof SignInSchema>>({
     resolver: zodResolver(SignInSchema),
     defaultValues: {
@@ -51,14 +54,14 @@ export default function SignIn() {
     setIsLoading(true);
     try {
       await login("credentials", values);
-      setTimeout(() => window.location.reload(), 2000);
+      setTimeout(() => window.location.reload(), 1500);
       return toast({
         title: "Success",
         description: "Successfully signed in",
         duration: 5000,
       });
     } catch (error: any) {
-      return toast({
+      toast({
         title: "Error",
         description: "Invalid Credentials",
         variant: "destructive",

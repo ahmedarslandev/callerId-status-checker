@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,9 @@ import { useSelector } from "react-redux";
 
 export default function ChangePasswordPage() {
   const { data } = useSession();
+  const router = useRouter();
+  const { user } = useSelector((state: any) => state.user) as any;
+
   const [form, setForm] = useState({
     currentPassword: "",
     newPassword: "",
@@ -19,27 +22,34 @@ export default function ChangePasswordPage() {
   });
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
-  const { user } = useSelector((state: any) => state.user) as any;
 
-  if (!user) {
-    router.replace("/");
-  }
+  // Redirect if user is not logged in
+  useEffect(() => {
+    if (!user) {
+      router.replace("/");
+    }
+  }, [user, router]);
 
+  // Handle input change
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleChangePassword = async () => {
-    setIsLoading(true);
-    setError(null);
-
+  // Validate form before sending request
+  const validateForm = () => {
     if (form.newPassword !== form.confirmPassword) {
       setError("New password and confirmation do not match.");
-      setIsLoading(false);
-      return;
+      return false;
     }
+    return true;
+  };
+
+  const handleChangePassword = async () => {
+    if (!validateForm()) return;
+
+    setIsLoading(true);
+    setError(null);
 
     try {
       const response = await axios.post("/api/u/change-password", {
@@ -47,6 +57,7 @@ export default function ChangePasswordPage() {
         newPassword: form.newPassword,
         isLoggedInWithCredentials: data?.data.isLoggedInWithCredentials,
       });
+
       if (response.data.success) {
         toast({
           title: "Success",
@@ -55,12 +66,7 @@ export default function ChangePasswordPage() {
         });
         router.replace("/profile");
       } else {
-        toast({
-          title: "Error",
-          description: response.data.message,
-          variant: "destructive",
-          duration: 5000,
-        });
+        throw new Error(response.data.message);
       }
     } catch (err: any) {
       toast({

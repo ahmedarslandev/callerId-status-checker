@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -32,9 +32,12 @@ export default function SignIn() {
   const router = useRouter();
   const { user } = useSelector((state: any) => state.user) as any;
 
-  if (Object.keys(user).length > 0) {
-    router.replace("/");
-  }
+  useEffect(() => {
+    if (Object.keys(user).length > 0) {
+      router.replace("/");
+    }
+  }, [user]);
+
   const form = useForm<z.infer<typeof SignUpSchema>>({
     resolver: zodResolver(SignUpSchema),
     defaultValues: {

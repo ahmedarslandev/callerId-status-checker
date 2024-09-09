@@ -1,42 +1,60 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { toast } from "@/components/ui/use-toast";
-import ButtonLoder from "@/components/ButtonLoder";
 import { useSelector } from "react-redux";
 
 export default function ChangePasswordPage() {
   const { data } = useSession();
-  const [isLoading, setIsLoading] = useState(false);
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const { user } = useSelector((state: any) => state.user) as any;
 
-  if (!user) {
-    router.replace("/");
-  }
+  const [form, setForm] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Redirect if user is not logged in
+  useEffect(() => {
+    if (!user) {
+      router.replace("/");
+    }
+  }, [user, router]);
+
+  // Handle input change
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // Validate form before sending request
+  const validateForm = () => {
+    if (form.newPassword !== form.confirmPassword) {
+      setError("New password and confirmation do not match.");
+      return false;
+    }
+    return true;
+  };
 
   const handleChangePassword = async () => {
-    setIsLoading(true);
+    if (!validateForm()) return;
 
-    if (newPassword !== confirmPassword) {
-      setError("New password and confirmation do not match.");
-      setIsLoading(false);
-      return;
-    }
+    setIsLoading(true);
+    setError(null);
 
     try {
       const response = await axios.post("/api/u/change-password", {
-        currentPassword,
-        newPassword,
+        currentPassword: form.currentPassword,
+        newPassword: form.newPassword,
         isLoggedInWithCredentials: data?.data.isLoggedInWithCredentials,
       });
 
@@ -48,17 +66,12 @@ export default function ChangePasswordPage() {
         });
         router.replace("/profile");
       } else {
-        toast({
-          title: "Error",
-          description: response.data.message,
-          variant: "destructive",
-          duration: 5000,
-        });
+        throw new Error(response.data.message);
       }
     } catch (err: any) {
       toast({
         title: "Error",
-        description: err.message,
+        description: err.message || "An unexpected error occurred.",
         variant: "destructive",
         duration: 5000,
       });
@@ -78,35 +91,39 @@ export default function ChangePasswordPage() {
           {data?.data.isLoggedInWithCredentials && (
             <div className="mb-4">
               <Input
+                name="currentPassword"
                 type="password"
                 placeholder="Current Password"
-                value={currentPassword}
-                onChange={(e) => setCurrentPassword(e.target.value)}
+                value={form.currentPassword}
+                onChange={handleInputChange}
               />
             </div>
           )}
           <div className="mb-4">
             <Input
+              name="newPassword"
               type="password"
               placeholder="New Password"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
+              value={form.newPassword}
+              onChange={handleInputChange}
             />
           </div>
           <div className="mb-4">
             <Input
+              name="confirmPassword"
               type="password"
               placeholder="Confirm New Password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
+              value={form.confirmPassword}
+              onChange={handleInputChange}
             />
           </div>
-          <ButtonLoder
+          <Button
             variant="default"
             onClick={handleChangePassword}
-            isLoading={isLoading}
-            name={"Change Password"}
-          />
+            disabled={isLoading}
+          >
+            {isLoading ? "Changing..." : "Change Password"}
+          </Button>
         </CardContent>
       </Card>
     </div>
