@@ -59,7 +59,7 @@ const startProcessingInterval = () => {
   processingInterval = setInterval(() => {
     console.log("Checking for pending files...");
     processPendingFiles();
-  }, 1000 * 5); // Check every 5 seconds
+  }, 1000 * 30); // Check every 30 seconds
 
   console.log("Processing interval started.");
 };
