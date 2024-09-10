@@ -9,39 +9,71 @@ import { setTranscations as setStoreTransactions } from "@/store/reducers/user.r
 import { RefreshCcw } from "lucide-react";
 import { fetchWalletData } from "@/api-calls/api-calls";
 import { InfoCard, TransactionsTable } from "./components";
+import { Wallet } from "@/models/wallet.model";
+import { Transaction } from "@/models/transaction.model";
 
 export default function WalletComponent() {
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [wallet, setWallet] = useState<Partial<Wallet> | null | any>(null);
+  const [transactions, setTranscations] = useState<
+    Partial<Transaction> | null | any
+  >(null);
   const router = useRouter();
   const dispatch = useDispatch();
-  const {
-    user,
-    transactions: storedTransactions,
-    wallet: storedWallet,
-  } = useSelector((state: any) => state.user);
+
+  const { transactions: storedTransactions } = useSelector(
+    (state: any) => state.userInfo
+  );
+  const { user } = useSelector((state: any) => state.user);
 
   useEffect(() => {
     if (!user) {
       return router.replace("/sign-in");
-    } else if (!storedWallet || Object.keys(storedWallet).length === 0) {
-      // Fetch wallet data if not already in the store
-      fetchWalletData().then(({ transactions, wallet }: any) => {
-        dispatch(setStoreTransactions({ transactions, wallet }));
-      });
     }
-  }, [user, storedWallet, dispatch, router]);
+    console.log(setStoreTransactions);
+    if (Object.keys(storedTransactions.wallet).length === 0) {
+      // Fetch wallet data if not already in the store
+      fetchWalletData().then(
+        ({ transactions, wallet }: any | {} | null | undefined) => {
+          console.log("run");
+          dispatch(
+            setStoreTransactions({
+              transactions: {
+                transactions,
+                wallet,
+              },
+            })
+          );
+          setTranscations(transactions);
+          setWallet(wallet);
+        }
+      );
+    } else if (
+      Object.keys(storedTransactions.wallet).length > 0 &&
+      storedTransactions.transactions
+    ) {
+      setTranscations(storedTransactions.transactions);
+      setWallet(storedTransactions.wallet);
+    }
+  }, []);
 
   const refreshFiles = async () => {
     setIsRefreshing(true);
     try {
       const { transactions, wallet }: any = await fetchWalletData();
-      dispatch(setStoreTransactions({ transactions, wallet }));
+      console.log(transactions, wallet);
+      dispatch(
+        setStoreTransactions({
+          transactions: { transactions },
+          wallet: { wallet },
+        })
+      );
     } finally {
       setIsRefreshing(false);
     }
   };
 
-  if (!storedWallet) {
+  if (!wallet || !transactions) {
     return <div>Loading...</div>;
   }
 
@@ -52,10 +84,10 @@ export default function WalletComponent() {
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between">
             <div className="mb-4 md:mb-0">
               <div className="text-2xl md:text-3xl font-bold">
-                {storedWallet.balance.toFixed(3)}
+                {wallet.balance.toFixed(3)}
               </div>
               <div className="flex flex-col md:flex-row gap-2 items-start md:items-center">
-                <div className="text-sm">{storedWallet.currency}</div>
+                <div className="text-sm">{wallet.currency}</div>
                 <div className="flex gap-1 items-center">
                   <Link href="/my-wallet/initiate-transaction">
                     <Button className="w-full h-8 text-xs">
@@ -78,8 +110,7 @@ export default function WalletComponent() {
               </div>
             </div>
             <div className="text-sm">
-              Last updated:{" "}
-              {new Date(storedWallet.lastUpdated).toLocaleString()}
+              Last updated: {new Date(wallet.lastUpdated).toLocaleString()}
             </div>
           </div>
         </header>
@@ -87,24 +118,15 @@ export default function WalletComponent() {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
             <InfoCard
               title="Total Transactions"
-              value={storedWallet.transactionsCount}
+              value={wallet.transactionsCount}
             />
-            <InfoCard
-              title="Total Withdrawn"
-              value={storedWallet.totalWithdraw}
-            />
-            <InfoCard
-              title="Total Deposited"
-              value={storedWallet.totalDeposited}
-            />
-            <InfoCard
-              title="Total Balance"
-              value={storedWallet.balance.toFixed(3)}
-            />
+            <InfoCard title="Total Withdrawn" value={wallet.totalWithdraw} />
+            <InfoCard title="Total Deposited" value={wallet.totalDeposited} />
+            <InfoCard title="Total Balance" value={wallet.balance.toFixed(3)} />
           </div>
           <TransactionsTable
-            transactions={storedTransactions}
-            currency={storedWallet.currency}
+            transactions={transactions}
+            currency={wallet.currency}
           />
         </div>
       </div>

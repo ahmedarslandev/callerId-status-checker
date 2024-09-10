@@ -84,23 +84,20 @@ export async function POST(req: NextRequest, res: NextResponse) {
       bankAccount: bankAccountNumber,
       accountHolderName: bankAccountHolder,
       bank: bankName,
+      BBT: wallet.balance,
     });
 
-    console.log(transactionType);
     transactionType == "deposit"
       ? (wallet.balance += parseInt(transaction.amount))
       : (wallet.balance -= parseInt(transaction.amount));
-    console.log(
-      transaction.amount,
-      wallet.balance,
-      transaction.amount + wallet.balance
-    );
     transactionType == "deposit"
       ? (wallet.lastDeposited = Date.now())
       : (wallet.lastWithdraw = Date.now());
     transactionType == "deposit"
       ? wallet.totalDeposited++
       : wallet.totalWithdraw++;
+
+    transaction.BAT = wallet.balance;
     wallet.transactionsCount++;
     wallet.lastUpdated = Date.now();
 
@@ -112,7 +109,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
     return NextResponse.json({
       success: true,
       message: "Transaction created successfully",
-      transaction
+      transaction,
     });
   } catch (error: any) {
     return NextResponse.json({

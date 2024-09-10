@@ -1,14 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/auth";
-import { userModel } from "@/models/user.model";
 import connectMongo from "@/lib/dbConfig";
 import { transactionModel } from "@/models/transaction.model";
 import { getAuthorizedUser } from "@/api-calls/backend-functions";
 
-
 export async function POST(req: NextRequest) {
+  await connectMongo();
   try {
-    await connectMongo();
+    const user = await getAuthorizedUser(req);
+    if (!user) {
+      return NextResponse.json({ success: false, message: "Unauthorized" });
+    }
+
     const { transactionId } = await req.json();
 
     if (!transactionId) {
@@ -17,8 +19,6 @@ export async function POST(req: NextRequest) {
         message: "Invalid Transaction ID",
       });
     }
-
-    await getAuthorizedUser(req);
 
     const transaction = await transactionModel.findById(transactionId);
 

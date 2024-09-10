@@ -12,6 +12,8 @@ export interface Transaction extends Document {
   bankAccount: string;
   accountHolderName: string;
   bank: string;
+  BBT: number;
+  BAT: number;
 }
 
 const transactionSchema = new Schema<Transaction>({
@@ -55,6 +57,12 @@ const transactionSchema = new Schema<Transaction>({
   bank: {
     type: String,
     required: true,
+  },
+  BBT: {
+    type: Number,
+  },
+  BAT: {
+    type: Number,
   },
 });
 const transactionModel =

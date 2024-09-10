@@ -70,7 +70,7 @@ export function MenuDropDown({ profileImage, username }: any) {
               className="lazyload"
             />
           </div>
-          <p className="text-sm font-bold">{username}</p>
+          <p className="text-xs  w-2/3 font-bold">{username}</p>
         </div>
         <HLine />
         <DropdownMenuSeparator />

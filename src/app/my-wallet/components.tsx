@@ -7,6 +7,7 @@ import {
   TableRow,
 } from "@/components/ui";
 import { Transaction } from "@/models/transaction.model";
+import { useRouter } from "next/navigation";
 
 export const InfoCard = ({
   title,
@@ -27,49 +28,61 @@ export const TransactionsTable = ({
 }: {
   transactions: Transaction[];
   currency: string;
-}) => (
-  <div className="bg-card p-4 md:p-8 rounded-lg shadow-md mt-8 overflow-x-auto">
-    <div className="mb-4 md:mb-6 text-lg md:text-xl font-medium">
-      Transactions
-    </div>
-    <Table className="min-w-[600px]">
-      <TableHeader>
-        <TableRow>
-          <TableHead>Date</TableHead>
-          <TableHead>Amount</TableHead>
-          <TableHead>Type</TableHead>
-          <TableHead>Status</TableHead>
-          <TableHead>Bank Account</TableHead>
-          <TableHead>Bank Name</TableHead>
-          <TableHead>Account Holder Name</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {transactions.length > 0 ? (
-          transactions.map((transaction, i) => (
-            <TableRow key={i}>
-              <TableCell>
-                {new Date(transaction.timeStamp).toISOString().split("T")[0]}
-              </TableCell>
-              <TableCell>
-                {transaction.amount}{" "}
-                <span className="text-[8px] font-bold">{currency}</span>
-              </TableCell>
-              <TableCell>{transaction.type}</TableCell>
-              <TableCell>{transaction.status}</TableCell>
-              <TableCell>{transaction.bankAccount}</TableCell>
-              <TableCell>{transaction.bank}</TableCell>
-              <TableCell>{transaction.accountHolderName}</TableCell>
-            </TableRow>
-          ))
-        ) : (
+}) => {
+  const router = useRouter();
+
+  const handleRowClick = (transactionId: string) => {
+    router.push(`/transaction/view?transactionId=${transactionId}`);
+  };
+
+  return (
+    <div className="bg-card p-4 md:p-8 rounded-lg shadow-md mt-8 overflow-x-auto">
+      <div className="mb-4 md:mb-6 text-lg md:text-xl font-medium">
+        Transactions
+      </div>
+      <Table className="min-w-[600px]">
+        <TableHeader>
           <TableRow>
-            <TableCell colSpan={7} className="text-center">
-              You have no transactions yet.
-            </TableCell>
+            <TableHead>Date</TableHead>
+            <TableHead>Amount</TableHead>
+            <TableHead>Type</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead>Bank Account</TableHead>
+            <TableHead>Bank Name</TableHead>
+            <TableHead>Account Holder Name</TableHead>
           </TableRow>
-        )}
-      </TableBody>
-    </Table>
-  </div>
-);
+        </TableHeader>
+        <TableBody>
+          {transactions.length > 0 ? (
+            transactions.map((transaction) => (
+              <TableRow
+                key={transaction._id as any}
+                className="hover:bg-muted transition-colors cursor-pointer"
+                onClick={() => handleRowClick(transaction._id as any)}
+              >
+                <TableCell>
+                  {new Date(transaction.timeStamp).toISOString().split("T")[0]}
+                </TableCell>
+                <TableCell>
+                  {transaction.amount}{" "}
+                  <span className="text-xs font-bold">{currency}</span>
+                </TableCell>
+                <TableCell>{transaction.type}</TableCell>
+                <TableCell>{transaction.status}</TableCell>
+                <TableCell>{transaction.bankAccount}</TableCell>
+                <TableCell>{transaction.bank}</TableCell>
+                <TableCell>{transaction.accountHolderName}</TableCell>
+              </TableRow>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell colSpan={7} className="text-center">
+                You have no transactions yet.
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+    </div>
+  );
+};
