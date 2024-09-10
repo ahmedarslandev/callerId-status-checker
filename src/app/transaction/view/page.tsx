@@ -9,16 +9,14 @@ import { toast } from "@/components/ui/use-toast";
 import axios from "axios";
 import { Transaction } from "@/models/transaction.model";
 import { DownloadIcon, ShareIcon } from "@/components/admin/icons";
-import { useTheme } from "next-themes";
 
-export default function Component() {
-  const params = useSearchParams();
-  const transactionId = params.get("transactionId");
-  const theme = useTheme();
+export default function TransactionPage() {
+  const params = useSearchParams(); // Fetch search params from the URL
+  const transactionId = params.get("transactionId"); // Get the transactionId from the query
 
-  const [transaction, setTransactions] = useState<Transaction | null>(null);
+  const [transaction, setTransaction] = useState<Transaction | null>(null);
 
-  const fetchFiles = useCallback(async () => {
+  const fetchTransaction = useCallback(async () => {
     if (!transactionId) return; // Ensure transactionId is available
 
     try {
@@ -33,7 +31,8 @@ export default function Component() {
           duration: 5000,
         });
       }
-      setTransactions(response.data.transaction);
+
+      setTransaction(response.data.transaction); // Store the transaction data in state
     } catch (error) {
       toast({
         title: "Error",
@@ -41,19 +40,19 @@ export default function Component() {
         duration: 5000,
       });
     }
-  }, [transactionId]); // Include `transactionId` in dependency array
+  }, [transactionId]);
 
   useEffect(() => {
-    fetchFiles();
-  }, [fetchFiles]); // Use `fetchFiles` as the dependency
+    fetchTransaction(); // Fetch transaction data when the component mounts
+  }, [fetchTransaction]);
 
   if (!transaction) {
-    return <div>Loading...</div>;
+    return <div>Loading...</div>; // Show a loading message while fetching
   }
 
   return (
     <div className="flex justify-center items-center w-full h-full p-10">
-      <Card className={`w-full shadow-lg`}>
+      <Card className="w-full shadow-lg">
         <CardHeader className="bg-muted/50 px-6 py-7">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
@@ -75,6 +74,7 @@ export default function Component() {
           </div>
         </CardHeader>
         <CardContent className="grid gap-6 p-6">
+          {/* Transaction Details */}
           <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
             <div className="space-y-1">
               <div className="text-sm font-medium">Transaction ID</div>
@@ -111,6 +111,7 @@ export default function Component() {
               </div>
             </div>
           </div>
+          {/* Additional Transaction Information */}
           <Separator />
           <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
             <div className="space-y-1">
@@ -139,13 +140,17 @@ export default function Component() {
           <Separator />
           <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
             <div className="space-y-1">
-              <div className="text-sm font-medium">Balance Before Transaction (BBT)</div>
+              <div className="text-sm font-medium">
+                Balance Before Transaction (BBT)
+              </div>
               <div className="text-sm text-muted-foreground">
                 ${transaction.BBT.toFixed(2)}
               </div>
             </div>
             <div className="space-y-1">
-              <div className="text-sm font-medium">Balance After Transaction (BAT)</div>
+              <div className="text-sm font-medium">
+                Balance After Transaction (BAT)
+              </div>
               <div className="text-sm text-muted-foreground">
                 ${transaction.BAT.toFixed(2)}
               </div>
