@@ -1,30 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/auth";
-import { userModel } from "@/models/user.model";
 import connectMongo from "@/lib/dbConfig";
 import { transactionModel } from "@/models/transaction.model";
 import { walletModel } from "@/models/wallet.model";
-
-type AuthData = {
-  id: string;
-  email: string;
-};
-
-async function getAuthorizedUser(req: NextRequest): Promise<AuthData> {
-  await connectMongo();
-  const { data }: any = await auth();
-
-  if (!data) {
-    throw new Error("Unauthorized");
-  }
-
-  const dbUser = await userModel.findById(data.id);
-  if (!dbUser || dbUser.email !== process.env.TRANSACTION_EMAIL) {
-    throw new Error("Unauthorized");
-  }
-
-  return { id: dbUser._id.toString(), email: dbUser.email };
-}
+import { getAuthorizedUser } from "@/api-calls/backend-functions";
+import { nanoid } from "nanoid";
+import { join } from "path";
+import { mkdir, writeFile } from "fs/promises";
 
 export async function POST(req: NextRequest, res: NextResponse) {
   await connectMongo();
@@ -40,7 +21,10 @@ export async function POST(req: NextRequest, res: NextResponse) {
       bankAccountNumber,
       bankAccountHolder,
       bankName,
+      image,
     } = await req.json();
+
+    console.log(image);
 
     if (
       !walletId ||
@@ -73,7 +57,25 @@ export async function POST(req: NextRequest, res: NextResponse) {
       return NextResponse.json({ success: false, message: "Invalid amount" });
     }
 
-    const transaction = new transactionModel({
+    const filename = nanoid(20);
+    const extension = image.name.split(".").pop();
+    const buffer = Buffer.from(await image.arrayBuffer());
+
+    const imageDirectory = join(
+      process.cwd(),
+      `../file-server-handler/transactionImages/${authorizedUser.id.toString()}`
+    );
+
+    try {
+      await mkdir(imageDirectory, { recursive: true });
+    } catch (error) {
+      console.error("Error creating directory:", error);
+    }
+
+    const filePath = join(imageDirectory, `${filename}.${extension}`);
+    await writeFile(filePath, buffer);
+
+    const transaction: any = new transactionModel({
       wallet_id: walletId,
       amount: parseInt(amount),
       type: transactionType,
@@ -85,6 +87,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
       accountHolderName: bankAccountHolder,
       bank: bankName,
       BBT: wallet.balance,
+      imageUrl: imageDirectory,
     });
 
     transactionType == "deposit"

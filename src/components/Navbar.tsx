@@ -16,15 +16,7 @@ import { AppDispatch } from "@/store/auth.store";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { User } from "@/models/user.model";
-
-const fetchUserData = async () => {
-  try {
-    const response = await axios.get("/api/u/me"); // Changed to GET request
-    return response.data.dbUser;
-  } catch (error) {
-    console.error("Error fetching user data:", error);
-  }
-};
+import { fetchUserData } from "@/api-calls/api-calls";
 
 export default function Navbar() {
   const router = useRouter();
@@ -39,6 +31,11 @@ export default function Navbar() {
       fetchUserData().then((data) => {
         if (!data) {
           return router.replace("/sign-in");
+        } else if (data.isBlocked == true) {
+          return router.replace("/blocked");
+        } else if (data.isVerified == false) {
+          router.replace("/un-verified");
+          return;
         }
         setUser(data);
         dispatch(setStoreUser({ user: data }));

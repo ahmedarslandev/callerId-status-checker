@@ -43,7 +43,7 @@ const walletSchema = new Schema<Wallet>({
     ref: "User",
     required: true,
   },
-  transactions: [{ type: mongoose.Schema.Types.ObjectId, ref: "Transaction" }],
+  transactions: [{ type: Schema.Types.ObjectId, ref: "Transaction" }],
   transactionsCount: {
     type: Number,
     default: 0,

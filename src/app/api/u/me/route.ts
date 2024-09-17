@@ -36,7 +36,7 @@ export async function GET(req: NextRequest) {
     // Fetch user and populate walletId
     const dbUser = await userModel.findById(userId).populate("walletId");
 
-    if (!dbUser || !dbUser.isVerified) {
+    if (!dbUser) {
       return NextResponse.json(
         { message: "Invalid User", success: false },
         { status: 403 }

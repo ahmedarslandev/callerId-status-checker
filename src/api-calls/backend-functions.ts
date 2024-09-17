@@ -6,6 +6,7 @@ import { NextRequest } from "next/server";
 type AuthData = {
   id: string;
   email: string;
+  user: object;
 } | null;
 export async function getAuthorizedUser(req: NextRequest): Promise<AuthData> {
   await connectMongo();
@@ -21,7 +22,7 @@ export async function getAuthorizedUser(req: NextRequest): Promise<AuthData> {
       throw new Error("Unauthorized");
     }
 
-    return { id: dbUser._id.toString(), email: dbUser.email };
+    return { id: dbUser._id.toString(), email: dbUser.email, user: dbUser };
   } catch (error) {
     console.log(error);
     return null;

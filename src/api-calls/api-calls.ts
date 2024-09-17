@@ -47,3 +47,45 @@ export const fetchFiles = async (toast: any) => {
     });
   }
 };
+
+export async function getUsers() {
+  try {
+    const { data } = await axios.get("/api/admin/user");
+
+    if (data?.success == false) {
+      return null;
+    }
+    return data.users;
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+}
+
+export async function getUser(id: string) {
+  try {
+    const { data } = await axios.post(`/api/admin/user`, { userId: id });
+
+    console.log(data);
+    if (data?.success == false) {
+      return null;
+    }
+
+    return data.user;
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+}
+
+export async function getTransaction(transactionId: string) {
+  const { data } = await axios.post("/api/admin/transactions", {
+    transactionId,
+  });
+
+  if (data.success == false) {
+    return null;
+  }
+
+  return data.transaction;
+}

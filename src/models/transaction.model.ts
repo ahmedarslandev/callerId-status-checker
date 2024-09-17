@@ -1,4 +1,4 @@
-import mongoose, { Schema, ObjectId, Document } from "mongoose";
+import mongoose, { Schema, ObjectId, Document, Model } from "mongoose";
 
 export interface Transaction extends Document {
   _id: ObjectId;
@@ -14,9 +14,10 @@ export interface Transaction extends Document {
   bank: string;
   BBT: number;
   BAT: number;
+  imageUrl?: string; // Image field
 }
 
-const transactionSchema = new Schema<Transaction>({
+const TransactionSchema = new Schema<Transaction>({
   wallet_id: {
     type: Schema.Types.ObjectId,
     ref: "Wallet",
@@ -64,9 +65,12 @@ const transactionSchema = new Schema<Transaction>({
   BAT: {
     type: Number,
   },
+  imageUrl: {
+    type: String,
+  },
 });
-const transactionModel =
+const transactionModel: Model<Document> =
   mongoose.models.Transaction ||
-  mongoose.model("Transaction", transactionSchema);
+  mongoose.model("Transaction", TransactionSchema);
 
 export { transactionModel };

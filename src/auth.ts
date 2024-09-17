@@ -10,7 +10,6 @@ import { SignInSchema } from "@/zod-schemas/signin-schema";
 import { walletModel } from "@/models/wallet.model";
 import { securityModel } from "@/models/security.model";
 
-
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
     CredentialsProvider({
@@ -33,11 +32,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
               security ? userModel.findById(security.user_id) : null
             ));
 
-        if (
-          !user ||
-          !user.isVerified ||
-          !(await bcrypt.compare(password, user.password))
-        ) {
+        if (!user || !(await bcrypt.compare(password, user.password))) {
           throw new Error("Invalid credentials");
         }
 

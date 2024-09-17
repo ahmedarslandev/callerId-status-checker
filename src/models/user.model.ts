@@ -22,6 +22,7 @@ export interface User extends Document {
   facebookId: string;
   files: [];
   isLoggedInWithCredentials: boolean;
+  isBlocked: boolean;
 }
 
 const userSchema = new Schema<User>({
@@ -54,6 +55,10 @@ const userSchema = new Schema<User>({
     },
   ],
   isLoggedInWithCredentials: { type: Boolean, default: false },
+  isBlocked: {
+    type: Boolean,
+    default: false,
+  },
 });
 const userModel = mongoose.models.User || mongoose.model("User", userSchema);
 

@@ -99,6 +99,7 @@ export default function Component() {
     bankAccountNumber: "",
     bankAccountHolder: "",
     bankName: "",
+    image: File,
   });
 
   const handleChange = (e: any) => {
@@ -112,11 +113,19 @@ export default function Component() {
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     setIsLoading(true);
-    console.log(formData)
+    console.log(formData);
     try {
-      const res = await axios.post("/api/admin/new-transaction", {
-        ...formData,
-      });
+      const res = await axios.post(
+        "/api/admin/new-transaction",
+        {
+          ...formData,
+        },
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
       if (res.data.success == false) {
         return toast({
           title: "Error",
@@ -149,8 +158,8 @@ export default function Component() {
   };
 
   return (
-    <div className="flex justify-center items-center w-full h-full">
-      <Card className="w-full border-none">
+    <div className="flex justify-center items-center w-full ">
+      <Card className="w-full border-none shadow-none">
         <CardHeader>
           <CardTitle>Create New Transaction</CardTitle>
           <CardDescription>
@@ -242,6 +251,17 @@ export default function Component() {
                 id="bankName"
                 options={paymentGateways}
                 onValueChange={handleValueChange("bankName")}
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <Input
+                type="file"
+                onChange={(e) => {
+                  setFormData({
+                    ...formData,
+                    image: e.target?.files?.[0] as any,
+                  });
+                }}
               />
             </div>
             <div className="flex justify-end">
