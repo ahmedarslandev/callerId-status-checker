@@ -45,7 +45,7 @@ export default function UserUnverified() {
         </CardHeader>
         <CardContent>
           <p className="text-center text-gray-600 mb-4">
-            We've sent a verification email to your registered email address.
+            We&apos;ve sent a verification email to your registered email address.
             Please check your inbox and follow the instructions to verify your
             account.
           </p>
