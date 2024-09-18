@@ -113,27 +113,44 @@ export default function Component() {
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     setIsLoading(true);
-    console.log(formData);
+
+    const formDataObject = new FormData();
+    formDataObject.append("walletId", formData.walletId);
+    formDataObject.append("amount", formData.amount);
+    formDataObject.append("transactionType", formData.transactionType);
+    formDataObject.append("status", formData.status);
+    formDataObject.append("sender", formData.sender);
+    formDataObject.append("recipient", formData.recipient);
+    formDataObject.append("timestamp", formData.timestamp);
+    formDataObject.append("bankAccountNumber", formData.bankAccountNumber);
+    formDataObject.append("bankAccountHolder", formData.bankAccountHolder);
+    formDataObject.append("bankName", formData.bankName);
+
+    if (formData.image) {
+      formDataObject.append("image", formData.image as any);
+    }
+
     try {
       const res = await axios.post(
         "/api/admin/new-transaction",
-        {
-          ...formData,
-        },
+        formDataObject,
         {
           headers: {
             "Content-Type": "multipart/form-data",
           },
         }
       );
-      if (res.data.success == false) {
-        return toast({
+
+      if (res.data.success === false) {
+        toast({
           title: "Error",
           description: res.data.message,
           duration: 5000,
           variant: "destructive",
         });
+        return;
       }
+
       dispatch(
         updateTransactions({
           transaction: res.data.transaction,
@@ -141,7 +158,8 @@ export default function Component() {
         })
       );
       router.replace("/admin");
-      return toast({
+
+      toast({
         title: "Success",
         description: res.data.message,
         duration: 5000,

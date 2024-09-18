@@ -19,7 +19,7 @@ async function connectMongo() {
   if (!cached.promise) {
     const opts = {
       bufferCommands: false,
-      dbName: "CallerId-Status-Checker",
+      dbName: "Sigma-Dialer",
     };
 
     cached.promise = mongoose.connect(MONGO_URI, opts);

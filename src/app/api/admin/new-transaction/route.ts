@@ -7,24 +7,25 @@ import { nanoid } from "nanoid";
 import { join } from "path";
 import { mkdir, writeFile } from "fs/promises";
 
-export async function POST(req: NextRequest, res: NextResponse) {
+export async function POST(req: NextRequest) {
   await connectMongo();
-  try {
-    const {
-      walletId,
-      amount,
-      transactionType,
-      status,
-      sender,
-      recipient,
-      timestamp,
-      bankAccountNumber,
-      bankAccountHolder,
-      bankName,
-      image,
-    } = await req.json();
 
-    console.log(image);
+  try {
+    // Get formData from the request
+    const formData = await req.formData();
+
+    // Extract fields from formData
+    const walletId = formData.get("walletId") as any;
+    const amount = formData.get("amount") as any;
+    const transactionType = formData.get("transactionType") as any;
+    const status = formData.get("status") as any;
+    const sender = formData.get("sender");
+    const recipient = formData.get("recipient");
+    const timestamp = formData.get("timestamp");
+    const bankAccountNumber = formData.get("bankAccountNumber");
+    const bankAccountHolder = formData.get("bankAccountHolder") as any;
+    const bankName = formData.get("bankName") as any;
+    const image = formData.get("image") as any; // The uploaded file
 
     if (
       !walletId ||
@@ -36,7 +37,8 @@ export async function POST(req: NextRequest, res: NextResponse) {
       !timestamp ||
       !bankAccountNumber ||
       !bankAccountHolder ||
-      !bankName
+      !bankName ||
+      !image
     ) {
       return NextResponse.json({
         success: false,
@@ -53,27 +55,28 @@ export async function POST(req: NextRequest, res: NextResponse) {
     if (!wallet) {
       return NextResponse.json({ success: false, message: "Invalid wallet" });
     }
-    if (amount <= 0) {
+
+    if (parseInt(amount) <= 0) {
       return NextResponse.json({ success: false, message: "Invalid amount" });
     }
 
+    // Create a unique filename for the image
     const filename = nanoid(20);
     const extension = image.name.split(".").pop();
-    const buffer = Buffer.from(await image.arrayBuffer());
-
-    const imageDirectory = join(
+    const filePath = join(
       process.cwd(),
-      `../file-server-handler/transactionImages/${authorizedUser.id.toString()}`
+      `../file-server-handler/transactionImages/${wallet._id.toString()}/${filename}.${extension}`
     );
 
-    try {
-      await mkdir(imageDirectory, { recursive: true });
-    } catch (error) {
-      console.error("Error creating directory:", error);
-    }
-
-    const filePath = join(imageDirectory, `${filename}.${extension}`);
-    await writeFile(filePath, buffer);
+    // Create the directory if it doesn't exist and save the image
+    await mkdir(
+      join(
+        process.cwd(),
+        `../file-server-handler/transactionImages/${wallet._id.toString()}`
+      ),
+      { recursive: true }
+    );
+    await writeFile(filePath, Buffer.from(await image.arrayBuffer()));
 
     const transaction: any = new transactionModel({
       wallet_id: walletId,
@@ -87,23 +90,23 @@ export async function POST(req: NextRequest, res: NextResponse) {
       accountHolderName: bankAccountHolder,
       bank: bankName,
       BBT: wallet.balance,
-      imageUrl: imageDirectory,
+      imageUrl: `/transaction/${walletId}/${filename}.${extension}`,
     });
 
-    transactionType == "deposit"
-      ? (wallet.balance += parseInt(transaction.amount))
-      : (wallet.balance -= parseInt(transaction.amount));
-    transactionType == "deposit"
-      ? (wallet.lastDeposited = Date.now())
-      : (wallet.lastWithdraw = Date.now());
-    transactionType == "deposit"
-      ? wallet.totalDeposited++
-      : wallet.totalWithdraw++;
+    // Update wallet balance based on transaction type
+    if (transactionType === "deposit") {
+      wallet.balance += parseInt(amount);
+      wallet.lastDeposited = Date.now();
+      wallet.totalDeposited++;
+    } else if (transactionType === "withdrawal") {
+      wallet.balance -= parseInt(amount);
+      wallet.lastWithdraw = Date.now();
+      wallet.totalWithdraw++;
+    }
 
-    transaction.BAT = wallet.balance;
     wallet.transactionsCount++;
     wallet.lastUpdated = Date.now();
-
+    transaction.BAT = wallet.balance;
     wallet.transactions.push(transaction);
 
     await transaction.save();

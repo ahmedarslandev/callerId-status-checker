@@ -47,46 +47,51 @@ export default function Navbar() {
     return null;
   }
   return (
-    <header className="flex h-16 w-full items-center justify-between border-b bg-background px-4 sm:px-6">
-      <div className="flex items-center gap-4">
-        <Link href="#" className="flex items-center gap-2" prefetch={false}>
-          <img
-            className="object-cover w-10 lazyload"
-            data-src="/Sigma-dialer_logo-removebg-preview.png"
-            src="/Sigma-dialer_logo-removebg-preview.png"
-            alt="logo"
-            width={40}
-            height={40}
-          />
-          <span className="text-lg font-semibold">Sigma Dialer</span>
-        </Link>
-      </div>
-      <div className="flex items-center gap-4">
-        <div className="relative flex-1 max-w-sm">
-          <SearchIcon className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input
-            type="search"
-            placeholder="Search..."
-            className="w-full rounded-lg bg-muted pl-8 pr-4 focus:outline-none focus:ring-1 focus:ring-primary"
-          />
-        </div>
-        <Button variant="ghost" size="icon" className="rounded-full">
-          <ModeToggle />
-          <span className="sr-only">Toggle theme</span>
-        </Button>
-        <div className="flex items-center gap-2">
-          <div className="text-sm font-medium">
-            ${user.walletId.balance.toFixed(2)}
+    <>
+      <div className="w-full h-16 flex relative top-0 left-0"></div>
+      <div className="fixed z-50 top-0 left-0 right-0 w-full h-fit">
+        <header className="flex h-16 w-full items-center justify-between bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b px-4 sm:px-6">
+          <div className="flex items-center gap-4">
+            <Link href="#" className="flex items-center gap-2" prefetch={false}>
+              <img
+                className="object-cover w-10 lazyload"
+                data-src="/Sigma-dialer_logo-removebg-preview.png"
+                src="/Sigma-dialer_logo-removebg-preview.png"
+                alt="logo"
+                width={40}
+                height={40}
+              />
+              <span className="text-lg font-semibold">Sigma Dialer</span>
+            </Link>
           </div>
-          <Button variant="ghost" size="icon" className="rounded-full">
-            <MenuDropDown
-              profileImage={user.profileImage}
-              username={user.username}
-            />
-          </Button>
-        </div>
+          <div className="flex items-center gap-4">
+            <div className="relative flex-1 max-w-sm">
+              <SearchIcon className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="search"
+                placeholder="Search..."
+                className="w-full rounded-lg bg-muted pl-8 pr-4 focus:outline-none focus:ring-1 focus:ring-primary"
+              />
+            </div>
+            <Button variant="ghost" size="icon" className="rounded-full">
+              <ModeToggle />
+              <span className="sr-only">Toggle theme</span>
+            </Button>
+            <div className="flex items-center gap-2">
+              <div className="text-sm font-medium">
+                ${user.walletId.balance.toFixed(2)}
+              </div>
+              <Button variant="ghost" size="icon" className="rounded-full">
+                <MenuDropDown
+                  profileImage={user.profileImage}
+                  username={user.username}
+                />
+              </Button>
+            </div>
+          </div>
+        </header>
       </div>
-    </header>
+    </>
   );
 }
 

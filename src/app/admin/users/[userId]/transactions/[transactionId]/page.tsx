@@ -18,13 +18,14 @@ export default function TransactionPage({
 }: {
   params: { userId: string; transactionId: string };
 }) {
-  const hasImage = false;
   const [transaction, setTransaction] = useState<any | null>();
+  const [hasImage, setHasImage] = useState(false);
   const [activeTab, setActiveTab] = useState(hasImage ? "Picture" : "Details");
 
   useEffect(() => {
     getTransaction(params.transactionId).then((transaction) => {
       setTransaction(transaction);
+      transaction.imageUrl ? setHasImage(true) : null;
     });
   }, []);
 
@@ -53,7 +54,7 @@ export default function TransactionPage({
           <CardDescription>Transaction ID: {transaction._id}</CardDescription>
         </CardHeader>
 
-        <CardContent>
+        <CardContent className="h-full">
           {/* Tabs for Picture and Details */}
           <div className="mb-4">
             <button
@@ -77,12 +78,16 @@ export default function TransactionPage({
 
           {/* Picture Tab Content */}
           {activeTab === "Picture" && hasImage && (
-            <div className="overflow-hidden rounded-sm flex justify-center items-center flex-col h-full max-h-[50vh]">
-              <img
-                src={transaction.imageUrl}
-                alt="Transaction Screenshot"
-                className="w-full h-full mt-2 object-cover"
-              />
+            <div className="w-full h-full max-h-60vh flex justify-center items-center">
+              <div className="p-3  overflow-hidden flex justify-center items-center flex-col w-[45%] h-full max-h-[60vh]">
+                <div className="w-fit h-full cursor-pointer border-zinc-200 border-[1px] shadow-md overflow-hidden rounded-sm">
+                  <img
+                    src={`http://localhost:5000${transaction.imageUrl}`}
+                    alt="Transaction Screenshot"
+                    className="w-fit rounded-sm h-full object-cover"
+                  />
+                </div>
+              </div>
             </div>
           )}
 
@@ -128,13 +133,15 @@ export default function TransactionPage({
               <div>
                 <Label>BBT</Label>
                 <p>
-                  <span className="font-bold">$</span> {transaction.BBT.toFixed(3)}
+                  <span className="font-bold">$</span>{" "}
+                  {transaction.BBT.toFixed(3)}
                 </p>
               </div>
               <div>
                 <Label>BAT</Label>
                 <p>
-                  <span className="font-bold">$</span> {transaction.BAT.toFixed(3)}
+                  <span className="font-bold">$</span>{" "}
+                  {transaction.BAT.toFixed(3)}
                 </p>
               </div>
             </div>
