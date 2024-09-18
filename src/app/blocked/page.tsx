@@ -21,7 +21,7 @@ export default function UserBlocked() {
             Account Blocked
           </CardTitle>
           <CardDescription className="text-center">
-            We're sorry, but your account has been blocked.
+            We&apos;re sorry, but your account has been blocked.
           </CardDescription>
         </CardHeader>
         <CardContent>
