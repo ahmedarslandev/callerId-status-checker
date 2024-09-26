@@ -13,7 +13,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Edit2, Save, Eye } from "lucide-react";
+import { ArrowLeft, Edit2, Save, Eye, Search } from "lucide-react";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -57,9 +57,48 @@ interface UserDetailsProps {
   user: Omit<User, "walletId"> & { walletId: Wallet };
 }
 
+const mockFiles = [
+  {
+    id: 1,
+    name: "document.pdf",
+    type: "PDF",
+    size: "2.5 MB",
+    lastModified: "2023-09-15",
+  },
+  {
+    id: 2,
+    name: "image.jpg",
+    type: "Image",
+    size: "1.8 MB",
+    lastModified: "2023-09-14",
+  },
+  {
+    id: 3,
+    name: "spreadsheet.xlsx",
+    type: "Spreadsheet",
+    size: "3.2 MB",
+    lastModified: "2023-09-13",
+  },
+  {
+    id: 4,
+    name: "presentation.pptx",
+    type: "Presentation",
+    size: "5.1 MB",
+    lastModified: "2023-09-12",
+  },
+  {
+    id: 5,
+    name: "report.docx",
+    type: "Document",
+    size: "1.5 MB",
+    lastModified: "2023-09-11",
+  },
+];
+
 export function UserDetails({ user: initialUser }: UserDetailsProps | any) {
   const [user, setUser] = useState(initialUser);
   const [isEditing, setIsEditing] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
   const [transactions, setTransactions] = useState<Transaction[]>(
     initialUser?.walletId?.transactions
   );
@@ -70,6 +109,17 @@ export function UserDetails({ user: initialUser }: UserDetailsProps | any) {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
+    if (name.includes("walletId")) {
+      setUser((prevUser: any) => ({
+        ...prevUser,
+        walletId: {
+          ...prevUser.walletId,
+          [name.replace("walletId.", "")]: value,
+        },
+      }));
+      return;
+    }
+
     setUser((prevUser: any) => ({ ...prevUser, [name]: value }));
   };
 
@@ -118,6 +168,10 @@ export function UserDetails({ user: initialUser }: UserDetailsProps | any) {
     console.log(`Updated transaction ${transactionId} status to ${newStatus}`);
   };
 
+  const filteredFiles = mockFiles.filter((file) =>
+    file.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <Card className="w-full border-none shadow-none">
       <CardHeader>
@@ -158,8 +212,9 @@ export function UserDetails({ user: initialUser }: UserDetailsProps | any) {
           <TabsList>
             <TabsTrigger value="general">General</TabsTrigger>
             <TabsTrigger value="security">Security</TabsTrigger>
-            <TabsTrigger value="social">Social</TabsTrigger>
+            <TabsTrigger value="walletId">Wallet</TabsTrigger>
             <TabsTrigger value="transactions">Transactions</TabsTrigger>
+            <TabsTrigger value="files">Files</TabsTrigger>
           </TabsList>
           <TabsContent value="general">
             <div className="space-y-4">
@@ -282,44 +337,90 @@ export function UserDetails({ user: initialUser }: UserDetailsProps | any) {
               </div>
             </div>
           </TabsContent>
-          <TabsContent value="social">
+          <TabsContent value="walletId">
             <div className="space-y-4">
               <div>
-                <Label htmlFor="googleId">Google ID</Label>
+                <Label htmlFor="balance">Balance</Label>
                 <Input
-                  id="googleId"
-                  name="googleId"
-                  value={user.googleId}
+                  id="balance"
+                  name="walletId.balance"
+                  value={user.walletId.balance}
                   onChange={handleInputChange}
                   disabled={!isEditing}
                 />
               </div>
               <div>
-                <Label htmlFor="githubId">GitHub ID</Label>
+                <Label htmlFor="currency">Currency</Label>
                 <Input
-                  id="githubId"
-                  name="githubId"
-                  value={user.githubId}
+                  id="currency"
+                  name="walletId.currency"
+                  value={user.walletId.currency}
                   onChange={handleInputChange}
                   disabled={!isEditing}
                 />
               </div>
               <div>
-                <Label htmlFor="twitterId">Twitter ID</Label>
+                <Label htmlFor="totalWithdraw">Total Withdrawn</Label>
                 <Input
-                  id="twitterId"
-                  name="twitterId"
-                  value={user.twitterId}
+                  id="totalWithdraw"
+                  name="walletId.totalWithdraw"
+                  value={user.walletId.totalWithdraw}
                   onChange={handleInputChange}
                   disabled={!isEditing}
                 />
               </div>
               <div>
-                <Label htmlFor="facebookId">Facebook ID</Label>
+                <Label htmlFor="totalDeposited">Total Deposited</Label>
                 <Input
-                  id="facebookId"
-                  name="facebookId"
-                  value={user.facebookId}
+                  id="totalDeposited"
+                  name="walletId.totalDeposited"
+                  value={user.walletId.totalDeposited}
+                  onChange={handleInputChange}
+                  disabled={!isEditing}
+                />
+              </div>
+              <div>
+                <Label htmlFor="lastWithdraw">Last Withdraw Date</Label>
+                <Input
+                  id="lastWithdraw"
+                  name="walletId.lastWithdraw"
+                  value={new Date(
+                    user.walletId.lastWithdraw
+                  ).toLocaleDateString()}
+                  onChange={handleInputChange}
+                  disabled={!isEditing}
+                />
+              </div>
+              <div>
+                <Label htmlFor="lastDeposited">Last Deposit Date</Label>
+                <Input
+                  id="lastDeposited"
+                  name="walletId.lastDeposited"
+                  value={new Date(
+                    user.walletId.lastDeposited
+                  ).toLocaleDateString()}
+                  onChange={handleInputChange}
+                  disabled={!isEditing}
+                />
+              </div>
+              <div>
+                <Label htmlFor="totalBalanceCount">Total Balance Count</Label>
+                <Input
+                  id="totalBalanceCount"
+                  name="walletId.totalBalanceCount"
+                  value={user.walletId.totalBalanceCount}
+                  onChange={handleInputChange}
+                  disabled={!isEditing}
+                />
+              </div>
+              <div>
+                <Label htmlFor="transactionsCount">
+                  Number of Transactions
+                </Label>
+                <Input
+                  id="transactionsCount"
+                  name="walletId.transactionsCount"
+                  value={user.walletId.transactionsCount}
                   onChange={handleInputChange}
                   disabled={!isEditing}
                 />
@@ -342,7 +443,7 @@ export function UserDetails({ user: initialUser }: UserDetailsProps | any) {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {transactions.map((transaction) => (
+                    {[...transactions].reverse().map((transaction) => (
                       <TableRow key={transaction._id}>
                         <TableCell>{transaction.amount}</TableCell>
                         <TableCell>{transaction.type}</TableCell>
@@ -389,6 +490,49 @@ export function UserDetails({ user: initialUser }: UserDetailsProps | any) {
                   </TableBody>
                 </Table>
               </div>
+            </div>
+          </TabsContent>
+          <TabsContent value="files">
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">Recent Files</h3>
+              <div className="flex justify-between w-full">
+                <Input
+                  placeholder="Search files..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="mb-4 w-1/3"
+                />
+                <Button className="scale-90" variant={"outline"}>
+                  <Search />
+                </Button>
+              </div>
+              {filteredFiles.length > 0 ? (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>ID</TableHead> <TableHead>Name</TableHead>
+                      <TableHead>Size</TableHead>
+                      <TableHead>Type</TableHead>{" "}
+                      <TableHead>Last Modified</TableHead>{" "}
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredFiles.map((file) => (
+                      <TableRow key={file.id}>
+                        <TableCell>{file.id}</TableCell>{" "}
+                        <TableCell>{file.name}</TableCell>
+                        <TableCell>{file.size}</TableCell>
+                        <TableCell>{file.type}</TableCell>{" "}
+                        <TableCell>
+                          {new Date(file.lastModified).toLocaleDateString()}
+                        </TableCell>{" "}
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              ) : (
+                <p>No files found</p>
+              )}
             </div>
           </TabsContent>
         </Tabs>

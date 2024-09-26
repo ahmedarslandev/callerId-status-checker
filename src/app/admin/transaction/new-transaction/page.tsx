@@ -127,6 +127,7 @@ export default function Component() {
     formDataObject.append("bankName", formData.bankName);
 
     if (formData.image) {
+      console.log(formData.image);
       formDataObject.append("image", formData.image as any);
     }
 
@@ -272,15 +273,20 @@ export default function Component() {
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <Input
-                type="file"
-                onChange={(e) => {
-                  setFormData({
-                    ...formData,
-                    image: e.target?.files?.[0] as any,
-                  });
-                }}
-              />
+              <div className="flex gap-3 flex-col w-fit">
+                <Label htmlFor="file">Select Image (Optional)</Label>
+                <Input
+                  id="file"
+                  name="file"
+                  type="file"
+                  onChange={(e) => {
+                    setFormData({
+                      ...formData,
+                      image: e.target?.files?.[0] as any,
+                    });
+                  }}
+                />
+              </div>
             </div>
             <div className="flex justify-end">
               <ButtonLoder

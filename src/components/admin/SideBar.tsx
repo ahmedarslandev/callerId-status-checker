@@ -20,11 +20,8 @@ import {
   LockIcon,
   Package2Icon,
 } from "@/components/admin/icons"; // Assuming these are exported from a central icons file.
-import { usePathname } from "next/navigation";
-import Image from "next/image";
 
 export default function Sidebar() {
-  const pathname = usePathname();
   return (
     <div className="flex flex-col h-full gap-4 border-r bg-background p-4">
       <div className="flex h-[60px] items-center justify-between">
@@ -65,22 +62,7 @@ export default function Sidebar() {
           label="Transactions"
         />
         <SidebarLink href="/admin/users" icon={<UsersIcon />} label="Users" />
-        <SidebarLink
-          href="/admin/wallets"
-          icon={<WalletIcon />}
-          label="Wallets"
-        />
         <SidebarLink href="/admin/files" icon={<FileIcon />} label="Files" />
-        <SidebarLink
-          href="/admin/caller-ids"
-          icon={<PhoneIcon />}
-          label="Caller IDs"
-        />
-        <SidebarLink
-          href="/admin/securities"
-          icon={<LockIcon />}
-          label="Security"
-        />
       </nav>
     </div>
   );

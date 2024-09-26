@@ -38,7 +38,7 @@ const userSchema = new Schema<User>({
   isVerified: { type: Boolean, default: false },
   isAdmin: { type: Boolean, default: false },
   bio: { type: String, default: "" },
-  walletId: { type: mongoose.Schema.Types.ObjectId, ref: "Wallet" },
+  walletId: { type: Schema.Types.ObjectId, ref: "Wallet" },
   googleId: { type: String, default: "" },
   githubId: { type: String, default: "" },
   twitterId: { type: String, default: "" },
@@ -50,7 +50,7 @@ const userSchema = new Schema<User>({
   },
   files: [
     {
-      type: mongoose.Schema.Types.ObjectId,
+      type:Schema.Types.ObjectId,
       ref: "File",
     },
   ],

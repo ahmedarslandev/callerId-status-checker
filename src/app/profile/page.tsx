@@ -140,15 +140,6 @@ export default function ProfilePage() {
             >
               Change Password
             </Button>
-            {data?.data.isLoggedInWithCredentials && (
-              <Button
-                variant="secondary"
-                onClick={() => handleButton("/profile/security")}
-                className="w-full md:w-auto"
-              >
-                Security
-              </Button>
-            )}
           </div>
         </CardContent>
       </Card>

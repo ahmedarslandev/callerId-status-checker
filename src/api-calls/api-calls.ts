@@ -62,18 +62,16 @@ export async function getUsers() {
   }
 }
 
-export async function getUser(id: string) {
+export async function getUser({ id = "", email = "" }) {
   try {
-    const { data } = await axios.post(`/api/admin/user`, { userId: id });
+    const { data } = await axios.post(`/api/admin/user`, { userId: id, email });
 
-    console.log(data);
     if (data?.success == false) {
       return null;
     }
 
     return data.user;
   } catch (error) {
-    console.log(error);
     return null;
   }
 }

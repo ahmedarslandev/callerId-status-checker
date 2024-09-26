@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
     const bankAccountNumber = formData.get("bankAccountNumber");
     const bankAccountHolder = formData.get("bankAccountHolder") as any;
     const bankName = formData.get("bankName") as any;
-    const image = formData.get("image") as any; // The uploaded file
+    const image = formData.get("image") as any; // The uploaded file (optional)
 
     if (
       !walletId ||
@@ -37,8 +37,7 @@ export async function POST(req: NextRequest) {
       !timestamp ||
       !bankAccountNumber ||
       !bankAccountHolder ||
-      !bankName ||
-      !image
+      !bankName
     ) {
       return NextResponse.json({
         success: false,
@@ -60,23 +59,34 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, message: "Invalid amount" });
     }
 
-    // Create a unique filename for the image
-    const filename = nanoid(20);
-    const extension = image.name.split(".").pop();
-    const filePath = join(
-      process.cwd(),
-      `../file-server-handler/transactionImages/${wallet._id.toString()}/${filename}.${extension}`
-    );
+    let imageUrl = null;
 
-    // Create the directory if it doesn't exist and save the image
-    await mkdir(
-      join(
+    // Check if an image was uploaded
+    if (image && image?.name) {
+      // Ensure the image has a name or assign a default extension
+      const filename = nanoid(20);
+      const extension = image.name ? image.name.split(".").pop() : "jpg"; // Default to jpg if name is missing
+
+      const filePath = join(
         process.cwd(),
-        `../file-server-handler/transactionImages/${wallet._id.toString()}`
-      ),
-      { recursive: true }
-    );
-    await writeFile(filePath, Buffer.from(await image.arrayBuffer()));
+        `../file-server-handler/transactionImages/${wallet._id.toString()}/${filename}.${extension}`
+      );
+
+      // Create the directory if it doesn't exist
+      await mkdir(
+        join(
+          process.cwd(),
+          `../file-server-handler/transactionImages/${wallet._id.toString()}`
+        ),
+        { recursive: true }
+      );
+
+      // Save the image
+      await writeFile(filePath, Buffer.from(await image.arrayBuffer()));
+
+      // Set the imageUrl
+      imageUrl = `/transaction/${walletId}/${filename}.${extension}`;
+    }
 
     const transaction: any = new transactionModel({
       wallet_id: walletId,
@@ -90,7 +100,7 @@ export async function POST(req: NextRequest) {
       accountHolderName: bankAccountHolder,
       bank: bankName,
       BBT: wallet.balance,
-      imageUrl: `/transaction/${walletId}/${filename}.${extension}`,
+      imageUrl, // Use the imageUrl if an image was uploaded, otherwise null
     });
 
     // Update wallet balance based on transaction type
@@ -118,6 +128,7 @@ export async function POST(req: NextRequest) {
       transaction,
     });
   } catch (error: any) {
+    console.log(error);
     return NextResponse.json({
       success: false,
       message: error.message,

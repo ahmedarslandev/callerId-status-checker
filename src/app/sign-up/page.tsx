@@ -22,7 +22,6 @@ import { useToast } from "@/components/ui/use-toast";
 import ButtonLoder from "@/components/ButtonLoder";
 import HLine from "@/components/HLine";
 import { SignUpSchema } from "@/zod-schemas/signup-schema";
-import { SignIn as login } from "@/lib/api.handler";
 import { useSelector } from "react-redux";
 
 export default function SignIn() {
@@ -121,35 +120,6 @@ export default function SignIn() {
               )}
             />
           ))}
-          <div className="flex flex-col gap-3 justify-center items-center">
-            <p className="max-md:text-xs">or sign in with</p>
-            <HLine />
-            <div className="flex flex-col max-md:gap-2 md:flex-row w-full justify-around items-center">
-              {["Google", "Facebook", "Twitter", "Github"].map((provider) => (
-                <div
-                  key={provider}
-                  onClick={async () => {
-                    await login(provider.toLowerCase(), {
-                      callbackUrl: `/api/v1/auth/callback/${provider.toLowerCase()}`,
-                    });
-                  }}
-                  className="flex flex-row max-md:w-full max-md:border-zinc-300 max-md:border-[1px] max-md:justify-start max-md:rounded max-md:p-2 md:flex-col cursor-pointer select-none justify-center gap-2 items-center"
-                >
-                  <img
-                    src={`/${provider.toLowerCase()}.svg`}
-                    alt={provider}
-                    width={20}
-                    height={20}
-                    className={`w-5 h-5 ${
-                      theme === "dark" && provider === "Github" ? "invert" : ""
-                    }`}
-                    loading="lazy"
-                  />
-                  <p className="text-xs">{provider}</p>
-                </div>
-              ))}
-            </div>
-          </div>
           <ButtonLoder isLoading={isLoading} name="Sign Up" />
           <FormDescription className="text-center max-md:text-xs mt-4">
             Already have an account?{" "}

@@ -9,7 +9,7 @@ export default function UserPage({ params }: { params: { id: string } }) {
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
-    getUser(params.id).then((user) => {
+    getUser({ id: params.id }).then((user) => {
       setUser(user);
     });
   }, []);

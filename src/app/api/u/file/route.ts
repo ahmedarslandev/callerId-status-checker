@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
 
     dbUser.walletId.balance -= cost;
 
-    const filename = nanoid(20);
+    const filename = new Date().toDateString();
     const extension = file.name.split(".").pop();
     const buffer = Buffer.from(await file.arrayBuffer());
 
@@ -132,7 +132,8 @@ export async function GET(req: NextRequest) {
     // Fetch the user from the database and populate the walletId field
     const dbUser = await userModel
       .findById(data?.data?.id)
-      .populate("files").exec()
+      .populate("files")
+      .exec();
 
     // Check if user exists and is verified
     if (!dbUser || !dbUser.isVerified) {

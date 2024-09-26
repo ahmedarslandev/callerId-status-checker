@@ -32,12 +32,12 @@ export async function POST(req: NextRequest) {
   await connectMongo();
 
   try {
-    const { userId } = await req.json();
+    const { userId, email } = await req.json();
 
-    if (!userId) {
+    if (!userId && !email) {
       return NextResponse.json({
         success: false,
-        message: "User ID is required",
+        message: "User ID  or Email is required",
       });
     }
 
@@ -46,11 +46,18 @@ export async function POST(req: NextRequest) {
     if (!user || user?.role !== "admin") {
       return NextResponse.json({ success: false, message: "Unauthorized" });
     }
-
-    const dbUser = await userModel.findById(userId).populate({
-      path: "walletId",
-      populate: { path: "transactions" },
-    });
+    let dbUser;
+    if (email) {
+      dbUser = await userModel.findOne({ email: email }).populate({
+        path: "walletId",
+        populate: { path: "transactions" },
+      });
+    } else {
+      dbUser = await userModel.findOne({ _id: userId }).populate({
+        path: "walletId",
+        populate: { path: "transactions" },
+      });
+    }
 
     if (!dbUser) {
       return NextResponse.json({ success: false, message: "User not found" });

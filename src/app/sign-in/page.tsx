@@ -122,35 +122,6 @@ export default function SignIn() {
               </FormItem>
             )}
           />
-          <div className="flex flex-col gap-3 justify-center items-center">
-            <p className="max-md:text-xs">or sign in with </p>
-            <HLine />
-            <div className="flex flex-col max-md:gap-2 md:flex-row w-full justify-around items-center">
-              {["Google", "Facebook", "Twitter", "Github"].map((e, i) => (
-                <div
-                  onClick={async () => {
-                    await login(e.toLocaleLowerCase(), {
-                      callbackUrl: `/api/v1/auth/callback/${e.toLocaleLowerCase()}`,
-                    });
-                  }}
-                  key={i}
-                  className="flex flex-row max-md:w-full max-md:border-zinc-300 max-md:border-[1px] max-md:justify-start max-md:rounded max-md:p-2 md:flex-col cursor-pointer select-none justify-center gap-2 items-center"
-                >
-                  <img
-                    data-src={`/${e.toLowerCase()}.svg`}
-                    className={`w-5 h-5 lazyload ${
-                      theme === "dark" && e === "Github" ? "invert" : ""
-                    }`}
-                    src={`/${e.toLowerCase()}.svg`}
-                    alt=""
-                    width={20}
-                    height={20}
-                  />
-                  <p className="text-xs">{e}</p>
-                </div>
-              ))}
-            </div>
-          </div>
           <FormDescription className="max-md:text-xs">
             Forgot your password?{" "}
             <Link
