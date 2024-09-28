@@ -32,7 +32,7 @@ export default function Component() {
   const [search, setSearch] = useState("");
   const [filterSelected, setFilterSelected] = useState("realname");
   const [currentPage, setCurrentPage] = useState(1);
-  const [filesAtOnePage, setFilesAtOnePage] = useState(1);
+  const [filesAtOnePage, setFilesAtOnePage] = useState(12);
   const [totalPages, setTotalPages] = useState(0);
 
   const dispatch: AppDispatch = useDispatch();

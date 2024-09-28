@@ -13,7 +13,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Edit2, Save, Eye, Search } from "lucide-react";
+import { ArrowLeft, Edit2, Save, Eye, Search, Download } from "lucide-react";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -104,6 +104,7 @@ export function UserDetails({ user: initialUser }: UserDetailsProps | any) {
   );
 
   const toggleEdit = () => setIsEditing(!isEditing);
+  console.log(initialUser);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -506,26 +507,37 @@ export function UserDetails({ user: initialUser }: UserDetailsProps | any) {
                   <Search />
                 </Button>
               </div>
-              {filteredFiles.length > 0 ? (
+              {initialUser.files.length > 0 ? (
                 <Table>
                   <TableHeader>
                     <TableRow>
                       <TableHead>ID</TableHead> <TableHead>Name</TableHead>
                       <TableHead>Size</TableHead>
-                      <TableHead>Type</TableHead>{" "}
-                      <TableHead>Last Modified</TableHead>{" "}
+                      <TableHead>Last Modified</TableHead>
+                      <TableHead>Download</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredFiles.map((file) => (
-                      <TableRow key={file.id}>
-                        <TableCell>{file.id}</TableCell>{" "}
-                        <TableCell>{file.name}</TableCell>
+                    {initialUser.files.map((file: any) => (
+                      <TableRow key={file._id}>
+                        <TableCell>{file._id}</TableCell>
+                        <TableCell>{file.realname}</TableCell>
                         <TableCell>{file.size}</TableCell>
-                        <TableCell>{file.type}</TableCell>{" "}
                         <TableCell>
-                          {new Date(file.lastModified).toLocaleDateString()}
-                        </TableCell>{" "}
+                          {new Date(file.lastModefied).toDateString()}
+                        </TableCell>
+                        <Link
+                          key={file._id}
+                          href={
+                            file.status === "completed"
+                              ? `http://localhost:5000/download/${file.owner}/${file.filename}_Completed.${file.extentionName}`
+                              : "#"
+                          }
+                        >
+                          <Button className="w-fit ml-5 mt-2 flex items-center">
+                            <Download />
+                          </Button>
+                        </Link>
                       </TableRow>
                     ))}
                   </TableBody>

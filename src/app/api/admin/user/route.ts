@@ -1,5 +1,6 @@
 import { getAuthorizedUser } from "@/api-calls/backend-functions";
 import connectMongo from "@/lib/dbConfig";
+import { fileModel } from "@/models/file.model";
 import { transactionModel } from "@/models/transaction.model";
 import { userModel } from "@/models/user.model";
 import { walletModel } from "@/models/wallet.model";
@@ -49,17 +50,29 @@ export async function POST(req: NextRequest) {
     }
     let dbUser;
     if (email) {
-      dbUser = await userModel.findOne({ email: email }).populate({
-        path: "walletId",
-        populate: { path: "transactions", model: transactionModel },
-        model: walletModel,
-      });
+      dbUser = await userModel
+        .findOne({ email: email })
+        .populate({
+          path: "walletId",
+          populate: {
+            path: "transactions",
+            model: transactionModel,
+          },
+          model: walletModel,
+        })
+        .populate({
+          path: "files", // Assuming 'files' is directly part of the userModel
+          model: fileModel, // Replace with the actual model for 'files'
+        });
     } else {
-      dbUser = await userModel.findOne({ _id: userId }).populate({
-        path: "walletId",
-        populate: { path: "transactions", model: transactionModel },
-        model: walletModel,
-      });
+      dbUser = await userModel
+        .findOne({ _id: userId })
+        .populate({
+          path: "walletId",
+          populate: { path: "transactions", model: transactionModel },
+          model: walletModel,
+        })
+        .populate({ path: "files", model: fileModel });
     }
 
     if (!dbUser) {
