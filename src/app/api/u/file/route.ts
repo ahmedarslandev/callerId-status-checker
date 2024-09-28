@@ -9,6 +9,7 @@ import { fileModel } from "@/models/file.model";
 import connectMongo from "@/lib/dbConfig";
 import { processFile } from "@/lib/fileProcessing";
 import { startProcessingInterval } from "@/lib/intervalSetup";
+import { walletModel } from "@/models/wallet.model";
 
 export async function POST(req: NextRequest) {
   await connectMongo();
@@ -29,7 +30,7 @@ export async function POST(req: NextRequest) {
     // Fetch the user from the database and populate the walletId field
     const dbUser = await userModel
       .findById(data?.data?.id)
-      .populate("walletId");
+      .populate({ path: "walletId", model: walletModel });
     console.log("User fetched");
 
     // Check if user exists and is verified
@@ -56,26 +57,36 @@ export async function POST(req: NextRequest) {
       });
     }
 
+    console.log(file);
     dbUser.walletId.balance -= cost;
 
-    const filename = new Date().toDateString();
+    const date = new Date().toDateString();
+
+    // Get the file extension
     const extension = file.name.split(".").pop();
     const buffer = Buffer.from(await file.arrayBuffer());
 
+    // Define the user directory where files will be uploaded
     const userDirectory = join(
       process.cwd(),
       `../file-server-handler/uploads/${dbUser._id.toString()}`
     );
 
     try {
+      // Create user directory if it doesn't exist
       await mkdir(userDirectory, { recursive: true });
     } catch (error) {
       console.error("Error creating directory:", error);
     }
 
-    const filePath = join(userDirectory, `${filename}.${extension}`);
+    // Define the full file path using the formatted date
+    const filename = `${date} ${Date.now()}.${extension}`; // Create filename using formatted date
+    const filePath = join(userDirectory, filename);
+
+    // Write the file to the determined path
     await writeFile(filePath, buffer);
 
+    console.log(filePath, filename);
     const dbFile = new fileModel({
       owner: dbUser._id,
       filename,

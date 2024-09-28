@@ -24,7 +24,7 @@ const processPendingFiles = async () => {
     }
 
     const userDirectory = join(
-      "./public/uploads",
+      "../file-server-handler/uploads",
       pendingFile.owner.toString()
     );
 

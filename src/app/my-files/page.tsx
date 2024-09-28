@@ -6,17 +6,11 @@ import {
   Card,
   CardContent,
   Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationPrevious,
-  PaginationLink,
-  PaginationEllipsis,
-  PaginationNext,
   useToast,
 } from "@/components/ui/index";
 import { useEffect, useState, useCallback } from "react";
 import { FileIcon } from "@/components/admin/icons";
-import { FileTypeIcon, RefreshCcw } from "lucide-react";
+import { FileTypeIcon, RefreshCcw, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "@/store/auth.store";
@@ -28,12 +22,21 @@ import {
 } from "@/components/icons/others";
 import { fetchFiles } from "@/api-calls/api-calls";
 import { File } from "@/models/file.model";
+import { PaginationContent } from "@/components/Pagination";
 
 export default function Component() {
   const [files, setFiles] = useState<File[] | null>(null);
+  const [copiedFiles, setCopiedFiles] = useState<File[] | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [selected, setSelected] = useState("asc");
+  const [search, setSearch] = useState("");
+  const [filterSelected, setFilterSelected] = useState("realname");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [filesAtOnePage, setFilesAtOnePage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
+
   const dispatch: AppDispatch = useDispatch();
-  const toast = useToast();
+  const { toast } = useToast();
   const router = useRouter();
 
   const { user, files: storedFiles } = useSelector((state: any) => ({
@@ -52,19 +55,102 @@ export default function Component() {
   const refreshFiles = useCallback(async () => {
     setIsRefreshing(true);
     const newFiles = await fetchFiles(toast);
+    const totalNoOfPages = newFiles.length / filesAtOnePage;
+    // setTotalPages(Math.ceil(totalNoOfPages));
+    setTotalPages(Math.ceil(totalNoOfPages));
+    setCopiedFiles(newFiles);
     setFiles(newFiles);
     dispatch(setStoreFiles({ files: newFiles }));
+    handlePageChange(currentPage);
     setIsRefreshing(false);
   }, []);
 
-  // Load files on initial render or refresh
+  const onSelectedChange = (e: any) => {
+    setSelected(e);
+
+    setFiles((prev): any => {
+      if (!prev) return [];
+
+      return [...prev].sort((a: any, b: any) => {
+        const aValue = a?.[e];
+        const bValue = b?.[e];
+
+        if (typeof aValue === "string" && typeof bValue === "string") {
+          return aValue.localeCompare(bValue);
+        }
+
+        return aValue - bValue; // If numeric comparison is needed
+      });
+    });
+  };
+
+  const onFilterSelectedChange = (e: any) => {
+    setFilterSelected(e);
+  };
+
+  const onSearchChange = (e: any) => {
+    setSearch(e.target.value);
+    if (!files || !copiedFiles) return;
+    if (e.target.value != "" && e.target.value.length > 0) {
+      const filteredFiles = copiedFiles.filter((file: any) => {
+        const fieldValue = file?.[filterSelected as any] || "";
+        return fieldValue.toString().includes(e.target.value);
+      });
+      setFiles(filteredFiles);
+    } else {
+      handlePageChange(1)
+    }
+  };
+
+  const handlePageChange = useCallback(
+    (page: number) => {
+      if (page < 1 || page > totalPages) return; // Prevent invalid page changes
+      setCurrentPage(page);
+
+      // Calculate the start and end index for slicing the array
+      const startIndex = (page - 1) * filesAtOnePage;
+      const endIndex = page * filesAtOnePage;
+
+      // Slice the copiedFiles array to get the files for the current page
+      const paginatedFiles = copiedFiles?.slice(startIndex, endIndex) || [];
+
+      setFiles(paginatedFiles); // Set the paginated files
+    },
+    [filesAtOnePage, copiedFiles, totalPages]
+  );
+
   useEffect(() => {
     if (storedFiles.length > 0) {
-      setFiles(storedFiles);
+      setCopiedFiles(storedFiles);
+      const totalNoOfPages = Math.ceil(storedFiles.length / filesAtOnePage);
+      setTotalPages(totalNoOfPages);
+
+      // Immediately set paginated files for the first page
+      const paginatedFiles = storedFiles.slice(0, filesAtOnePage);
+      setFiles(paginatedFiles);
     } else {
       refreshFiles();
     }
-  }, []);
+  }, [storedFiles, filesAtOnePage, refreshFiles]);
+
+  // Ensure pagination runs correctly even when refreshing files
+  useEffect(() => {
+    if (copiedFiles && copiedFiles.length > 0) {
+      handlePageChange(currentPage); // Handle pagination on file change
+    }
+  }, [copiedFiles, currentPage, handlePageChange]);
+
+  const onSubmit = ({ search, searchBy }: any) => {
+    if (!files) return;
+
+    const filteredFiles = files.filter((file: any) => {
+      const fieldValue = file?.[searchBy] || "";
+      return fieldValue.toString().includes(search);
+    });
+    setFiles(filteredFiles);
+  };
+
+  // Load files on initial render or refresh
 
   if (!files) return <div>Loading...</div>;
 
@@ -73,22 +159,41 @@ export default function Component() {
       <div className="flex flex-col w-full min-h-screen border border-zinc-300 rounded-lg">
         <header className="bg-background border-b px-4 sm:px-6 flex justify-between items-center h-14">
           <h1 className="text-lg md:text-xl font-semibold">Files</h1>
-          <Button onClick={refreshFiles} variant="outline">
+          <Button
+            disabled={isRefreshing}
+            onClick={refreshFiles}
+            variant="outline"
+          >
             <RefreshCcw
               className={`rotate-180 ${isRefreshing ? "animate-spin" : ""}`}
             />
           </Button>
         </header>
         <main className="flex-1 py-6 px-4 sm:px-6">
-          <div className="flex flex-col md:flex-row md:items-center justify-between mb-6">
-            <Input
-              type="search"
-              placeholder="Search files..."
-              className="w-full rounded-lg bg-background pl-8"
-            />
-            <div className="flex items-center gap-2 md:gap-4">
-              <FilterDropdown />
-              <SortDropdown />
+          <div className="flex flex-col md:flex-row gap-5 md:items-center justify-between mb-6">
+            <div className="w-full h-10 flex justify-center items-center border-zinc-300 border-[1px] overflow-hidden rounded-sm">
+              <Input
+                value={search}
+                onChange={(e) => {
+                  onSearchChange(e);
+                }}
+                type="search"
+                placeholder="Search files..."
+                className="w-full rounded-lg bg-background pl-8 input-outline-none shadow-none outline-none border-none"
+              />
+              <div
+                onClick={() => onSubmit({ search, searchBy: filterSelected })}
+                className="py-3 px-3 cursor-pointer active:scale-90 bg-zinc-100 w-fit h-fit"
+              >
+                <Search className="w-5 " />
+              </div>
+            </div>
+            <div className="flex items-center gap-1">
+              <FilterDropdown
+                selected={filterSelected}
+                onChange={onFilterSelectedChange}
+              />
+              <SortDropdown selected={selected} onChange={onSelectedChange} />
             </div>
           </div>
 
@@ -138,28 +243,11 @@ export default function Component() {
 
           <div className="flex justify-center mt-8">
             <Pagination>
-              <PaginationContent>
-                <PaginationItem>
-                  <PaginationPrevious href="#" />
-                </PaginationItem>
-                <PaginationItem>
-                  <PaginationLink href="#">1</PaginationLink>
-                </PaginationItem>
-                <PaginationItem>
-                  <PaginationLink href="#" isActive>
-                    2
-                  </PaginationLink>
-                </PaginationItem>
-                <PaginationItem>
-                  <PaginationLink href="#">3</PaginationLink>
-                </PaginationItem>
-                <PaginationItem>
-                  <PaginationEllipsis />
-                </PaginationItem>
-                <PaginationItem>
-                  <PaginationNext href="#" />
-                </PaginationItem>
-              </PaginationContent>
+              <PaginationContent
+                totalPages={totalPages}
+                currentPage={currentPage}
+                onPageChange={handlePageChange}
+              />
             </Pagination>
           </div>
         </main>

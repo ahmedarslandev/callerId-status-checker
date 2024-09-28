@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import * as XLSX from "xlsx";
 import DialogBox from "@/components/DialogBox";
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useEffect, useState, useCallback } from "react";
 import ButtonLoder from "@/components/ButtonLoder";
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
@@ -55,7 +55,7 @@ export default function Page() {
       const callerIds = text
         .split("\n")
         .map((id) => id.trim())
-        .filter((id) => /^\d{10}$/.test(id)); // Ensure IDs are exactly 10 digits
+        .filter((id) => /^\d{10,11}$/.test(id)); // Ensure IDs are exactly 10 digits
 
       setFileData((prev) => ({
         ...prev,
@@ -108,7 +108,7 @@ export default function Page() {
 
         // Validate all IDs
         const invalidCallerId = combinedCallerIds.find(
-          (id) => !/^\d{10}$/.test(id)
+          (id) => !/^\d{10,11}$/.test(id)
         );
         if (invalidCallerId) {
           toast({
@@ -143,13 +143,9 @@ export default function Page() {
         });
 
         // Create a new file from the Blob
-        const updatedFile = new File(
-          [updatedWorkbookBlob],
-          "updated_caller_ids.xlsx",
-          {
-            type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-          }
-        );
+        const updatedFile = new File([updatedWorkbookBlob], file.name, {
+          type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        });
 
         // Update the fileData with the new file
         setFileData({

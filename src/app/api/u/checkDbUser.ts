@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { userModel } from "@/models/user.model";
+import { walletModel } from "@/models/wallet.model";
 import { NextResponse } from "next/server";
 
 export async function IsUser(){
@@ -18,7 +19,7 @@ export async function IsUser(){
     // Fetch the user from the database and populate the walletId field
     const dbUser = await userModel
       .findById(data?.data?.id)
-      .populate("walletId");
+      .populate({path:"walletId" , model:walletModel});
 
     // Check if user exists and is verified
     if (!dbUser || !dbUser.isVerified) {

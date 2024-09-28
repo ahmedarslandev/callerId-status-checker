@@ -1,4 +1,4 @@
-import { FilterIcon, ListOrderedIcon } from "lucide-react";
+import { FilterIcon, ListOrderedIcon, Search } from "lucide-react";
 import {
   Button,
   DropdownMenu,
@@ -10,6 +10,11 @@ import {
   DropdownMenuTrigger,
 } from "../ui";
 
+interface SortDropdownProps {
+  selected: string;
+  onChange: (value: string) => void;
+}
+
 export function getStatusClass(status: any) {
   return status === "completed"
     ? "text-green-500"
@@ -20,7 +25,9 @@ export function getStatusClass(status: any) {
     : "text-black";
 }
 
-export function SortDropdown() {
+// SortDropdown.tsx
+
+export function SortDropdown({ selected, onChange }: SortDropdownProps | any) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -32,31 +39,46 @@ export function SortDropdown() {
       <DropdownMenuContent align="end" className="w-[200px]">
         <DropdownMenuLabel>Sort order</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuRadioGroup value="asc">
-          <DropdownMenuRadioItem value="asc">Ascending</DropdownMenuRadioItem>
-          <DropdownMenuRadioItem value="desc">Descending</DropdownMenuRadioItem>
+        <DropdownMenuRadioGroup value={selected} onValueChange={onChange}>
+          <DropdownMenuRadioItem value="size">Size</DropdownMenuRadioItem>
+          <DropdownMenuRadioItem value="realname">Name</DropdownMenuRadioItem>
+          <DropdownMenuRadioItem value="noOfCallerIds">
+            Caller ids
+          </DropdownMenuRadioItem>
+          <DropdownMenuRadioItem value="status">Staus</DropdownMenuRadioItem>
         </DropdownMenuRadioGroup>
       </DropdownMenuContent>
     </DropdownMenu>
   );
 }
 
-export function FilterDropdown() {
+interface FilterDropdownProps {
+  selected: string;
+  onChange: (value: string) => void;
+}
+
+export function FilterDropdown({
+  selected,
+  onChange,
+}: FilterDropdownProps | any) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="sm" className="flex items-center gap-2">
-          <FilterIcon className="w-4 h-4" />
-          <span>Filter</span>
+          <Search className="w-4 h-4" />
+          <span>Search</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-[200px]">
-        <DropdownMenuLabel>Sort by</DropdownMenuLabel>
+        <DropdownMenuLabel>Search by</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuRadioGroup value="name">
-          <DropdownMenuRadioItem value="name">Name</DropdownMenuRadioItem>
-          <DropdownMenuRadioItem value="type">Type</DropdownMenuRadioItem>
+        <DropdownMenuRadioGroup value={selected} onValueChange={onChange}>
+          <DropdownMenuRadioItem value="_id">Id</DropdownMenuRadioItem>
+          <DropdownMenuRadioItem value="realname">Name</DropdownMenuRadioItem>
           <DropdownMenuRadioItem value="size">Size</DropdownMenuRadioItem>
+          <DropdownMenuRadioItem value="noOfCallerIds">
+            Caller ids
+          </DropdownMenuRadioItem>{" "}
         </DropdownMenuRadioGroup>
       </DropdownMenuContent>
     </DropdownMenu>

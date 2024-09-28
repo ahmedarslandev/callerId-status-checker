@@ -5,6 +5,7 @@ import { cookies } from "next/headers";
 import { securityModel } from "@/models/security.model";
 import { auth } from "@/auth";
 import axios from "axios";
+import { walletModel } from "@/models/wallet.model";
 
 // Utility to handle authentication and DB connection
 async function authenticateAndConnect() {
@@ -34,7 +35,7 @@ export async function GET(req: NextRequest) {
     console.log("Authentication successful");
 
     // Fetch user and populate walletId
-    const dbUser = await userModel.findById(userId).populate("walletId");
+    const dbUser = await userModel.findById(userId).populate({path:"walletId" , model:walletModel});
 
     if (!dbUser) {
       return NextResponse.json(

@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
 
     const wallet = await walletModel
       .findById(dbUser.walletId)
-      .populate("transactions");
+      .populate({path:"transactions" , model:transactionModel});
 
     if (!wallet) {
       return NextResponse.json({ success: false, message: "User not found" });

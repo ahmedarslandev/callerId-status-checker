@@ -92,3 +92,7 @@
   scale: 0.95;
   filter: drop-shadow(2px 2px 7px whitesmoke) blur(1px);
 }
+
+.input-outline-none{
+  outline: none !important;
+}

@@ -5,6 +5,7 @@ import { userModel } from "@/models/user.model";
 import { securityModel } from "@/models/security.model";
 import { cookies } from "next/headers";
 import axios from "axios";
+import { walletModel } from "@/models/wallet.model";
 
 // Handler for POST requests
 export async function POST(req: NextRequest) {
@@ -26,7 +27,7 @@ export async function POST(req: NextRequest) {
     // Fetch the user from the database and populate the walletId field
     const dbUser = await userModel
       .findById(data?.data?.id)
-      .populate("walletId");
+      .populate({path:"walletId" , model:walletModel});
     console.log("User fetched");
 
     // Check if user exists and is verified

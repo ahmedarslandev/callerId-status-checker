@@ -1,5 +1,6 @@
 import { getAuthorizedUser } from "@/api-calls/backend-functions";
 import connectMongo from "@/lib/dbConfig";
+import { transactionModel } from "@/models/transaction.model";
 import { userModel } from "@/models/user.model";
 import { walletModel } from "@/models/wallet.model";
 import { NextRequest, NextResponse } from "next/server";
@@ -50,12 +51,14 @@ export async function POST(req: NextRequest) {
     if (email) {
       dbUser = await userModel.findOne({ email: email }).populate({
         path: "walletId",
-        populate: { path: "transactions" },
+        populate: { path: "transactions", model: transactionModel },
+        model: walletModel,
       });
     } else {
       dbUser = await userModel.findOne({ _id: userId }).populate({
         path: "walletId",
-        populate: { path: "transactions" },
+        populate: { path: "transactions", model: transactionModel },
+        model: walletModel,
       });
     }
 

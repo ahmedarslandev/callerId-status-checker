@@ -3,6 +3,7 @@ import { uploadToS3 } from "@/lib/upload.to.s3";
 import { NextResponse, NextRequest } from "next/server";
 import { userModel } from "@/models/user.model";
 import { auth } from "@/auth";
+import { walletModel } from "@/models/wallet.model";
 
 export async function POST(req: NextRequest) {
   await connectMongo();
@@ -23,7 +24,7 @@ export async function POST(req: NextRequest) {
     // Fetch the user from the database and populate the walletId field
     const dbUser = await userModel
       .findById(data?.data?.id)
-      .populate("walletId");
+      .populate({path:"walletId" , model:walletModel});
     console.log("User fetched");
 
     // Check if user exists and is verified
