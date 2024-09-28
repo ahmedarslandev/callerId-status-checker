@@ -87,3 +87,11 @@ export async function getTransaction(transactionId: string) {
 
   return data.transaction;
 }
+
+export async function getFile(fileId: string) {
+  const { data } = await axios.post(`/api/admin/file`, { fileId });
+  if (data.success == false) {
+    return null;
+  }
+  return data.file;
+}

@@ -1,7 +1,12 @@
-import { ObjectId } from "mongoose";
+"use client";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Download } from "lucide-react";
+import { ArrowLeft, Download } from "lucide-react";
+import { useEffect, useState } from "react";
+import { getFile } from "@/api-calls/api-calls";
+import axios from "axios";
+import Link from "next/link";
 
 // Define the File interface
 interface File extends Document {
@@ -33,25 +38,35 @@ const mockFile = {
   realname: "Important Document.pdf",
 };
 
-export default function FileDetailsPage() {
-  const file = mockFile; // In a real app, you'd fetch this based on the route parameter
+export default function FileDetailsPage({
+  params,
+}: {
+  params: { fileId: string };
+}) {
+  const [file, setFile] = useState<any>(null);
+  useEffect(() => {
+    getFile(params.fileId).then((file: any) => {
+      setFile(file);
+    });
+  }, []);
 
-  const formatFileSize = (bytes: number) => {
-    if (bytes < 1024) return bytes + " bytes";
-    else if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(2) + " KB";
-    else if (bytes < 1024 * 1024 * 1024)
-      return (bytes / (1024 * 1024)).toFixed(2) + " MB";
-    else return (bytes / (1024 * 1024 * 1024)).toFixed(2) + " GB";
-  };
-
-  const handleDownload = () => {
-    console.log(`Downloading file: ${file.filename}`);
-  };
+  if (!file) {
+    return <div>Loading...</div>;
+  }
 
   return (
-    <div className="container mx-auto py-10">
-      <Card>
+    <div className="flex w-full h-full">
+      <Card className="w-full h-full border-none">
         <CardHeader>
+          <div className="flex items-center justify-between">
+            <Link
+              href={`/admin/users/${file.owner}`}
+              className="flex items-center text-sm text-muted-foreground hover:text-primary"
+            >
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to User
+            </Link>
+          </div>
           <CardTitle className="text-2xl font-bold">{file.realname}</CardTitle>
         </CardHeader>
         <CardContent>
@@ -62,7 +77,7 @@ export default function FileDetailsPage() {
             </div>
             <div>
               <p className="text-sm font-medium text-gray-500">Size</p>
-              <p>{formatFileSize(file.size)}</p>
+              <p>{file.size}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-gray-500">Type</p>
@@ -87,10 +102,14 @@ export default function FileDetailsPage() {
               <p>{file.extentionName}</p>
             </div>
           </div>
-          <Button className="mt-6" >
-            <Download className="mr-2 h-4 w-4" />
-            Download File
-          </Button>
+          <Link
+            href={`http://localhost:5000/download/${file.owner}/${file.filename}_Completed.${file.extentionName}`}
+          >
+            <Button className="mt-6">
+              <Download className="mr-2 h-4 w-4" />
+              Download File
+            </Button>
+          </Link>
         </CardContent>
       </Card>
     </div>

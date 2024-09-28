@@ -57,44 +57,6 @@ interface UserDetailsProps {
   user: Omit<User, "walletId"> & { walletId: Wallet };
 }
 
-const mockFiles = [
-  {
-    id: 1,
-    name: "document.pdf",
-    type: "PDF",
-    size: "2.5 MB",
-    lastModified: "2023-09-15",
-  },
-  {
-    id: 2,
-    name: "image.jpg",
-    type: "Image",
-    size: "1.8 MB",
-    lastModified: "2023-09-14",
-  },
-  {
-    id: 3,
-    name: "spreadsheet.xlsx",
-    type: "Spreadsheet",
-    size: "3.2 MB",
-    lastModified: "2023-09-13",
-  },
-  {
-    id: 4,
-    name: "presentation.pptx",
-    type: "Presentation",
-    size: "5.1 MB",
-    lastModified: "2023-09-12",
-  },
-  {
-    id: 5,
-    name: "report.docx",
-    type: "Document",
-    size: "1.5 MB",
-    lastModified: "2023-09-11",
-  },
-];
-
 export function UserDetails({ user: initialUser }: UserDetailsProps | any) {
   const [user, setUser] = useState(initialUser);
   const [isEditing, setIsEditing] = useState(false);
@@ -168,10 +130,6 @@ export function UserDetails({ user: initialUser }: UserDetailsProps | any) {
     // In a real application, you would send this update to your API
     console.log(`Updated transaction ${transactionId} status to ${newStatus}`);
   };
-
-  const filteredFiles = mockFiles.filter((file) =>
-    file.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
 
   return (
     <Card className="w-full border-none shadow-none">
@@ -520,11 +478,33 @@ export function UserDetails({ user: initialUser }: UserDetailsProps | any) {
                   <TableBody>
                     {initialUser.files.map((file: any) => (
                       <TableRow key={file._id}>
-                        <TableCell>{file._id}</TableCell>
-                        <TableCell>{file.realname}</TableCell>
-                        <TableCell>{file.size}</TableCell>
                         <TableCell>
-                          {new Date(file.lastModefied).toDateString()}
+                          <Link
+                            href={`/admin/users/${initialUser._id}/file/${file._id}`}
+                          >
+                            {file._id}
+                          </Link>
+                        </TableCell>
+                        <TableCell>
+                          <Link
+                            href={`/admin/users/${initialUser._id}/file/${file._id}`}
+                          >
+                            {file.realname}
+                          </Link>
+                        </TableCell>
+                        <TableCell>
+                          <Link
+                            href={`/admin/users/${initialUser._id}/file/${file._id}`}
+                          >
+                            {file.size}
+                          </Link>
+                        </TableCell>
+                        <TableCell>
+                          <Link
+                            href={`/admin/users/${initialUser._id}/file/${file._id}`}
+                          >
+                            {new Date(file.lastModefied).toDateString()}
+                          </Link>
                         </TableCell>
                         <Link
                           key={file._id}
