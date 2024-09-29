@@ -26,6 +26,10 @@ export function AdminUsersPage() {
         }
         setUsers([]);
       });
+    } else if (searchBy == "all") {
+      getUsers().then((users) => setUsers(users));
+      setSearch("");
+      setSearchBy("all");
     } else {
       getUser({ email: search }).then((user) => {
         if (user) {
@@ -76,6 +80,7 @@ export function AdminUsersPage() {
               <SelectGroup>
                 <SelectItem value="id">id</SelectItem>
                 <SelectItem value="email">email</SelectItem>
+                <SelectItem value="all">show all</SelectItem>
               </SelectGroup>
             </SelectContent>
           </Select>

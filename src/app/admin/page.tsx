@@ -126,6 +126,10 @@ const TransactionRow = ({
 
 export default function TransactionsPage() {
   const [transactions, setTransactions] = useState<Transaction[] | null>(null);
+  const [copiedTransactions, setCopiedTransactions] = useState<
+    Transaction[] | null
+  >(null);
+  const [search, setSearch] = useState("");
   const dispatch: AppDispatch = useDispatch();
   const { transactions: Transactions } = useSelector(
     (state: any) => state.admin
@@ -137,9 +141,18 @@ export default function TransactionsPage() {
     setIsRefreshing(true);
     const transactions = await fetchTransactions(toast);
     setTransactions(transactions);
+    setCopiedTransactions(transactions);
     dispatch(setAdminTransactions({ transactions: { transactions } }));
     setIsRefreshing(false);
     return;
+  };
+
+  const handelSearch = (e: any) => {
+    setSearch(e.target.value);
+    const filteredTransactions: any = copiedTransactions?.filter((t) =>
+      t.amount.includes(e.target.value)
+    );
+    setTransactions(filteredTransactions);
   };
 
   useEffect(() => {
@@ -149,6 +162,7 @@ export default function TransactionsPage() {
       Transactions.transactions.length > 0
     ) {
       setTransactions(Transactions.transactions);
+      setCopiedTransactions(Transactions.transactions);
     } else {
       fetchTransactions(toast).then((data: any) => {
         if (data) {
@@ -158,6 +172,7 @@ export default function TransactionsPage() {
             })
           );
           setTransactions(data);
+          setCopiedTransactions(data);
         }
       });
     }
@@ -188,7 +203,9 @@ export default function TransactionsPage() {
               <SearchIcon className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
                 type="search"
-                placeholder="Search transactions..."
+                value={search}
+                onChange={(e: any) => handelSearch(e)}
+                placeholder="Enter amount..."
                 className="pl-8 sm:w-[300px] md:w-[200px] lg:w-[300px]"
               />
             </div>

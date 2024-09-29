@@ -62,7 +62,6 @@ export default function Sidebar() {
           label="Transactions"
         />
         <SidebarLink href="/admin/users" icon={<UsersIcon />} label="Users" />
-        <SidebarLink href="/admin/files" icon={<FileIcon />} label="Files" />
       </nav>
     </div>
   );
