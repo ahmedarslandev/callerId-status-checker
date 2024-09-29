@@ -63,14 +63,14 @@ export default function ForgotPassword() {
           <CardHeader>
             <CardTitle>Check your email</CardTitle>
             <CardDescription>
-              We've sent a password reset link to your email.
+              We&apos;ve sent a password reset link to your email.
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Alert>
               <CheckCircle2 className="h-4 w-4" />
               <AlertDescription>
-                If you don't see the email, check your spam folder.
+                If you don&apos;t see the email, check your spam folder.
               </AlertDescription>
             </Alert>
           </CardContent>
