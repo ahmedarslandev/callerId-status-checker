@@ -7,7 +7,6 @@ import { z } from "zod";
 import axios from "axios";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useTheme } from "next-themes";
 
 import {
   Form,
@@ -20,12 +19,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import ButtonLoder from "@/components/ButtonLoder";
-import HLine from "@/components/HLine";
 import { SignUpSchema } from "@/zod-schemas/signup-schema";
 import { useSelector } from "react-redux";
+import { SignUpfields } from "@/utils/fields/signUpFields";
 
 export default function SignIn() {
-  const { theme } = useTheme();
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const router = useRouter();
@@ -74,22 +72,7 @@ export default function SignIn() {
           onSubmit={form.handleSubmit(onSubmit)}
           className="border-[1px] w-full max-w-md border-zinc-400 rounded p-6 flex flex-col gap-4"
         >
-          {[
-            { name: "username", label: "Username", placeholder: "John Doe" },
-            { name: "email", label: "Email", placeholder: "example@gmail.com" },
-            {
-              name: "password",
-              label: "Password",
-              type: "password",
-              placeholder: "********",
-            },
-            {
-              name: "confirmPassword",
-              label: "Confirm Password",
-              type: "password",
-              placeholder: "********",
-            },
-          ].map(({ name, label, placeholder, type }: any) => (
+          {SignUpfields.map(({ name, label, placeholder, type }: any) => (
             <FormField
               key={name}
               control={form.control}

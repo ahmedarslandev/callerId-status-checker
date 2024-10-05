@@ -16,20 +16,18 @@ import { Input } from "@/components/ui/input";
 
 import { SignInSchema } from "@/zod-schemas/signin-schema";
 import Link from "next/link";
-import HLine from "@/components/HLine";
 import { useToast } from "@/components/ui/use-toast";
 import { useEffect, useState } from "react";
 import { SignIn as login } from "@/lib/api.handler";
 import ButtonLoder from "@/components/ButtonLoder";
-import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
 
 import "lazysizes";
 import "lazysizes/plugins/parent-fit/ls.parent-fit";
 import { useSelector } from "react-redux";
+import { signInfields } from "@/utils/fields/signInFields";
 
 export default function SignIn() {
-  const { theme } = useTheme();
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const router = useRouter();
@@ -79,49 +77,37 @@ export default function SignIn() {
           onSubmit={form.handleSubmit(onSubmit)}
           className="border-[1px] w-[60%] max-md:w-full border-zinc-400 rounded p-6 flex flex-col justify-center gap-4"
         >
-          <FormField
-            control={form.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email</FormLabel>
-                <FormControl>
-                  <Input
-                    className="max-md:text-xs"
-                    placeholder="example@gmail.com"
-                    {...field}
-                  />
-                </FormControl>
-                {form.formState.errors.email && (
-                  <FormDescription className="text-xs text-red-500">
-                    {form.formState.errors.email.message}
-                  </FormDescription>
-                )}
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="password"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Password</FormLabel>
-                <FormControl>
-                  <Input
-                    className="max-md:text-xs"
-                    type="password"
-                    placeholder="********"
-                    {...field}
-                  />
-                </FormControl>
-                {form.formState.errors.password && (
-                  <FormDescription className="text-xs text-red-500">
-                    {form.formState.errors.password.message}
-                  </FormDescription>
-                )}
-              </FormItem>
-            )}
-          />
+          {signInfields.map(({ name, label, placeholder, type }) => (
+            <FormField
+              key={name}
+              control={form.control}
+              name={name}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{label}</FormLabel>
+                  <FormControl>
+                    <Input
+                      type={type || "text"}
+                      className="max-md:text-xs"
+                      placeholder={placeholder}
+                      {...field}
+                    />
+                  </FormControl>
+                  {form.formState.errors[
+                    name as keyof typeof form.formState.errors
+                  ] && (
+                    <FormDescription className="text-xs text-red-500">
+                      {
+                        form.formState.errors[
+                          name as keyof typeof form.formState.errors
+                        ]?.message
+                      }
+                    </FormDescription>
+                  )}
+                </FormItem>
+              )}
+            />
+          ))}
           <FormDescription className="max-md:text-xs">
             Forgot your password?{" "}
             <Link

@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { User } from "@/models/user.model"; // Adjust the import path
@@ -21,20 +20,9 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState<boolean>(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const { data } = useSession();
   const dispatch: AppDispatch = useDispatch();
   const router = useRouter();
   const { user: authUser } = useSelector((state: any) => state.user) as any;
-
-  useEffect(() => {
-    // Redirect if no user is logged in
-    if (!authUser || Object.keys(authUser).length === 0) {
-      router.replace("/");
-    } else {
-      setUser(authUser);
-      setLoading(false);
-    }
-  }, [authUser, router]);
 
   const refreshFiles = async () => {
     setIsRefreshing(true);

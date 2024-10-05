@@ -2,19 +2,9 @@
 
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
-import { useSession } from "next-auth/react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useSelector } from "react-redux";
 
 export default function Page() {
-  const router = useRouter();
-  const { user } = useSelector((state: any) => state.user) as any;
-
-  if (Object.keys(user).length <= 0) {
-    router.replace("/sign-in" as any);
-  }
-
   return (
     <div className="section1 flex flex-col gap-5 lg:gap-0 lg:flex-row items-center min-h-screen max-h-screen lg:items-center px-4 lg:px-16 py-8 lg:py-16">
       <div className="left lg:w-1/2 text-center h-full lg:text-left mb-8 lg:mb-0">
