@@ -1,60 +1,54 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import axios from "axios";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import {  useState } from "react";
 import { useRouter } from "next/navigation";
+import axios from "axios";
 import { useSession } from "next-auth/react";
-import { toast } from "@/components/ui/use-toast";
-import { useSelector } from "react-redux";
+import { useToast } from "@/components/ui/use-toast";
+import {
+  Form,
+  FormControl,
+  FormItem,
+  FormLabel,
+  FormDescription,
+  FormField,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import ButtonLoder from "@/components/ButtonLoder";
+
+// Zod schema for change password validation
+const ChangePasswordSchema = z.object({
+  currentPassword: z.string().min(6, "Current password must be at least 6 characters long."),
+  newPassword: z.string().min(6, "New password must be at least 6 characters long."),
+  confirmPassword: z
+    .string()
+    .min(6, "Confirm password must be at least 6 characters long.")
+});
 
 export default function ChangePasswordPage() {
   const { data } = useSession();
   const router = useRouter();
-  const { user } = useSelector((state: any) => state.user) as any;
-
-  const [form, setForm] = useState({
-    currentPassword: "",
-    newPassword: "",
-    confirmPassword: "",
-  });
-  const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
-  // Redirect if user is not logged in
-  useEffect(() => {
-    if (!user) {
-      router.replace("/");
-    }
-  }, [user, router]);
+  const form = useForm<z.infer<typeof ChangePasswordSchema>>({
+    resolver: zodResolver(ChangePasswordSchema),
+    defaultValues: {
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: "",
+    },
+  });
 
-  // Handle input change
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
-  };
-
-  // Validate form before sending request
-  const validateForm = () => {
-    if (form.newPassword !== form.confirmPassword) {
-      setError("New password and confirmation do not match.");
-      return false;
-    }
-    return true;
-  };
-
-  const handleChangePassword = async () => {
-    if (!validateForm()) return;
-
+  const onSubmit = async (values: z.infer<typeof ChangePasswordSchema>) => {
     setIsLoading(true);
-    setError(null);
-
     try {
       const response = await axios.post("/api/u/change-password", {
-        currentPassword: form.currentPassword,
-        newPassword: form.newPassword,
+        currentPassword: values.currentPassword,
+        newPassword: values.newPassword,
         isLoggedInWithCredentials: data?.data.isLoggedInWithCredentials,
       });
 
@@ -68,10 +62,10 @@ export default function ChangePasswordPage() {
       } else {
         throw new Error(response.data.message);
       }
-    } catch (err: any) {
+    } catch (error: any) {
       toast({
         title: "Error",
-        description: err.message || "An unexpected error occurred.",
+        description: error.message || "An unexpected error occurred.",
         variant: "destructive",
         duration: 5000,
       });
@@ -82,50 +76,67 @@ export default function ChangePasswordPage() {
 
   return (
     <div className="flex justify-center items-center min-h-screen p-6">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <h2 className="text-2xl font-bold">Change Password</h2>
-        </CardHeader>
-        <CardContent>
-          {error && <div className="mb-4 text-red-600">{error}</div>}
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="border-[1px] w-full max-w-md border-zinc-400 rounded p-6 flex flex-col gap-4"
+        >
           {data?.data.isLoggedInWithCredentials && (
-            <div className="mb-4">
-              <Input
-                name="currentPassword"
-                type="password"
-                placeholder="Current Password"
-                value={form.currentPassword}
-                onChange={handleInputChange}
-              />
-            </div>
+            <FormField
+              control={form.control}
+              name="currentPassword"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Current Password</FormLabel>
+                  <FormControl>
+                    <Input type="password" placeholder="Current Password" {...field} />
+                  </FormControl>
+                  {form.formState.errors.currentPassword && (
+                    <FormDescription className="text-red-500">
+                      {form.formState.errors.currentPassword?.message}
+                    </FormDescription>
+                  )}
+                </FormItem>
+              )}
+            />
           )}
-          <div className="mb-4">
-            <Input
-              name="newPassword"
-              type="password"
-              placeholder="New Password"
-              value={form.newPassword}
-              onChange={handleInputChange}
-            />
-          </div>
-          <div className="mb-4">
-            <Input
-              name="confirmPassword"
-              type="password"
-              placeholder="Confirm New Password"
-              value={form.confirmPassword}
-              onChange={handleInputChange}
-            />
-          </div>
-          <Button
-            variant="default"
-            onClick={handleChangePassword}
-            disabled={isLoading}
-          >
-            {isLoading ? "Changing..." : "Change Password"}
-          </Button>
-        </CardContent>
-      </Card>
+          <FormField
+            control={form.control}
+            name="newPassword"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>New Password</FormLabel>
+                <FormControl>
+                  <Input type="password" placeholder="New Password" {...field} />
+                </FormControl>
+                {form.formState.errors.newPassword && (
+                  <FormDescription className="text-red-500">
+                    {form.formState.errors.newPassword?.message}
+                  </FormDescription>
+                )}
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="confirmPassword"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Confirm New Password</FormLabel>
+                <FormControl>
+                  <Input type="password" placeholder="Confirm New Password" {...field} />
+                </FormControl>
+                {form.formState.errors.confirmPassword && (
+                  <FormDescription className="text-red-500">
+                    {form.formState.errors.confirmPassword?.message}
+                  </FormDescription>
+                )}
+              </FormItem>
+            )}
+          />
+          <ButtonLoder isLoading={isLoading} name="Change Password" />
+        </form>
+      </Form>
     </div>
   );
 }

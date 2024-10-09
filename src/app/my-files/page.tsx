@@ -47,7 +47,7 @@ export default function Component() {
   // Redirect to home if no user is logged in
   useEffect(() => {
     if (!user) {
-      router.replace("/");
+      router.replace("/sign-in");
     }
   }, [user, router]);
 

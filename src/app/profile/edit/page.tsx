@@ -1,155 +1,178 @@
 "use client";
 
-import { useEffect, useState, ChangeEvent, FormEvent } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
-import { User } from "@/models/user.model"; // Adjust the import path
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
 import ButtonLoder from "@/components/ButtonLoder";
-import "lazysizes";
-import "lazysizes/plugins/parent-fit/ls.parent-fit";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "@/store/auth.store";
 import { setUser } from "@/store/reducers/auth.reducer";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { profileEditSchema } from "@/zod-schemas/other.schemas";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  Button,
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+} from "@/components/ui";
+import { profileEditFields } from "@/utils/fields/profileEditFields";
+import "lazysizes";
+import "lazysizes/plugins/parent-fit/ls.parent-fit";
+import Link from "next/link";
+import { fetchUserData } from "@/api-calls/api-calls";
 
 export default function EditProfilePage() {
-  const [form, setForm] = useState<Partial<User>>({
-    username: "",
-    email: "",
-    bio: "",
-  });
   const [isLoading, setIsLoading] = useState(false);
-
   const router = useRouter();
   const { user: authUser } = useSelector((state: any) => state.user) as any;
-  const dispatch: AppDispatch = useDispatch(); // Adjust the import path
+  const dispatch: AppDispatch = useDispatch();
+
+  const form = useForm<z.infer<typeof profileEditSchema>>({
+    resolver: zodResolver(profileEditSchema),
+    defaultValues: {
+      username: "",
+      email: "",
+      bio: "",
+    },
+  });
 
   useEffect(() => {
     if (!authUser) {
       router.replace("/sign-in");
-    } else {
-      // Initialize form state with user data
-      setForm({
-        username: authUser.username || "",
-        email: authUser.email || "",
-        bio: authUser.bio || "",
-      });
+      return;
     }
+
+    form.reset({
+      username: authUser.username || "",
+      email: authUser.email || "",
+      bio: authUser.bio || "",
+    });
   }, [authUser, router]);
 
-  // Handle input change
-  const handleChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
-  };
-
-  // Handle form submission
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
+  // Form submission handler
+  async function onSubmit(values: z.infer<typeof profileEditSchema>) {
     setIsLoading(true);
-
     try {
-      const response = await axios.put("/api/u/me", form);
-      const { success, message, dbUser, isEmailSent } = response.data;
-
-      if (!success) {
+      const { data } = await axios.put("/api/u/me", values);
+      if (data.success === false) {
         toast({
           title: "Error",
-          description: message,
+          description: data.message,
           variant: "destructive",
           duration: 5000,
         });
         return;
       }
 
-      dispatch(setUser({ user: dbUser }));
-
-      if (isEmailSent) {
+      dispatch(setUser({ user: data.dbUser }));
+      if (data.isEmailSent) {
+        setTimeout(() => {
+          fetchUserData().then((user) => {
+            if(Object.keys(user).length > 0) {
+              dispatch(setUser({ user }));
+            }
+          });
+        }, 1000 * 120);
         toast({
-          title: "Success",
-          description: "Email has been sent successfully.",
+          title: "Email Verification",
+          description:
+            "Please verify your email address to complete the profile update",
           duration: 5000,
         });
         router.replace("/code-verification");
         return;
       }
-
       toast({
         title: "Success",
-        description: "Profile updated successfully",
+        description: data.message,
         duration: 5000,
       });
-      router.replace("/profile");
-    } catch (error: any) {
+    } catch (error) {
       toast({
         title: "Error",
-        description:
-          error.response?.data?.message || error.message || "An error occurred",
+        description: "Something went wrong",
         variant: "destructive",
         duration: 5000,
       });
     } finally {
       setIsLoading(false);
     }
-  };
+  }
 
   if (!authUser) {
     return <div>Loading...</div>;
   }
 
   return (
-    <div className="p-6">
-      <Card>
-        <CardHeader>
-          <h2 className="text-2xl font-bold">Edit Profile</h2>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="flex items-center space-x-4">
-              <img
-                data-src={authUser.profileImage || "/default-profile.png"}
-                src={authUser.profileImage || "/default-profile.png"}
-                alt={`${authUser.username}'s profile image`}
-                width={100}
-                height={100}
-                className="rounded-full lazyload"
-              />
-              <div>
-                <h3 className="text-xl font-semibold">{authUser.username}</h3>
-              </div>
-            </div>
-            <Input
-              type="text"
-              name="username"
-              value={form.username}
-              onChange={handleChange}
-              placeholder="Username"
-              className="w-full"
+    <div className="p-6 flex w-full  justify-center items-center h-fit min-h-screen">
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="border-[1px] w-full border-zinc-200 h-fit rounded p-6 flex flex-col justify-center gap-4"
+        >
+          <div>
+            <Card>
+              <CardHeader>
+                <h3 className="text-xl font-semibold">Edit Profile</h3>
+              </CardHeader>
+              <CardContent>
+                <div className=" flex items-center justify-start w-full  gap-4">
+                  <div className="w-fit h-fit overflow-hidden rounded-full justify-center items-center">
+                    <img
+                      className="object-cover h-20 rounded-md lazyload"
+                      src={authUser.profileImage}
+                      alt={authUser.username}
+                    />
+                  </div>
+                  <p className="font-bold">{authUser.username}</p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+          {profileEditFields.map(({ name, placeholder, type }) => (
+            <FormField
+              key={name}
+              control={form.control}
+              name={name}
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <Input
+                      type={type || "text"}
+                      className="max-md:text-xs"
+                      placeholder={placeholder}
+                      {...field}
+                    />
+                  </FormControl>
+                  {form.formState.errors[name] && (
+                    <FormDescription className="text-xs text-red-500">
+                      {form.formState.errors[name]?.message}
+                    </FormDescription>
+                  )}
+                </FormItem>
+              )}
             />
-            <Input
-              type="email"
-              name="email"
-              value={form.email}
-              onChange={handleChange}
-              placeholder="Email"
-              className="w-full"
+          ))}
+
+          <div className="flex gap-2">
+            <ButtonLoder
+              variant={"outline"}
+              isLoading={isLoading}
+              name="Update profile"
             />
-            <Textarea
-              name="bio"
-              value={form.bio}
-              onChange={handleChange}
-              placeholder="Bio"
-              className="w-full"
-            />
-            <ButtonLoder name={"Update"} isLoading={isLoading} />
-          </form>
-        </CardContent>
-      </Card>
+            <Link href={`/profile`}>
+              <Button>Back to Profile</Button>
+            </Link>
+          </div>
+        </form>
+      </Form>
     </div>
   );
 }

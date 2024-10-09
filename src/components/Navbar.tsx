@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import HLine from "./HLine";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import ModeToggle from "./theme-toggle";
@@ -44,6 +43,7 @@ export default function Navbar() {
   }, []);
 
   if (!user) {
+    router.replace("/sign-in");
     return null;
   }
   return (

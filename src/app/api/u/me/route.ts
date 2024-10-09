@@ -109,7 +109,7 @@ export async function PUT(req: NextRequest) {
       console.log(verifyCode);
       // Set the cookies
       const cookiesInstance = cookies();
-      cookiesInstance.set("email", dbUser.email);
+      cookiesInstance.set("email", email);
       dbUser.email = email;
       cookiesInstance.set("updatedUser", JSON.stringify(dbUser));
 

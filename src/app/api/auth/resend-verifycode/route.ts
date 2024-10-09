@@ -33,10 +33,6 @@ export async function POST(req: NextRequest, res: NextResponse) {
         username: user.username,
       }
     );
-    response.then((data) => {
-      console.log(data);
-    });
-
     return NextResponse.json({
       success: true,
       message: "Verification code sent successfully",
