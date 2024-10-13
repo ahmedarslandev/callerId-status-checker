@@ -92,7 +92,7 @@ export default function SignIn() {
           </FormDescription>
           <ButtonLoader isLoading={isLoading} name="Sign In" />
           <FormDescription className="max-md:text-xs">
-            Don't have an account?{" "}
+            Don&apos;t have an account?{" "}
             <Link href="/sign-up" className="text-blue-600 hover:text-blue-700 max-md:text-xs">
               Sign Up
             </Link>
