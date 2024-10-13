@@ -1,6 +1,6 @@
 // middleware.ts
 import { rateLimiterMiddleware } from "@/middleware/rateLimiter";
-import { NextResponse, NextRequest } from "next/server";
+import { NextRequest } from "next/server";
 
 export async function middleware(req: NextRequest) {
   const response = await rateLimiterMiddleware(req);

@@ -10,9 +10,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import {
   LogOut,
-  Menu,
   Settings,
-  Image as Picture,
   Wallet,
   File,
 } from "lucide-react";
@@ -26,8 +24,19 @@ import "lazysizes/plugins/parent-fit/ls.parent-fit";
 import { setUser } from "@/store/reducers/auth.reducer";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/store/auth.store";
+import { RiAdminLine } from "react-icons/ri";
+import { CgProfile } from "react-icons/cg";
+import { MdOutlineUploadFile } from "react-icons/md";
 
-export function MenuDropDown({ profileImage, username }: any) {
+export function MenuDropDown({
+  profileImage,
+  username,
+  isAdmin,
+}: {
+  profileImage: string;
+  username: string;
+  isAdmin: boolean;
+}) {
   const dispatch: AppDispatch = useDispatch();
   const Logout = async () => {
     try {
@@ -74,9 +83,17 @@ export function MenuDropDown({ profileImage, username }: any) {
         </div>
         <HLine />
         <DropdownMenuSeparator />
+        {isAdmin && (
+          <Link href={"/admin"}>
+            <DropdownMenuCheckboxItem className="flex cursor-pointer gap-2 pl-4 ">
+              <RiAdminLine className="font-extrabold text-2xl" />
+              <p>Admin</p>
+            </DropdownMenuCheckboxItem>
+          </Link>
+        )}
         <Link href={"/profile"}>
           <DropdownMenuCheckboxItem className="flex cursor-pointer gap-2 pl-4 ">
-            <Picture />
+            <CgProfile className="font-extrabold text-2xl"/>
             <p>Profile</p>
           </DropdownMenuCheckboxItem>
         </Link>
@@ -88,7 +105,7 @@ export function MenuDropDown({ profileImage, username }: any) {
         </Link>
         <Link href={"/file-submission"}>
           <DropdownMenuCheckboxItem className="flex cursor-pointer gap-2 pl-4">
-            <File />
+            <MdOutlineUploadFile className="font-extrabold text-2xl"/>
             <p>Upload file</p>
           </DropdownMenuCheckboxItem>
         </Link>
@@ -116,7 +133,7 @@ export function MenuDropDown({ profileImage, username }: any) {
   );
 }
 
-function UserIcon(props:any) {
+function UserIcon(props: any) {
   return (
     <svg
       {...props}

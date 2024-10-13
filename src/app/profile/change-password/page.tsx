@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import ButtonLoder from "@/components/ButtonLoder";
-import { newPasswordSchema } from "@/zod-schemas/other.schemas";
+import { newPasswordSchema } from "@/zod-schemas/schemas";
 
 export default function ChangePasswordPage() {
   const { data } = useSession();

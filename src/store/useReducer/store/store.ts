@@ -1,21 +1,5 @@
-export const actionTypes = {
-    SET_FILES: "SET_FILES",
-    SET_COPIED_FILES: "SET_COPIED_FILES",
-    SET_REFRESHING: "SET_REFRESHING",
-    SET_SORT: "SET_SORT",
-    SET_SEARCH: "SET_SEARCH",
-    SET_FILTER: "SET_FILTER",
-    SET_CURRENT_PAGE: "SET_CURRENT_PAGE",
-    SET_TOTAL_PAGES: "SET_TOTAL_PAGES",
-  };
-  
-  // Action interface
-  interface Action {
-    type: string;
-    payload: any;
-  }
-  
-  // Initial state
+import { Action, actionTypes } from "@/types/myfiles.reducer.types";
+
   export const initialState = {
     files: null,
     copiedFiles: null,
@@ -27,8 +11,6 @@ export const actionTypes = {
     filesAtOnePage: 12,
     totalPages: 1,
   };
-
-
 
  export const reducer = (state: any, action: Action) => {
     switch (action.type) {

@@ -17,7 +17,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
-import { CodeVerificationSchema } from "@/zod-schemas/code-verification.schema";
+import { CodeVerificationSchema } from "@/zod-schemas/schemas";
 import Cookies from "js-cookie";
 
 export default function CodeVerification() {

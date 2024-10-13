@@ -12,7 +12,7 @@ import { AppDispatch } from "@/store/auth.store";
 import { setUser } from "@/store/reducers/auth.reducer";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { profileEditSchema } from "@/zod-schemas/other.schemas";
+import { profileEditSchema } from "@/zod-schemas/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Button,

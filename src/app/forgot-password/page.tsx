@@ -14,7 +14,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription }
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ArrowLeft, CheckCircle2 } from "lucide-react";
 import ButtonLoader from "@/components/ButtonLoder";
-import { forgotPasswordSchema } from "@/zod-schemas/other.schemas";
+import { forgotPasswordSchema } from "@/zod-schemas/schemas";
 
 // Forgot Password Form
 export default function ForgotPassword() {

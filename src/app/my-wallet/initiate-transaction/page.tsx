@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { depositeSchema } from "@/zod-schemas/deposite.schema";
+import { depositeSchema } from "@/zod-schemas/schemas";
 import { Input } from "@/components/ui/input";
 import {
   Select,
