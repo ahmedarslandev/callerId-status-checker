@@ -12,9 +12,9 @@ import { PaginationContent } from "@/components/Pagination";
 import FileListMapper from "@/components/layout/my-files/FilesCardMapper";
 import {
   reducer,
-  actionTypes,
   initialState,
 } from "@/store/useReducer/store/store";
+import { actionTypes } from "@/types/myfiles.reducer.types";
 
 export default function Component() {
   const [state, dispatch] = useReducer(reducer, initialState);

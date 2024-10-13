@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import ButtonLoader from "@/components/ButtonLoder";
-import { SignUpSchema } from "@/zod-schemas/signup-schema";
+import { SignUpSchema } from "@/zod-schemas/schemas";
 import { useSelector } from "react-redux";
 import { SignUpfields } from "@/utils/fields/signUpFields";
 

@@ -16,7 +16,7 @@ import {
   toast,
 } from "@/components/ui";
 import { useForm } from "react-hook-form";
-import { resetPasswordSchema } from "@/zod-schemas/other.schemas";
+import { resetPasswordSchema } from "@/zod-schemas/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import ButtonLoder from "@/components/ButtonLoder";
 import { resetPasswordFields } from "@/utils/fields/resetPasswordFileds";

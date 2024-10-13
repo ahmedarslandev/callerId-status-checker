@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import ButtonLoader from "@/components/ButtonLoder";
 import { signInfields } from "@/utils/fields/signInFields";
-import { SignInSchema } from "@/zod-schemas/signin-schema";
+import { SignInSchema } from "@/zod-schemas/schemas";
 import { SignIn as login } from "@/lib/api.handler";
 
 export default function SignIn() {

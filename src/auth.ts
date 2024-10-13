@@ -3,7 +3,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { userModel } from "@/models/user.model";
 import connectMongo from "@/lib/dbConfig";
-import { SignInSchema } from "@/zod-schemas/signin-schema";
+import { SignInSchema } from "@/zod-schemas/schemas";
 import { securityModel } from "@/models/security.model";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
