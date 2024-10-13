@@ -31,37 +31,35 @@ import { fetchUserData } from "@/api-calls/api-calls";
 export default function EditProfilePage() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-  const { user: authUser } = useSelector((state: any) => state.user) as any;
   const dispatch: AppDispatch = useDispatch();
+  const authUser = useSelector((state: any) => state.user?.user) || {};
 
   const form = useForm<z.infer<typeof profileEditSchema>>({
     resolver: zodResolver(profileEditSchema),
     defaultValues: {
-      username: "",
-      email: "",
-      bio: "",
+      username: authUser.username || "",
+      email: authUser.email || "",
+      bio: authUser.bio || "",
     },
   });
 
   useEffect(() => {
     if (!authUser) {
       router.replace("/sign-in");
-      return;
+    } else {
+      form.reset({
+        username: authUser.username,
+        email: authUser.email,
+        bio: authUser.bio,
+      });
     }
+  }, [authUser, router, form]);
 
-    form.reset({
-      username: authUser.username || "",
-      email: authUser.email || "",
-      bio: authUser.bio || "",
-    });
-  }, [authUser, router]);
-
-  // Form submission handler
-  async function onSubmit(values: z.infer<typeof profileEditSchema>) {
+  const handleSubmit = async (values: z.infer<typeof profileEditSchema>) => {
     setIsLoading(true);
     try {
       const { data } = await axios.put("/api/u/me", values);
-      if (data.success === false) {
+      if (!data.success) {
         toast({
           title: "Error",
           description: data.message,
@@ -72,14 +70,15 @@ export default function EditProfilePage() {
       }
 
       dispatch(setUser({ user: data.dbUser }));
+
       if (data.isEmailSent) {
         setTimeout(() => {
           fetchUserData().then((user) => {
-            if(Object.keys(user).length > 0) {
+            if (Object.keys(user).length > 0) {
               dispatch(setUser({ user }));
             }
           });
-        }, 1000 * 120);
+        }, 120000); // 2 minutes
         toast({
           title: "Email Verification",
           description:
@@ -89,11 +88,8 @@ export default function EditProfilePage() {
         router.replace("/code-verification");
         return;
       }
-      toast({
-        title: "Success",
-        description: data.message,
-        duration: 5000,
-      });
+
+      toast({ title: "Success", description: data.message, duration: 5000 });
     } catch (error) {
       toast({
         title: "Error",
@@ -104,38 +100,37 @@ export default function EditProfilePage() {
     } finally {
       setIsLoading(false);
     }
-  }
+  };
 
   if (!authUser) {
     return <div>Loading...</div>;
   }
 
   return (
-    <div className="p-6 flex w-full  justify-center items-center h-fit min-h-screen">
+    <div className="p-6 flex w-full justify-center items-center min-h-screen">
       <Form {...form}>
         <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="border-[1px] w-full border-zinc-200 h-fit rounded p-6 flex flex-col justify-center gap-4"
+          onSubmit={form.handleSubmit(handleSubmit)}
+          className="border-1 w-full border-zinc-200 rounded p-6 flex flex-col justify-center gap-4"
         >
-          <div>
-            <Card>
-              <CardHeader>
-                <h3 className="text-xl font-semibold">Edit Profile</h3>
-              </CardHeader>
-              <CardContent>
-                <div className=" flex items-center justify-start w-full  gap-4">
-                  <div className="w-fit h-fit overflow-hidden rounded-full justify-center items-center">
-                    <img
-                      className="object-cover h-20 rounded-md lazyload"
-                      src={authUser.profileImage}
-                      alt={authUser.username}
-                    />
-                  </div>
-                  <p className="font-bold">{authUser.username}</p>
+          <Card>
+            <CardHeader>
+              <h3 className="text-xl font-semibold">Edit Profile</h3>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-start w-full gap-4">
+                <div className="w-fit h-fit overflow-hidden rounded-full justify-center items-center">
+                  <img
+                    className="object-cover h-20 rounded-md lazyload"
+                    src={authUser.profileImage}
+                    alt={authUser.username}
+                  />
                 </div>
-              </CardContent>
-            </Card>
-          </div>
+                <p className="font-bold">{authUser.username}</p>
+              </div>
+            </CardContent>
+          </Card>
+
           {profileEditFields.map(({ name, placeholder, type }) => (
             <FormField
               key={name}
@@ -160,10 +155,9 @@ export default function EditProfilePage() {
               )}
             />
           ))}
-
           <div className="flex gap-2">
             <ButtonLoder
-              variant={"outline"}
+              variant="outline"
               isLoading={isLoading}
               name="Update profile"
             />

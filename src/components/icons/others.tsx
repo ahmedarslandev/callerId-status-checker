@@ -42,6 +42,7 @@ export function SortDropdown({ selected, onChange }: SortDropdownProps | any) {
         <DropdownMenuRadioGroup value={selected} onValueChange={onChange}>
           <DropdownMenuRadioItem value="size">Size</DropdownMenuRadioItem>
           <DropdownMenuRadioItem value="realname">Name</DropdownMenuRadioItem>
+          <DropdownMenuRadioItem value="lastModefied">Date</DropdownMenuRadioItem>
           <DropdownMenuRadioItem value="noOfCallerIds">
             Caller ids
           </DropdownMenuRadioItem>

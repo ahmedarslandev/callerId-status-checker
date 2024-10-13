@@ -1,55 +1,61 @@
 "use client";
 
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
+import axios from "axios";
+import { useToast } from "@/components/ui/use-toast";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { ArrowLeft, AlertCircle, CheckCircle2 } from "lucide-react";
-import axios from "axios";
-import { toast } from "@/components/ui";
-import ButtonLoder from "@/components/ButtonLoder";
+import { ArrowLeft, CheckCircle2 } from "lucide-react";
+import ButtonLoader from "@/components/ButtonLoder";
+import { forgotPasswordSchema } from "@/zod-schemas/other.schemas";
 
+// Forgot Password Form
 export default function ForgotPassword() {
-  const [email, setEmail] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+  const { toast } = useToast();
   const router = useRouter();
+  
+  const form = useForm<z.infer<typeof forgotPasswordSchema>>({
+    resolver: zodResolver(forgotPasswordSchema),
+    defaultValues: { email: "" },
+  });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError("");
+  const { isLoading } = form.formState;
 
-    // Here you would typically call your API to handle the password reset request
+  const handleSubmit = async (values: z.infer<typeof forgotPasswordSchema>) => {
     try {
-      const { data } = await axios.post("/api/auth/forget-password", { email });
+      const { data } = await axios.post("/api/auth/forget-password", { email: values.email });
 
-      if (data.success == false) {
-        setError(data.message);
-        return toast({
+      if (data.success === false) {
+        toast({
           title: "Error",
           description: data.message,
           duration: 5000,
           variant: "destructive",
         });
+        return;
       }
+
       setSuccess(true);
-      setIsLoading(false);
-    } catch (err) {
-      setError("An error occurred. Please try again.");
-    } finally {
-      setIsLoading(false);
+      toast({
+        title: "Success",
+        description: "Password reset OTP sent to your email.",
+        duration: 5000,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "An error occurred. Please try again.",
+        duration: 5000,
+        variant: "destructive",
+      });
     }
   };
 
@@ -57,6 +63,7 @@ export default function ForgotPassword() {
     setTimeout(() => {
       router.push("/reset-password");
     }, 2000);
+
     return (
       <div className="flex p-14 max-md:p-5 justify-center h-fit min-h-screen items-center">
         <Card className="border-[1px] w-[60%] max-md:w-full border-zinc-400 rounded p-6 flex flex-col justify-center gap-4">
@@ -98,7 +105,7 @@ export default function ForgotPassword() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={form.handleSubmit(handleSubmit)}>
             <div className="grid w-full items-center gap-4">
               <div className="flex flex-col space-y-1.5">
                 <Label htmlFor="email">Email</Label>
@@ -106,19 +113,14 @@ export default function ForgotPassword() {
                   id="email"
                   type="email"
                   placeholder="Enter your email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
+                  {...form.register("email")}
                 />
+                {form.formState.errors.email && (
+                  <p className="text-red-500">{form.formState.errors.email.message}</p>
+                )}
               </div>
             </div>
-            {error && (
-              <Alert variant="destructive" className="mt-4">
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
-            <ButtonLoder className="w-full mt-4" type="submit" disabled={isLoading} name={"Send verification code"}/>
+            <ButtonLoader isLoading={isLoading} className="w-full mt-4" name="Send verification code" />
           </form>
         </CardContent>
         <CardFooter>

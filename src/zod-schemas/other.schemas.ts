@@ -35,3 +35,7 @@ export const newPasswordSchema = z.object({
   message: "New password and confirmation do not match.",
   path: ["confirmPassword"],
 });
+
+export const forgotPasswordSchema = z.object({
+  email: z.string().email("Invalid email address"),
+});

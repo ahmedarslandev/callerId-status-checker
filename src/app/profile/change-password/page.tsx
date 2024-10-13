@@ -3,7 +3,7 @@
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import {  useState } from "react";
+import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { useSession } from "next-auth/react";
@@ -18,15 +18,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import ButtonLoder from "@/components/ButtonLoder";
-
-// Zod schema for change password validation
-const ChangePasswordSchema = z.object({
-  currentPassword: z.string().min(6, "Current password must be at least 6 characters long."),
-  newPassword: z.string().min(6, "New password must be at least 6 characters long."),
-  confirmPassword: z
-    .string()
-    .min(6, "Confirm password must be at least 6 characters long.")
-});
+import { newPasswordSchema } from "@/zod-schemas/other.schemas";
 
 export default function ChangePasswordPage() {
   const { data } = useSession();
@@ -34,16 +26,19 @@ export default function ChangePasswordPage() {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
-  const form = useForm<z.infer<typeof ChangePasswordSchema>>({
-    resolver: zodResolver(ChangePasswordSchema),
-    defaultValues: {
-      currentPassword: "",
-      newPassword: "",
-      confirmPassword: "",
-    },
+  const form = useForm<z.infer<typeof newPasswordSchema>>({
+    resolver: zodResolver(newPasswordSchema),
+    defaultValues: useMemo(
+      () => ({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      }),
+      []
+    ),
   });
 
-  const onSubmit = async (values: z.infer<typeof ChangePasswordSchema>) => {
+  const onSubmit = async (values: z.infer<typeof newPasswordSchema>) => {
     setIsLoading(true);
     try {
       const response = await axios.post("/api/u/change-password", {
@@ -74,6 +69,38 @@ export default function ChangePasswordPage() {
     }
   };
 
+  // Reusable error message component
+  const ErrorMessage = ({ error }: any) => (
+    <FormDescription className="text-red-500">{error?.message}</FormDescription>
+  );
+
+  // Render input fields with error handling
+  const renderField = (name: string, label: string) => (
+    <FormField
+      control={form.control}
+      name={name as any}
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel>{label}</FormLabel>
+          <FormControl>
+            <Input type="password" placeholder={label} {...field} />
+          </FormControl>
+          {form.formState.errors[
+            name as keyof typeof form.formState.errors
+          ] && (
+            <ErrorMessage
+              error={
+                form.formState.errors[
+                  name as keyof typeof form.formState.errors
+                ]
+              }
+            />
+          )}
+        </FormItem>
+      )}
+    />
+  );
+
   return (
     <div className="flex justify-center items-center min-h-screen p-6">
       <Form {...form}>
@@ -81,59 +108,10 @@ export default function ChangePasswordPage() {
           onSubmit={form.handleSubmit(onSubmit)}
           className="border-[1px] w-full max-w-md border-zinc-400 rounded p-6 flex flex-col gap-4"
         >
-          {data?.data.isLoggedInWithCredentials && (
-            <FormField
-              control={form.control}
-              name="currentPassword"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Current Password</FormLabel>
-                  <FormControl>
-                    <Input type="password" placeholder="Current Password" {...field} />
-                  </FormControl>
-                  {form.formState.errors.currentPassword && (
-                    <FormDescription className="text-red-500">
-                      {form.formState.errors.currentPassword?.message}
-                    </FormDescription>
-                  )}
-                </FormItem>
-              )}
-            />
-          )}
-          <FormField
-            control={form.control}
-            name="newPassword"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>New Password</FormLabel>
-                <FormControl>
-                  <Input type="password" placeholder="New Password" {...field} />
-                </FormControl>
-                {form.formState.errors.newPassword && (
-                  <FormDescription className="text-red-500">
-                    {form.formState.errors.newPassword?.message}
-                  </FormDescription>
-                )}
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="confirmPassword"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Confirm New Password</FormLabel>
-                <FormControl>
-                  <Input type="password" placeholder="Confirm New Password" {...field} />
-                </FormControl>
-                {form.formState.errors.confirmPassword && (
-                  <FormDescription className="text-red-500">
-                    {form.formState.errors.confirmPassword?.message}
-                  </FormDescription>
-                )}
-              </FormItem>
-            )}
-          />
+          {data?.data.isLoggedInWithCredentials &&
+            renderField("currentPassword", "Current Password")}
+          {renderField("newPassword", "New Password")}
+          {renderField("confirmPassword", "Confirm New Password")}
           <ButtonLoder isLoading={isLoading} name="Change Password" />
         </form>
       </Form>

@@ -1,43 +1,32 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-
-import { SignInSchema } from "@/zod-schemas/signin-schema";
-import Link from "next/link";
-import { useToast } from "@/components/ui/use-toast";
-import { useEffect, useState } from "react";
-import { SignIn as login } from "@/lib/api.handler";
-import ButtonLoder from "@/components/ButtonLoder";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-
-import "lazysizes";
-import "lazysizes/plugins/parent-fit/ls.parent-fit";
 import { useSelector } from "react-redux";
+import Link from "next/link";
+
+import { Form, FormControl, FormField, FormItem, FormLabel, FormDescription } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { useToast } from "@/components/ui/use-toast";
+import ButtonLoader from "@/components/ButtonLoder";
 import { signInfields } from "@/utils/fields/signInFields";
+import { SignInSchema } from "@/zod-schemas/signin-schema";
+import { SignIn as login } from "@/lib/api.handler";
 
 export default function SignIn() {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const router = useRouter();
-  const { user } = useSelector((state: any) => state.user) as any;
+  const { user } = useSelector((state: any) => state.user);
 
   useEffect(() => {
-    if (Object.keys(user).length > 0) {
+    if (user && Object.keys(user).length > 0) {
       router.replace("/");
     }
-  }, [user]);
+  }, [user, router]);
 
   const form = useForm<z.infer<typeof SignInSchema>>({
     resolver: zodResolver(SignInSchema),
@@ -47,18 +36,18 @@ export default function SignIn() {
     },
   });
 
-  // 2. Define a submit handler.
-  async function onSubmit(values: z.infer<typeof SignInSchema>) {
+  const onSubmit = async (values: z.infer<typeof SignInSchema>) => {
     setIsLoading(true);
     try {
       await login("credentials", values);
-      setTimeout(() => window.location.reload(), 1500);
-      return toast({
+      toast({
         title: "Success",
         description: "Successfully signed in",
         duration: 5000,
       });
-    } catch (error: any) {
+      form.reset();
+      setTimeout(() => window.location.reload(), 1500);
+    } catch (error) {
       toast({
         title: "Error",
         description: "Invalid Credentials",
@@ -68,62 +57,43 @@ export default function SignIn() {
     } finally {
       setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="flex p-14 max-md:p-5 justify-center h-fit min-h-screen items-center">
       <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="border-[1px] w-[60%] max-md:w-full border-zinc-400 rounded p-6 flex flex-col justify-center gap-4"
-        >
+        <form onSubmit={form.handleSubmit(onSubmit)} className="border-[1px] w-[60%] max-md:w-full border-zinc-400 rounded p-6 flex flex-col gap-4">
           {signInfields.map(({ name, label, placeholder, type }) => (
             <FormField
               key={name}
               control={form.control}
-              name={name}
+              name={name as keyof z.infer<typeof SignInSchema>}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>{label}</FormLabel>
                   <FormControl>
-                    <Input
-                      type={type || "text"}
-                      className="max-md:text-xs"
-                      placeholder={placeholder}
-                      {...field}
-                    />
+                    <Input type={type || "text"} placeholder={placeholder} className="max-md:text-xs" {...field} />
                   </FormControl>
-                  {form.formState.errors[
-                    name as keyof typeof form.formState.errors
-                  ] && (
+                  {form.formState.errors[name as keyof typeof form.formState.errors] && (
                     <FormDescription className="text-xs text-red-500">
-                      {
-                        form.formState.errors[
-                          name as keyof typeof form.formState.errors
-                        ]?.message
-                      }
+                      {form.formState.errors[name as keyof typeof form.formState.errors]?.message}
                     </FormDescription>
                   )}
                 </FormItem>
               )}
             />
           ))}
+
           <FormDescription className="max-md:text-xs">
             Forgot your password?{" "}
-            <Link
-              className="text-blue-600 max-md:text-xs hover:text-blue-700"
-              href="/forgot-password"
-            >
+            <Link href="/forgot-password" className="text-blue-600 hover:text-blue-700 max-md:text-xs">
               Forgot Password
             </Link>
           </FormDescription>
-          <ButtonLoder isLoading={isLoading} name={"Sign In"} />
+          <ButtonLoader isLoading={isLoading} name="Sign In" />
           <FormDescription className="max-md:text-xs">
-            Dont have an account?{" "}
-            <Link
-              className="text-blue-600 max-md:text-xs hover:text-blue-700"
-              href="/sign-up"
-            >
+            Don't have an account?{" "}
+            <Link href="/sign-up" className="text-blue-600 hover:text-blue-700 max-md:text-xs">
               Sign Up
             </Link>
           </FormDescription>

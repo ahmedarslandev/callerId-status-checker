@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { User } from "@/models/user.model"; // Adjust the import path
@@ -8,23 +8,31 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { setUser as setStoreUser } from "@/store/reducers/auth.reducer";
-import { AppDispatch } from "@/store/auth.store";
+import { AppDispatch, RootState } from "@/store/auth.store";
 import { RefreshCcw } from "lucide-react";
 import { fetchUserData } from "@/api-calls/api-calls";
-
 import "lazysizes";
 import "lazysizes/plugins/parent-fit/ls.parent-fit";
 
+// Profile Page Component
 export default function ProfilePage() {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const dispatch: AppDispatch = useDispatch();
   const router = useRouter();
-  const { user: authUser } = useSelector((state: any) => state.user) as any;
+  const authUser = useSelector((state: RootState) => state.user?.user);
 
-  const refreshFiles = async () => {
+  // Memoized Button Handler (ensure it's always defined consistently)
+  const handleButton = useCallback(
+    (path: string) => {
+      router.replace(path);
+    },
+    [router]
+  );
+
+  const refreshFiles = useCallback(async () => {
     setIsRefreshing(true);
     try {
       const userData = await fetchUserData();
@@ -35,38 +43,47 @@ export default function ProfilePage() {
     } finally {
       setIsRefreshing(false);
     }
-  };
+  }, [dispatch]);
 
   useEffect(() => {
     if (authUser) {
-      setUser(authUser);
+      setUser(authUser as User);
       setLoading(false);
     } else {
-      setLoading(true);
-      fetchUserData().then((data) => {
-        if (!data) {
-          return router.replace("/sign-in");
-        }
-        setUser(data);
-        dispatch(setStoreUser({ user: data }));
-        setLoading(false);
-      });
+      fetchUserData()
+        .then((data) => {
+          if (!data) {
+            router.replace("/sign-in");
+          } else {
+            setUser(data);
+            dispatch(setStoreUser({ user: data }));
+          }
+        })
+        .finally(() => setLoading(false));
     }
-  }, []);
+  }, [authUser, dispatch, router]);
+
+  // Memoized User's Profile Image
+  const profileImage = useMemo(
+    () => user?.profileImage || "/default-profile.png",
+    [user]
+  );
+
+  // Memoized User's Badge Color
+  const badgeColor = useMemo(
+    () => (user?.isVerified ? "bg-green-600" : "bg-red-500"),
+    [user]
+  );
 
   // Early return for loading state
   if (loading) {
     return <div className="p-4 md:p-6">Loading...</div>;
   }
 
-  // Early return for null user data
+  // Early return for no user data
   if (!user) {
     return <div className="p-4 md:p-6">No user data available.</div>;
   }
-
-  const handleButton = (path: string) => {
-    router.replace(path);
-  };
 
   return (
     <div className="p-4 md:p-6">
@@ -86,8 +103,8 @@ export default function ProfilePage() {
         <CardContent>
           <div className="flex flex-col md:flex-row items-center md:items-start space-y-4 md:space-y-0 md:space-x-4">
             <img
-              data-src={user.profileImage || "/default-profile.png"}
-              src={user.profileImage || "/default-profile.png"}
+              data-src={profileImage}
+              src={profileImage}
               alt={`${user.username}'s profile image`}
               width={100}
               height={100}
@@ -98,11 +115,7 @@ export default function ProfilePage() {
                 {user.username}
               </h3>
               <p className="text-sm md:text-base">{user.email}</p>
-              <Badge
-                className={`mt-2 ${
-                  user.isVerified ? "bg-green-600" : "bg-red-500"
-                }`}
-              >
+              <Badge className={`mt-2 ${badgeColor}`}>
                 {user.isVerified ? "Verified" : "Unverified"}
               </Badge>
             </div>

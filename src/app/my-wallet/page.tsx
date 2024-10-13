@@ -12,12 +12,12 @@ import { InfoCard, TransactionsTable } from "./components";
 import { Wallet } from "@/models/wallet.model";
 import { Transaction } from "@/models/transaction.model";
 
-export default function WalletComponent() {
+const WalletComponent = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [wallet, setWallet] = useState<Partial<Wallet> | null | any>(null);
-  const [transactions, setTranscations] = useState<
-    Partial<Transaction> | null | any
-  >(null);
+  const [wallet, setWallet] = useState<Partial<Wallet> | null>(null);
+  const [transactions, setTransactions] = useState<Partial<
+    Transaction[]
+  > | null>(null);
   const router = useRouter();
   const dispatch = useDispatch();
 
@@ -30,44 +30,36 @@ export default function WalletComponent() {
     if (!user) {
       return router.replace("/sign-in");
     }
-    console.log(setStoreTransactions);
-    if (Object.keys(storedTransactions.wallet).length === 0) {
+
+    const { wallet: storedWallet } = storedTransactions;
+
+    if (!Object.keys(storedWallet).length) {
       // Fetch wallet data if not already in the store
-      fetchWalletData().then(
-        ({ transactions, wallet }: any | {} | null | undefined) => {
-          console.log("run");
-          dispatch(
-            setStoreTransactions({
-              transactions: {
-                transactions,
-                wallet,
-              },
-            })
-          );
-          setTranscations(transactions);
-          setWallet(wallet);
-        }
-      );
-    } else if (
-      Object.keys(storedTransactions.wallet).length > 0 &&
-      storedTransactions.transactions
-    ) {
-      setTranscations(storedTransactions.transactions);
-      setWallet(storedTransactions.wallet);
+      fetchWalletData().then(({ transactions, wallet }: any) => {
+        dispatch(
+          setStoreTransactions({ transactions: { transactions, wallet } })
+        );
+        setTransactions(transactions);
+        setWallet(wallet);
+      });
+    } else {
+      setTransactions(storedTransactions.transactions);
+      setWallet(storedWallet);
     }
-  }, []);
+  }, [user, storedTransactions, dispatch, router]);
 
   const refreshFiles = async () => {
     setIsRefreshing(true);
     try {
       const { transactions, wallet }: any = await fetchWalletData();
-      console.log(transactions, wallet);
       dispatch(
         setStoreTransactions({
           transactions: { transactions },
           wallet: { wallet },
         })
       );
+    } catch (error) {
+      console.error("Failed to refresh wallet data", error);
     } finally {
       setIsRefreshing(false);
     }
@@ -84,7 +76,7 @@ export default function WalletComponent() {
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between">
             <div className="mb-4 md:mb-0">
               <div className="text-2xl md:text-3xl font-bold">
-                {wallet.balance.toFixed(3)}
+                {wallet.balance?.toFixed(3)}
               </div>
               <div className="flex flex-col md:flex-row gap-2 items-start md:items-center">
                 <div className="text-sm">{wallet.currency}</div>
@@ -110,7 +102,10 @@ export default function WalletComponent() {
               </div>
             </div>
             <div className="text-sm">
-              Last updated: {new Date(wallet.lastUpdated).toLocaleString()}
+              Last updated:{" "}
+              {wallet.lastUpdated
+                ? new Date(wallet.lastUpdated).toLocaleString()
+                : "N/A"}
             </div>
           </div>
         </header>
@@ -118,18 +113,23 @@ export default function WalletComponent() {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
             <InfoCard
               title="Total Transactions"
-              value={wallet.transactionsCount}
+              value={wallet.transactionsCount!}
             />
-            <InfoCard title="Total Withdrawn" value={wallet.totalWithdraw} />
-            <InfoCard title="Total Deposited" value={wallet.totalDeposited} />
-            <InfoCard title="Total Balance" value={wallet.balance.toFixed(3)} />
+            <InfoCard title="Total Withdrawn" value={wallet.totalWithdraw!} />
+            <InfoCard title="Total Deposited" value={wallet.totalDeposited!} />
+            <InfoCard
+              title="Total Balance"
+              value={wallet.balance?.toFixed(3)!}
+            />
           </div>
           <TransactionsTable
-            transactions={transactions}
-            currency={wallet.currency}
+            transactions={transactions as []}
+            currency={wallet.currency!}
           />
         </div>
       </div>
     </div>
   );
-}
+};
+
+export default WalletComponent;
