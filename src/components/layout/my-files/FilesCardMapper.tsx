@@ -3,6 +3,8 @@ import { Card, CardContent } from '@/components/ui/card'; // Adjust this import 
 import { FileIcon } from "@/components/admin/icons";
 import { FileTypeIcon,} from "lucide-react";
 
+const isProduction = process.env.NODE_ENV === "production";
+
 const FileListMapper = ({ files }:any) => {
   const getStatusClass = (status:any) => {
     // Define your logic for status classes here
@@ -25,7 +27,7 @@ const FileListMapper = ({ files }:any) => {
           key={index}
           href={
             file.status === "completed"
-              ? `http://localhost:5000/download/${file.owner}/${file.filename}_Completed.${file.extentionName}`
+              ? isProduction ? `http://157.90.174.166:5000/download/${file.owner}/${file.filename}_Completed.${file.extentionName}` : `http://localhost:5000/download/${file.owner}/${file.filename}_Completed.${file.extentionName}`
               : "#"
           }
         >

@@ -1,7 +1,9 @@
-import { transactionModel } from "@/models/transaction.model";
 import mongoose from "mongoose";
 
+const isProduction = process.env.NODE_ENV === "production";
 const MONGO_URI = process.env.MONGODB_URI;
+const MONGO_NAME = isProduction ? process.env.MONGODB_NAME : "Sigma-Dialer";
+
 const cached: {
   connection?: typeof mongoose;
   promise?: Promise<typeof mongoose>;
@@ -19,7 +21,7 @@ async function connectMongo() {
   if (!cached.promise) {
     const opts = {
       bufferCommands: false,
-      dbName: "Sigma-Dialer",
+      dbName: MONGO_NAME,
     };
 
     cached.promise = mongoose.connect(MONGO_URI, opts);

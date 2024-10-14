@@ -5,38 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, Download } from "lucide-react";
 import { useEffect, useState } from "react";
 import { getFile } from "@/api-calls/api-calls";
-import axios from "axios";
 import Link from "next/link";
 
-// Define the File interface
-interface File extends Document {
-  _id: string;
-  owner: string;
-  filename: string;
-  filePath: string;
-  size: number;
-  type: string;
-  lastModefied: number;
-  noOfCallerIds: number;
-  extentionName: string;
-  status: string;
-  realname: string;
-}
-
-// Mock file data
-const mockFile = {
-  _id: "1",
-  owner: "2",
-  filename: "important_document.pdf",
-  filePath: "/uploads/important_document.pdf",
-  size: 1024 * 1024 * 2.5, // 2.5 MB
-  type: "application/pdf",
-  lastModefied: Date.now() - 86400000, // 1 day ago
-  noOfCallerIds: 3,
-  extentionName: "pdf",
-  status: "active",
-  realname: "Important Document.pdf",
-};
+const isProduction = process.env.NODE_ENV === "production";
 
 export default function FileDetailsPage({
   params,
@@ -103,7 +74,7 @@ export default function FileDetailsPage({
             </div>
           </div>
           <Link
-            href={`http://localhost:5000/download/${file.owner}/${file.filename}_Completed.${file.extentionName}`}
+            href={isProduction ? `http://157.90.174.166:5000/download/${file.owner}/${file.filename}_Completed.${file.extentionName}` : `http://localhost:5000/download/${file.owner}/${file.filename}_Completed.${file.extentionName}`}
           >
             <Button className="mt-6">
               <Download className="mr-2 h-4 w-4" />

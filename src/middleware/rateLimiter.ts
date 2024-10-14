@@ -19,9 +19,9 @@ const MINUTE_WINDOW = 60; // 1 minute window
 const HOUR_WINDOW = 3600; // 1 hour window
 
 // Request limits for each time window
-const MAX_REQUESTS_PER_SECOND_WINDOW = 20; // 20 requests per 5 seconds
-const MAX_REQUESTS_PER_MINUTE = 100; // 100 requests per minute
-const MAX_REQUESTS_PER_HOUR = 1000; // 1000 requests per hour
+const MAX_REQUESTS_PER_SECOND_WINDOW = 50; // 20 requests per 5 seconds
+const MAX_REQUESTS_PER_MINUTE = 300; // 100 requests per minute
+const MAX_REQUESTS_PER_HOUR = 3000; // 1000 requests per hour
 
 // Blocking duration after exceeding limits
 const BLOCKED_TIME_IN_SECONDS = 15; // Block IP for 15 seconds after exceeding rate limit
