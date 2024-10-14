@@ -18,11 +18,9 @@ const FileListMapper = ({ files }:any) => {
     }
   };
 
-  console.log(files)
-
   return (
     <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 py-5">
-      {files.map((file:any, index:any) => (
+      {files?.map((file:any, index:any) => (
         <a
           key={index}
           href={

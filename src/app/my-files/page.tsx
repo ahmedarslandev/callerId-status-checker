@@ -167,7 +167,7 @@ export default function Component() {
             </div>
           </div>
           <FileListMapper files={files} />
-          {files.length === 0 && <p className="text-center">No files found</p>}
+          {files?.length === 0 && <p className="text-center">No files found</p>}
           <PaginationContent currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
         </main>
       </div>

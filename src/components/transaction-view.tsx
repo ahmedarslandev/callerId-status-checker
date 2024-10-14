@@ -75,7 +75,7 @@ export default function TransactionPage() {
         </CardHeader>
         <CardContent className="grid gap-6 p-6">
           {/* Transaction Details */}
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
+          <div className="md:grid grid-cols-2 gap-4 hidden md:grid-cols-3">
             <div className="space-y-1">
               <div className="text-sm font-medium">Transaction ID</div>
               <div className="text-sm text-muted-foreground">
@@ -112,7 +112,7 @@ export default function TransactionPage() {
             </div>
           </div>
           {/* Additional Transaction Information */}
-          <Separator />
+          <Separator className="hidden md:block"/>
           <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
             <div className="space-y-1">
               <div className="text-sm font-medium">Source</div>
