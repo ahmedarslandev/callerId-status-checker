@@ -19,7 +19,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <title>Sigma Dialer</title>
+        <title>BULK DID</title>
       </head>
       <body className={inter.className}>
         <Provider store={store}>

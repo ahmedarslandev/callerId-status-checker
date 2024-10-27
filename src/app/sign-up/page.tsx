@@ -31,7 +31,7 @@ export default function SignUp() {
     if (user && Object.keys(user).length > 0) {
       router.replace("/");
     }
-  }, [user, router]);
+  }, [user]);
 
   // Memoize SignUp fields to avoid re-renders
   const memoizedFields = useMemo(() => SignUpfields, []);

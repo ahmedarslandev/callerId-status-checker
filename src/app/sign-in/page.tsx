@@ -26,7 +26,7 @@ export default function SignIn() {
     if (user && Object.keys(user).length > 0) {
       router.replace("/");
     }
-  }, [user, router]);
+  }, [user]);
 
   const form = useForm<z.infer<typeof SignInSchema>>({
     resolver: zodResolver(SignInSchema),

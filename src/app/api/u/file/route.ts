@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, message: "No file provided" });
     }
 
-    const cost = callerIds * 0.1;
+    const cost = callerIds * 0.01;
     if (dbUser.walletId.balance < cost) {
       return NextResponse.json({
         success: false,

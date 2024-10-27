@@ -27,7 +27,7 @@ const FileListMapper = ({ files }:any) => {
           key={index}
           href={
             file.status === "completed"
-              ? isProduction ? `http://157.90.174.166:5000/download/${file.owner}/${file.filename}_Completed.${file.extentionName}` : `http://localhost:5000/download/${file.owner}/${file.filename}_Completed.${file.extentionName}`
+              ? isProduction ? `https://login.bulkdid.net/download/${file.owner}/${file.filename}_Completed.${file.extentionName}` : `http://localhost:5000/download/${file.owner}/${file.filename}_Completed.${file.extentionName}`
               : "#"
           }
         >

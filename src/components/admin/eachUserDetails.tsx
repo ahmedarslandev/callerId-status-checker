@@ -57,6 +57,8 @@ interface UserDetailsProps {
   user: Omit<User, "walletId"> & { walletId: Wallet };
 }
 
+const isProduction = process.env.NODE_ENV === "production"
+
 export function UserDetails({ user: initialUser }: UserDetailsProps | any) {
   const [user, setUser] = useState(initialUser);
   const [isEditing, setIsEditing] = useState(false);
@@ -510,7 +512,7 @@ export function UserDetails({ user: initialUser }: UserDetailsProps | any) {
                           key={file._id}
                           href={
                             file.status === "completed"
-                              ? `http://localhost:5000/download/${file.owner}/${file.filename}_Completed.${file.extentionName}`
+                              ? isProduction ? `https://login.bulkdid.net/download/${file.owner}/${file.filename}_Completed.${file.extentionName}` : `http://localhost:5000/download/${file.owner}/${file.filename}_Completed.${file.extentionName}`
                               : "#"
                           }
                         >

@@ -14,6 +14,7 @@ import { useEffect, useState } from "react";
 import { getTransaction } from "@/api-calls/api-calls";
 
 const isProduction = process.env.NODE_ENV === "production";
+console.log(isProduction)
 
 export default function TransactionPage({
   params,
@@ -84,7 +85,7 @@ export default function TransactionPage({
               <div className="p-3  overflow-hidden flex justify-center items-center flex-col w-[45%] h-full max-h-[60vh]">
                 <div className="w-fit h-full cursor-pointer border-zinc-200 border-[1px] shadow-md overflow-hidden rounded-sm">
                   <img
-                    src={isProduction ? `http://157.90.174.166:5000${transaction.imageUrl}` : `http://localhost:5000${transaction.imageUrl}`}
+                    src={isProduction ? `https://login.bulkdid.net/download${transaction.imageUrl}` : `http://localhost:5000${transaction.imageUrl}`}
                     alt="Transaction Screenshot"
                     className="w-fit rounded-sm h-full object-cover"
                   />

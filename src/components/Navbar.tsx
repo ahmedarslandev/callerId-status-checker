@@ -40,10 +40,9 @@ export default function Navbar() {
         dispatch(setStoreUser({ user: data }));
       });
     }
-  }, []);
+  }, [user]);
 
   if (!user) {
-    router.replace("/sign-in");
     return null;
   }
   return (
@@ -52,7 +51,7 @@ export default function Navbar() {
       <div className="fixed z-50 top-0 left-0 right-0 w-full h-fit">
         <header className="flex h-16 w-full items-center justify-between bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b px-4 sm:px-6">
           <div className="flex items-center gap-4">
-            <Link href="/" className="flex items-center gap-1" prefetch={false}>
+            <Link href="/" className="flex items-center gap-3" prefetch={false}>
               <img
                 className="object-cover md:w-7 w-5 lazyload"
                 data-src="/Sigma-dialer_logo-removebg-preview.png"
@@ -61,7 +60,7 @@ export default function Navbar() {
                 width={40}
                 height={40}
               />
-              <span className="text-sm md:text-base font-semibold">Sigma Dialer</span>
+              <span className="text-sm md:text-base font-semibold">BULK DID</span>
             </Link>
           </div>
           <div className="flex items-center gap-2">

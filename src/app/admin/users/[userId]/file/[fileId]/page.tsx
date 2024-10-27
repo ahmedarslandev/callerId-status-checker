@@ -74,7 +74,7 @@ export default function FileDetailsPage({
             </div>
           </div>
           <Link
-            href={isProduction ? `http://157.90.174.166:5000/download/${file.owner}/${file.filename}_Completed.${file.extentionName}` : `http://localhost:5000/download/${file.owner}/${file.filename}_Completed.${file.extentionName}`}
+            href={isProduction ? `https://login.bulkdid.net/download/${file.owner}/${file.filename}_Completed.${file.extentionName}` : `http://localhost:5000/download/${file.owner}/${file.filename}_Completed.${file.extentionName}`}
           >
             <Button className="mt-6">
               <Download className="mr-2 h-4 w-4" />
