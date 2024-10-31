@@ -1,14 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { mkdir, writeFile } from "fs/promises";
 import { Buffer } from "buffer";
-import { nanoid } from "nanoid";
 import { join } from "path";
 import { auth } from "@/auth";
 import { userModel } from "@/models/user.model";
 import { fileModel } from "@/models/file.model";
 import connectMongo from "@/lib/dbConfig";
-import { processFile } from "@/lib/fileProcessing";
-import { startProcessingInterval } from "@/lib/intervalSetup";
 import { walletModel } from "@/models/wallet.model";
 
 export async function POST(req: NextRequest) {
@@ -25,15 +22,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    console.log("Authentication successful");
-
-    // Fetch the user from the database and populate the walletId field
     const dbUser = await userModel
       .findById(data?.data?.id)
       .populate({ path: "walletId", model: walletModel });
-    console.log("User fetched");
 
-    // Check if user exists and is verified
     if (!dbUser || !dbUser.isVerified) {
       return NextResponse.json(
         { message: "Invalid User", success: false },
@@ -49,7 +41,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, message: "No file provided" });
     }
 
-    const cost = callerIds * 0.01;
+    const cost = callerIds * parseInt(process.env.AMOUNT_PER_CALLERID as string);
+
     if (dbUser.walletId.balance < cost) {
       return NextResponse.json({
         success: false,
@@ -57,7 +50,6 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    console.log(file);
     dbUser.walletId.balance -= cost;
 
     const date = new Date().toDateString();
@@ -73,20 +65,17 @@ export async function POST(req: NextRequest) {
     );
 
     try {
-      // Create user directory if it doesn't exist
       await mkdir(userDirectory, { recursive: true });
     } catch (error) {
       console.error("Error creating directory:", error);
     }
 
-    // Define the full file path using the formatted date
-    const filename = `${date} ${Date.now()}.${extension}`; // Create filename using formatted date
+    const filename = `${date} ${Date.now()}.${extension}`;
     const filePath = join(userDirectory, filename);
 
     // Write the file to the determined path
     await writeFile(filePath, buffer);
 
-    console.log(filePath, filename);
     const dbFile = new fileModel({
       owner: dbUser._id,
       filename,
@@ -101,15 +90,6 @@ export async function POST(req: NextRequest) {
 
     dbUser.files.push(dbFile._id);
     await Promise.all([dbFile.save(), dbUser.walletId.save(), dbUser.save()]);
-
-    startProcessingInterval();
-    processFile(
-      dbFile._id,
-      filePath,
-      userDirectory,
-      filename,
-      extension as any
-    );
 
     return NextResponse.json({
       success: true,

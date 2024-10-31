@@ -40,7 +40,7 @@ export const TransactionsTable: React.FC<TransactionsTableProps> = ({
     if (transactions.length === 0) {
       return (
         <TableRow>
-          <TableCell colSpan={7} className="text-center">
+          <TableCell colSpan={5} className="text-center">
             You have no transactions yet.
           </TableCell>
         </TableRow>
@@ -54,16 +54,20 @@ export const TransactionsTable: React.FC<TransactionsTableProps> = ({
         onClick={() => handleRowClick(String(transaction._id))}
       >
         <TableCell>
-          {new Date(transaction.timeStamp).toLocaleDateString()}
+          {new Date(transaction.timeStamp).toISOString().split("T")[0]}
         </TableCell>
         <TableCell>
-          {transaction.amount} <span className="text-xs font-bold">{currency}</span>
+          {new Date(transaction.timeStamp)
+            .toISOString()
+            .split("T")[1]
+            .slice(0, 8)}
+        </TableCell>
+        <TableCell>
+          {transaction.amount}{" "}
+          <span className="text-xs font-bold">{currency}</span>
         </TableCell>
         <TableCell>{transaction.type}</TableCell>
-        <TableCell>{transaction.status}</TableCell>
-        <TableCell>{transaction.bankAccount}</TableCell>
-        <TableCell>{transaction.bank}</TableCell>
-        <TableCell>{transaction.accountHolderName}</TableCell>
+        <TableCell className="text-xs text-zinc-700">{!transaction.comment ? "No comment" : transaction.comment}</TableCell>
       </TableRow>
     ));
   };
@@ -76,13 +80,11 @@ export const TransactionsTable: React.FC<TransactionsTableProps> = ({
       <Table className="min-w-[600px]">
         <TableHeader>
           <TableRow>
-            <TableHead>Date</TableHead>
-            <TableHead>Amount</TableHead>
-            <TableHead>Type</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Bank Account</TableHead>
-            <TableHead>Bank Name</TableHead>
-            <TableHead>Account Holder Name</TableHead>
+            <TableHead className="w-2/12">Date</TableHead>
+            <TableHead className="w-2/12">Time</TableHead>
+            <TableHead className="w-2/12">Amount</TableHead>
+            <TableHead className="w-2/12">Type</TableHead>
+            <TableHead>Comment</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>{renderTransactionRows()}</TableBody>

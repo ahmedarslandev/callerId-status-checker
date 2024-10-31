@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { Button } from "./ui/button";
-import { Input } from "./ui/input";
 import ModeToggle from "./theme-toggle";
 import { MenuDropDown } from "./MenuDropdown";
 import { useEffect, useState } from "react";
@@ -12,10 +11,11 @@ import { setUser as setStoreUser } from "@/store/reducers/auth.reducer";
 import "lazysizes";
 import "lazysizes/plugins/parent-fit/ls.parent-fit";
 import { AppDispatch } from "@/store/auth.store";
-import axios from "axios";
 import { useRouter } from "next/navigation";
 import { User } from "@/models/user.model";
 import { fetchUserData } from "@/api-calls/api-calls";
+import { links } from "@/utils/navlinks/links";
+import { SignOut } from "@/lib/api.handler";
 
 export default function Navbar() {
   const router = useRouter();
@@ -52,38 +52,60 @@ export default function Navbar() {
         <header className="flex h-16 w-full items-center justify-between bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b px-4 sm:px-6">
           <div className="flex items-center gap-4">
             <Link href="/" className="flex items-center gap-3" prefetch={false}>
-              <img
-                className="object-cover md:w-7 w-5 lazyload"
-                data-src="/Sigma-dialer_logo-removebg-preview.png"
-                src="/Sigma-dialer_logo-removebg-preview.png"
-                alt="logo"
-                width={40}
-                height={40}
-              />
-              <span className="text-sm md:text-base font-semibold">BULK DID</span>
+              <span className="text-sm md:text-base font-semibold">
+                BULK DID
+              </span>
             </Link>
           </div>
           <div className="flex items-center gap-2">
             <div className="relative md:block hidden flex-1 max-w-sm">
-              <SearchIcon className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="search"
-                placeholder="Search..."
-                className="w-full rounded-lg bg-muted pl-8 pr-4 focus:outline-none focus:ring-1 focus:ring-primary"
-              />
+              <ul className="flex justify-center items-center py-0 gap-3  px-5">
+                {links.map((link) => (
+                  <>
+                    <Link
+                      className="links relative"
+                      href={link.href}
+                      key={link.label}
+                    >
+                      <p className="text-xs font-bold">{link.label}</p>
+                    </Link>
+                  </>
+                ))}
+                <p
+                  onClick={() => {
+                    SignOut();
+                  }}
+                  className="links text-xs font-bold relative cursor-pointer"
+                >
+                  Logout
+                </p>
+                {user.role === "admin" && (
+                  <>
+                    <Link href="/admin">
+                      <p className="bg-green-500 px-3 py-1 text-xs font-bold text-white rounded-sm cursor-pointer">
+                        Admin
+                      </p>
+                    </Link>
+                  </>
+                )}
+              </ul>
             </div>
             <Button variant="ghost" size="icon" className="rounded-full">
               <ModeToggle />
             </Button>
             <div className="flex items-center gap-1">
-              <div className="text-sm font-medium">
+              <div className="text-sm md:hidden flex font-medium">
                 ${user.walletId.balance.toFixed(2)}
               </div>
-              <Button variant="ghost" size="icon" className="rounded-full">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="rounded-full flex md:hidden"
+              >
                 <MenuDropDown
                   profileImage={user.profileImage}
                   username={user.username}
-                  isAdmin = {user.role === "admin" ? true : false}
+                  isAdmin={user.role === "admin" ? true : false}
                 />
               </Button>
             </div>
@@ -91,25 +113,5 @@ export default function Navbar() {
         </header>
       </div>
     </>
-  );
-}
-
-function SearchIcon(props: any) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <circle cx="11" cy="11" r="8" />
-      <path d="m21 21-4.3-4.3" />
-    </svg>
   );
 }

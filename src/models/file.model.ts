@@ -14,7 +14,7 @@ export interface File extends Document {
   realname: string;
 }
 
-const securitySchema = new Schema<File>({
+const fileSchema = new Schema<File>({
   owner: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
@@ -62,6 +62,6 @@ const securitySchema = new Schema<File>({
 });
 
 const fileModel =
-  mongoose.models.File || mongoose.model("File", securitySchema);
+  mongoose.models.File || mongoose.model("File", fileSchema);
 
 export { fileModel };

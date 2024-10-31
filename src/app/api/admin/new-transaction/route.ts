@@ -1,21 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectMongo from "@/lib/dbConfig";
-import { transactionModel } from "@/models/transaction.model";
-import { walletModel } from "@/models/wallet.model";
+import { Transaction, transactionModel } from "@/models/transaction.model";
 import { getAuthorizedUser } from "@/api-calls/backend-functions";
 import { nanoid } from "nanoid";
 import { join } from "path";
 import { mkdir, writeFile } from "fs/promises";
+import { userModel } from "@/models/user.model";
 
 export async function POST(req: NextRequest) {
   await connectMongo();
 
   try {
-    // Get formData from the request
     const formData = await req.formData();
 
-    // Extract fields from formData
-    const walletId = formData.get("walletId") as any;
+    const userId = formData.get("userId") as any;
+    const comment = formData.get("comment") as any;
     const amount = formData.get("amount") as any;
     const transactionType = formData.get("transactionType") as any;
     const status = formData.get("status") as any;
@@ -28,7 +27,7 @@ export async function POST(req: NextRequest) {
     const image = formData.get("image") as any; // The uploaded file (optional)
 
     if (
-      !walletId ||
+      !userId ||
       !amount ||
       !transactionType ||
       !status ||
@@ -44,15 +43,14 @@ export async function POST(req: NextRequest) {
         message: "Missing required fields",
       });
     }
-
     const authorizedUser = await getAuthorizedUser(req);
     if (!authorizedUser) {
       return NextResponse.json({ success: false, message: "Unauthorized" });
     }
+    const user = await userModel.findById(userId).populate("walletId");
 
-    const wallet = await walletModel.findById(walletId);
-    if (!wallet) {
-      return NextResponse.json({ success: false, message: "Invalid wallet" });
+    if (!user) {
+      return NextResponse.json({ success: false, message: "User not found" });
     }
 
     if (parseInt(amount) <= 0) {
@@ -69,14 +67,14 @@ export async function POST(req: NextRequest) {
 
       const filePath = join(
         process.cwd(),
-        `../file-server-handler/transactionImages/${wallet._id.toString()}/${filename}.${extension}`
+        `../file-server-handler/transactionImages/${user.walletId._id.toString()}/${filename}.${extension}`
       );
 
       // Create the directory if it doesn't exist
       await mkdir(
         join(
           process.cwd(),
-          `../file-server-handler/transactionImages/${wallet._id.toString()}`
+          `../file-server-handler/transactionImages/${user.walletId._id.toString()}`
         ),
         { recursive: true }
       );
@@ -85,11 +83,11 @@ export async function POST(req: NextRequest) {
       await writeFile(filePath, Buffer.from(await image.arrayBuffer()));
 
       // Set the imageUrl
-      imageUrl = `/transaction/${walletId}/${filename}.${extension}`;
+      imageUrl = `/transaction/${user.walletId}/${filename}.${extension}`;
     }
 
-    const transaction: any = new transactionModel({
-      wallet_id: walletId,
+    const transaction:any = new transactionModel({
+      wallet_id: user.walletId,
       amount: parseInt(amount),
       type: transactionType,
       status,
@@ -99,28 +97,30 @@ export async function POST(req: NextRequest) {
       bankAccount: bankAccountNumber,
       accountHolderName: bankAccountHolder,
       bank: bankName,
-      BBT: wallet.balance,
-      imageUrl, // Use the imageUrl if an image was uploaded, otherwise null
+      BBT: user.walletId.balance,
+      imageUrl,
+      comment,
     });
 
     // Update wallet balance based on transaction type
     if (transactionType === "deposit") {
-      wallet.balance += parseInt(amount);
-      wallet.lastDeposited = Date.now();
-      wallet.totalDeposited++;
+      user.walletId.balance += parseInt(amount);
+      user.walletId.lastDeposited = Date.now();
+      user.walletId.totalDeposited++;
     } else if (transactionType === "withdrawal") {
-      wallet.balance -= parseInt(amount);
-      wallet.lastWithdraw = Date.now();
-      wallet.totalWithdraw++;
+      user.walletId.balance -= parseInt(amount);
+      user.walletId.lastWithdraw = Date.now();
+      user.walletId.totalWithdraw++;
     }
 
-    wallet.transactionsCount++;
-    wallet.lastUpdated = Date.now();
-    transaction.BAT = wallet.balance;
-    wallet.transactions.push(transaction);
+    user.walletId.transactionsCount++;
+    user.walletId.lastUpdated = Date.now();
+    transaction.BAT = user.walletId.balance;
+    user.walletId.transactions.push(transaction);
 
     await transaction.save();
-    await wallet.save();
+    await user.walletId.save();
+    await user.save();
 
     return NextResponse.json({
       success: true,

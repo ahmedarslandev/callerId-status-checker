@@ -97,12 +97,6 @@ export function MenuDropDown({
             <p>Profile</p>
           </DropdownMenuCheckboxItem>
         </Link>
-        <Link href={"/my-wallet"}>
-          <DropdownMenuCheckboxItem className="flex cursor-pointer gap-2 pl-4 ">
-            <Wallet />
-            <p>Wallet</p>
-          </DropdownMenuCheckboxItem>
-        </Link>
         <Link href={"/file-submission"}>
           <DropdownMenuCheckboxItem className="flex cursor-pointer gap-2 pl-4">
             <MdOutlineUploadFile className="font-extrabold text-2xl"/>
@@ -113,12 +107,6 @@ export function MenuDropDown({
           <DropdownMenuCheckboxItem className="flex cursor-pointer gap-2 pl-4">
             <File />
             <p>My files</p>
-          </DropdownMenuCheckboxItem>
-        </Link>
-        <Link href={"/settings"}>
-          <DropdownMenuCheckboxItem className="flex cursor-pointer gap-2 pl-4">
-            <Settings />
-            <p>Settings</p>
           </DropdownMenuCheckboxItem>
         </Link>
         <DropdownMenuCheckboxItem

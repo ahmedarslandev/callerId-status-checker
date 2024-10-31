@@ -68,31 +68,23 @@
   }
 }
 
+.input-outline-none {
+  outline: none !important;
+}
 
-
-.right {
-  display: flex;
+.links::after {
+  content: "";
+  position: absolute;
+  top: 98%;
+  left: 0;
+  width: 0;
+  height: 2px;
+  display: flex !important;
   justify-content: center;
   align-items: center;
-  height: 100%;
+  background: black;
+  transition: width 0.2s linear;
 }
-.right > img {
+.links:hover::after {
   width: 100%;
-  object-fit: cover;
-  object-position: bottom left;
-  border-radius: 10px;
-  transform: translate(0, 0);
-  animation: up-down 1.4s infinite linear alternate forwards;
-  filter: drop-shadow(0px 0px 0px whitesmoke) blur(0);
-  transition: filter 0.2s linear, scale 0.2s linear;
-  cursor: pointer;
-  scale: 0.9;
-}
-.right > img:hover {
-  scale: 0.95;
-  filter: drop-shadow(2px 2px 7px whitesmoke) blur(1px);
-}
-
-.input-outline-none{
-  outline: none !important;
 }

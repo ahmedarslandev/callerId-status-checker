@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Card,
   CardHeader,
@@ -26,6 +26,8 @@ import { updateTransactions } from "@/store/reducers/admin.reducer";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/store/auth.store";
 import { paymentGateways } from "@/lib/banks";
+import { getUsers } from "@/api-calls/api-calls";
+import { User } from "@/models/user.model";
 
 const FormField = ({ label, id, ...props }: any) => (
   <div className="space-y-2">
@@ -83,24 +85,32 @@ const SelectBankField = ({ label, id, options, onValueChange }: any) => (
   </div>
 );
 
+const getCurrentLocalDateTime = () => {
+  const now = new Date();
+  now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+  return now.toISOString().slice(0, 16);
+};
+
 export default function Component() {
   const router = useRouter();
   const dispatch: AppDispatch = useDispatch();
 
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
-    walletId: "",
+    comment: "",
+    userId: "",
     amount: "",
     transactionType: "",
-    status: "",
-    sender: "",
+    status: "completed",
+    sender: "admin",
     recipient: "",
-    timestamp: "",
+    timestamp: getCurrentLocalDateTime(),
     bankAccountNumber: "",
     bankAccountHolder: "",
     bankName: "",
     image: File,
   });
+  const [usersOptions, setUsersOptions] = useState([]);
 
   const handleChange = (e: any) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
@@ -115,7 +125,8 @@ export default function Component() {
     setIsLoading(true);
 
     const formDataObject = new FormData();
-    formDataObject.append("walletId", formData.walletId);
+    formDataObject.append("userId", formData.userId);
+    formDataObject.append("comment", formData.comment);
     formDataObject.append("amount", formData.amount);
     formDataObject.append("transactionType", formData.transactionType);
     formDataObject.append("status", formData.status);
@@ -127,7 +138,6 @@ export default function Component() {
     formDataObject.append("bankName", formData.bankName);
 
     if (formData.image) {
-      console.log(formData.image);
       formDataObject.append("image", formData.image as any);
     }
 
@@ -175,6 +185,15 @@ export default function Component() {
       setIsLoading(false);
     }
   };
+  useEffect(() => {
+    getUsers().then((users) => {
+      const options = users.map((user: User) => ({
+        label: user.username,
+        value: user._id,
+      }));
+      setUsersOptions(options);
+    });
+  }, []);
 
   return (
     <div className="flex justify-center items-center w-full ">
@@ -188,12 +207,11 @@ export default function Component() {
         <CardContent>
           <form className="grid gap-4" onSubmit={handleSubmit}>
             <div className="grid grid-cols-2 gap-4">
-              <FormField
-                label="Wallet ID"
-                id="walletId"
-                value={formData.walletId}
-                onChange={handleChange}
-                placeholder="Enter wallet ID"
+              <SelectField
+                label={"User"}
+                id={"userId"}
+                options={usersOptions}
+                onValueChange={handleValueChange("userId")}
               />
               <FormField
                 label="Amount"
@@ -214,15 +232,12 @@ export default function Component() {
                 ]}
                 onValueChange={handleValueChange("transactionType")}
               />
-              <SelectField
+              <FormField
                 label="Status"
                 id="status"
-                options={[
-                  { value: "pending", label: "Pending" },
-                  { value: "completed", label: "Completed" },
-                  { value: "failed", label: "Failed" },
-                ]}
-                onValueChange={handleValueChange("status")}
+                value={formData.status}
+                onChange={handleChange}
+                disabled
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
@@ -232,6 +247,7 @@ export default function Component() {
                 value={formData.sender}
                 onChange={handleChange}
                 placeholder="Enter sender"
+                disabled
               />
               <FormField
                 label="Recipient"
@@ -273,19 +289,32 @@ export default function Component() {
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <div className="flex gap-3 flex-col w-fit">
-                <Label htmlFor="file">Select Image (Optional)</Label>
-                <Input
-                  id="file"
-                  name="file"
-                  type="file"
-                  onChange={(e) => {
-                    setFormData({
-                      ...formData,
-                      image: e.target?.files?.[0] as any,
-                    });
-                  }}
+              <div className="flex gap-3 flex-col w-full">
+                <FormField
+                  label="Comment"
+                  id="comment"
+                  value={formData.comment}
+                  onChange={handleChange}
+                  placeholder="Enter comment"
                 />
+              </div>
+              <div className="flex flex-col w-full">
+                <div className="space-y-2">
+                  <Label className="space-y-2" htmlFor="file">
+                    Select Image (Optional)
+                  </Label>
+                  <Input
+                    id="file"
+                    name="file"
+                    type="file"
+                    onChange={(e) => {
+                      setFormData({
+                        ...formData,
+                        image: e.target?.files?.[0] as any,
+                      });
+                    }}
+                  />
+                </div>
               </div>
             </div>
             <div className="flex justify-end">

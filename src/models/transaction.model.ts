@@ -15,6 +15,7 @@ export interface Transaction extends Document {
   BBT: number;
   BAT: number;
   imageUrl?: string; // Image field
+  comment?: string; // Comment field
 }
 
 const TransactionSchema = new Schema<Transaction>({
@@ -66,6 +67,9 @@ const TransactionSchema = new Schema<Transaction>({
     type: Number,
   },
   imageUrl: {
+    type: String,
+  },
+  comment: {
     type: String,
   },
 });

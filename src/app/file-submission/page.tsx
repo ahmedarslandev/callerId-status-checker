@@ -68,44 +68,103 @@ export default function Page() {
   const onSubmit = useCallback(
     async (values: any) => {
       const file: File | null = values.file?.[0] || null;
-
+  
+      // If no file is selected, notify the user but still proceed with existing caller IDs
       if (!file) {
         toast({
-          title: "Error",
-          description: "Please select a file",
+          title: "Warning",
+          description: "No file selected, proceeding with existing caller IDs.",
           duration: 5000,
+          variant: "destructive",
         });
-        return;
       }
-
+  
       setIsLoading(true);
-
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        if (!e.target?.result) {
-          toast({
-            title: "Error",
-            description: "Failed to read file",
-            duration: 5000,
-            variant: "destructive",
+  
+      // If a file is selected, read and process it
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          if (!e.target?.result) {
+            toast({
+              title: "Error",
+              description: "Failed to read file",
+              duration: 5000,
+              variant: "destructive",
+            });
+            setIsLoading(false);
+            return;
+          }
+  
+          const data = new Uint8Array(e.target.result as ArrayBuffer);
+          const workbook = XLSX.read(data, { type: "array" });
+          const sheet = workbook.Sheets[workbook.SheetNames[0]];
+          const json = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+  
+          const callerIdsFromFile = json.slice(1).map((row: any) => row[0]); // Extract caller IDs from file
+  
+          // Combine externalCallerIds from text area and callerIdsFromFile
+          const combinedCallerIds = [
+            ...callerIdsFromFile,
+            ...fileData.externalCallerIds,
+          ];
+  
+          // Validate all IDs
+          const invalidCallerId = combinedCallerIds.find(
+            (id) => !/^\d{10,11}$/.test(id)
+          );
+          if (invalidCallerId) {
+            toast({
+              title: "Invalid Caller ID",
+              description: `Caller ID '${invalidCallerId}' is invalid. Ensure all IDs are 10 digits.`,
+              duration: 5000,
+              variant: "destructive",
+            });
+            setIsLoading(false);
+            return;
+          }
+  
+          // Prepare updated data for the new sheet
+          const updatedData = [
+            ["Caller ID"],
+            ...combinedCallerIds.map((id) => [id]),
+          ]; // Include header row
+          const updatedSheet = XLSX.utils.aoa_to_sheet(updatedData);
+  
+          // Create a new workbook with the updated sheet
+          const newWorkbook = XLSX.utils.book_new();
+          XLSX.utils.book_append_sheet(
+            newWorkbook,
+            updatedSheet,
+            "UpdatedCallerIDs"
+          );
+  
+          // Generate a new Blob from the updated workbook
+          const updatedWorkbookBlob = XLSX.write(newWorkbook, {
+            bookType: "xlsx",
+            type: "array",
           });
+  
+          // Create a new file from the Blob
+          const updatedFile = new File([updatedWorkbookBlob], file.name, {
+            type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          });
+  
+          // Update the fileData with the new file
+          setFileData({
+            file: updatedFile,
+            numberOfCallerIds: combinedCallerIds.length,
+            externalCallerIds: combinedCallerIds,
+          });
+  
+          setIsOpen(true);
           setIsLoading(false);
-          return;
-        }
-
-        const data = new Uint8Array(e.target.result as ArrayBuffer);
-        const workbook = XLSX.read(data, { type: "array" });
-        const sheet = workbook.Sheets[workbook.SheetNames[0]];
-        const json = XLSX.utils.sheet_to_json(sheet, { header: 1 });
-
-        const callerIdsFromFile = json.slice(1).map((row: any) => row[0]); // Extract caller IDs from file
-
-        // Combine externalCallerIds from text area and callerIdsFromFile
-        const combinedCallerIds = [
-          ...callerIdsFromFile,
-          ...fileData.externalCallerIds,
-        ];
-
+        };
+        reader.readAsArrayBuffer(file);
+      } else {
+        // If no file is selected, process only the externalCallerIds
+        const combinedCallerIds = [...fileData.externalCallerIds];
+  
         // Validate all IDs
         const invalidCallerId = combinedCallerIds.find(
           (id) => !/^\d{10,11}$/.test(id)
@@ -120,14 +179,14 @@ export default function Page() {
           setIsLoading(false);
           return;
         }
-
+  
         // Prepare updated data for the new sheet
         const updatedData = [
           ["Caller ID"],
           ...combinedCallerIds.map((id) => [id]),
         ]; // Include header row
         const updatedSheet = XLSX.utils.aoa_to_sheet(updatedData);
-
+  
         // Create a new workbook with the updated sheet
         const newWorkbook = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(
@@ -135,32 +194,32 @@ export default function Page() {
           updatedSheet,
           "UpdatedCallerIDs"
         );
-
+  
         // Generate a new Blob from the updated workbook
         const updatedWorkbookBlob = XLSX.write(newWorkbook, {
           bookType: "xlsx",
           type: "array",
         });
-
+  
         // Create a new file from the Blob
-        const updatedFile = new File([updatedWorkbookBlob], file.name, {
+        const updatedFile = new File([updatedWorkbookBlob], `${new Date().toISOString().split("T").slice(0,8)}.xlsx`, {
           type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         });
-
+  
         // Update the fileData with the new file
         setFileData({
           file: updatedFile,
           numberOfCallerIds: combinedCallerIds.length,
           externalCallerIds: combinedCallerIds,
         });
-
+  
         setIsOpen(true);
         setIsLoading(false);
-      };
-      reader.readAsArrayBuffer(file);
+      }
     },
     [fileData.externalCallerIds]
   );
+  
 
   return (
     <div className="flex p-4 md:p-14 justify-center h-fit min-h-screen items-center">

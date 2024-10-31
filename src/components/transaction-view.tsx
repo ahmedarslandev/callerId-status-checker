@@ -9,9 +9,41 @@ import { toast } from "@/components/ui/use-toast";
 import axios from "axios";
 import { Transaction } from "@/models/transaction.model";
 import { DownloadIcon, ShareIcon } from "@/components/admin/icons";
+import html2canvas from "html2canvas";
 
+const openShareMenu = () => {
+  if (navigator.share) {
+    navigator
+      .share({
+        title: "Check this out!",
+        text: "Here is something interesting I wanted to share with you.",
+        url: window.location.href, // or any other URL you want to share
+      })
+      .then(() => console.log("Successfully shared"))
+      .catch((error) => console.error("Error sharing:", error));
+  } else {
+    alert("Sharing is not supported in this browser.");
+  }
+};
+
+const captureAndDownloadScreenshot = () => {
+  const element = document.getElementById("capture"); // ID of the element to capture
+
+  html2canvas(element as HTMLElement).then((canvas) => {
+    // Convert the canvas to a data URL
+    const imgURL = canvas.toDataURL("image/png");
+
+    // Create a temporary link to trigger the download
+    const downloadLink = document.createElement("a");
+    downloadLink.href = imgURL;
+    downloadLink.download = "screenshot.png"; // Name of the downloaded file
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
+  });
+};
 export default function TransactionPage() {
-   const params = useSearchParams(); // Fetch search params from the URL
+  const params = useSearchParams(); // Fetch search params from the URL
   const transactionId = params.get("transactionId") || null; // Default to null if not present
 
   const [transaction, setTransaction] = useState<Transaction | null>(null);
@@ -51,7 +83,10 @@ export default function TransactionPage() {
   }
 
   return (
-    <div className="flex justify-center items-center w-full h-full p-10">
+    <div
+      id="capture"
+      className="flex justify-center items-center w-full h-full p-10"
+    >
       <Card className="w-full shadow-lg">
         <CardHeader className="bg-muted/50 px-6 py-7">
           <div className="flex items-center justify-between">
@@ -62,11 +97,15 @@ export default function TransactionPage() {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <Button variant="outline" size="icon">
+              <Button
+                onClick={captureAndDownloadScreenshot}
+                variant="outline"
+                size="icon"
+              >
                 <DownloadIcon className="h-4 w-4" />
                 <span className="sr-only">Download</span>
               </Button>
-              <Button variant="outline" size="icon">
+              <Button onClick={openShareMenu} variant="outline" size="icon">
                 <ShareIcon className="h-4 w-4" />
                 <span className="sr-only">Share</span>
               </Button>
@@ -112,7 +151,7 @@ export default function TransactionPage() {
             </div>
           </div>
           {/* Additional Transaction Information */}
-          <Separator className="hidden md:block"/>
+          <Separator className="hidden md:block" />
           <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
             <div className="space-y-1">
               <div className="text-sm font-medium">Source</div>
@@ -141,7 +180,7 @@ export default function TransactionPage() {
           <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
             <div className="space-y-1">
               <div className="text-sm font-medium">
-                Balance Before Transaction (BBT)
+                Balance Before Transaction (<span className="text-blue-600 underline">BBT</span>)
               </div>
               <div className="text-sm text-muted-foreground">
                 ${transaction.BBT.toFixed(2)}
@@ -149,10 +188,18 @@ export default function TransactionPage() {
             </div>
             <div className="space-y-1">
               <div className="text-sm font-medium">
-                Balance After Transaction (BAT)
+                Balance After Transaction (<span className="text-blue-600 underline">BAT</span>)
               </div>
               <div className="text-sm text-muted-foreground">
                 ${transaction.BAT.toFixed(2)}
+              </div>
+            </div>
+            <div className="space-y-1">
+              <div className="text-sm font-medium">
+                Comment (<span className="text-blue-600 underline">More information</span>)
+              </div>
+              <div className="text-sm text-muted-foreground">
+                {transaction.comment}
               </div>
             </div>
           </div>

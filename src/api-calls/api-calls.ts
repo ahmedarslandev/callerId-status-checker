@@ -51,7 +51,6 @@ export const fetchFiles = async (toast: any) => {
 export async function getUsers() {
   try {
     const { data } = await axios.get("/api/admin/user");
-
     if (data?.success == false) {
       return null;
     }

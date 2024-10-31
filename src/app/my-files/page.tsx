@@ -10,11 +10,9 @@ import { FilterDropdown, SortDropdown } from "@/components/icons/others";
 import { fetchFiles } from "@/api-calls/api-calls";
 import { PaginationContent } from "@/components/Pagination";
 import FileListMapper from "@/components/layout/my-files/FilesCardMapper";
-import {
-  reducer,
-  initialState,
-} from "@/store/useReducer/store/store";
+import { reducer, initialState } from "@/store/useReducer/store/store";
 import { actionTypes } from "@/types/myfiles.reducer.types";
+import Link from "next/link";
 
 export default function Component() {
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -41,7 +39,7 @@ export default function Component() {
   // Handle user redirect if not logged in
   useEffect(() => {
     if (!user) router.replace("/sign-in");
-  }, [user, router]);
+  }, [user]);
 
   // Memoize pagination logic to prevent unnecessary recalculations
   const paginatedFiles = useMemo(() => {
@@ -139,9 +137,17 @@ export default function Component() {
     <div className="flex justify-center items-center p-4 md:p-16">
       <div className="flex flex-col w-full min-h-screen border border-zinc-300 rounded-lg">
         <header className="bg-background border-b px-4 sm:px-6 flex justify-between items-center h-14">
-          <h1 className="text-lg md:text-xl font-semibold">Files</h1>
-          <Button disabled={isRefreshing} onClick={refreshFiles} variant="outline">
-            <RefreshCcw className={`rotate-180 ${isRefreshing ? "animate-spin" : ""}`} />
+          <div className="flex justify-center items-center gap-2">
+            <h1 className="text-lg md:text-xl font-semibold">Files</h1>
+          </div>
+          <Button
+            disabled={isRefreshing}
+            onClick={refreshFiles}
+            variant="outline"
+          >
+            <RefreshCcw
+              className={`rotate-180 ${isRefreshing ? "animate-spin" : ""}`}
+            />
           </Button>
         </header>
         <main className="flex-1 py-6 px-4 sm:px-6">
@@ -162,13 +168,23 @@ export default function Component() {
               </div>
             </div>
             <div className="flex justify-center items-center w-fit gap-1 h-full">
-              <FilterDropdown selected={filterSelected} onChange={onFilterSelectedChange} />
-              <SortDropdown selected={selectedSort} onChange={onSelectedChange} />
+              <FilterDropdown
+                selected={filterSelected}
+                onChange={onFilterSelectedChange}
+              />
+              <SortDropdown
+                selected={selectedSort}
+                onChange={onSelectedChange}
+              />
             </div>
           </div>
           <FileListMapper files={files} />
           {files?.length === 0 && <p className="text-center">No files found</p>}
-          <PaginationContent currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
+          <PaginationContent
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+          />
         </main>
       </div>
     </div>
