@@ -83,7 +83,7 @@ export async function POST(req: NextRequest) {
       await writeFile(filePath, Buffer.from(await image.arrayBuffer()));
 
       // Set the imageUrl
-      imageUrl = `/transaction/${user.walletId}/${filename}.${extension}`;
+      imageUrl = `/transaction/${user.walletId._id}/${filename}.${extension}`;
     }
 
     const transaction:any = new transactionModel({
