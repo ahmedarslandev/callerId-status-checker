@@ -86,7 +86,7 @@ export async function POST(req: NextRequest) {
       imageUrl = `/transaction/${user.walletId._id}/${filename}.${extension}`;
     }
 
-    const transaction:any = new transactionModel({
+    const transaction: any = new transactionModel({
       wallet_id: user.walletId,
       amount: parseInt(amount),
       type: transactionType,
@@ -108,6 +108,12 @@ export async function POST(req: NextRequest) {
       user.walletId.lastDeposited = Date.now();
       user.walletId.totalDeposited++;
     } else if (transactionType === "withdrawal") {
+      if (user.walletId.balance < parseInt(amount)) {
+        return NextResponse.json({
+          success: false,
+          message: "User do not have enough amount to withdraw",
+        });
+      }
       user.walletId.balance -= parseInt(amount);
       user.walletId.lastWithdraw = Date.now();
       user.walletId.totalWithdraw++;
