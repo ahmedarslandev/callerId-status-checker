@@ -42,6 +42,12 @@ export default function Navbar() {
     }
   }, [user]);
 
+  const logoutUser = async () => {
+    SignOut();
+    dispatch(setStoreUser({ user: null }));
+    router.replace("/sign-in");
+  };
+
   if (!user) {
     return null;
   }
@@ -72,9 +78,7 @@ export default function Navbar() {
                   </>
                 ))}
                 <p
-                  onClick={() => {
-                    SignOut();
-                  }}
+                  onClick={logoutUser}
                   className="links text-xs font-bold relative cursor-pointer"
                 >
                   Logout

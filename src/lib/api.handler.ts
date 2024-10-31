@@ -1,5 +1,6 @@
 "use server";
 import { signIn, signOut } from "@/auth";
+import { toast } from "@/components/ui";
 import axios, { Method } from "axios";
 
 // Define types for values and the result
@@ -16,6 +17,10 @@ export const SignIn = async (name: any, values = {} as any) => {
 
 export const SignOut = async () => {
   await signOut().then(() => {
+    toast({
+      title: "Signed Out",
+      description: "Signed out successfully",
+    });
     return {
       success: true,
       message: "Sign out successfully",
