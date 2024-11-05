@@ -14,7 +14,7 @@ export const profileEditFields: FormFieldData[] = [
     type: "text",
     label: "Username",
   },
-  { name: "email", label: "Email", placeholder: "exapmle@gmail.com" },
+  { name: "email", label: "Email", placeholder: "Email" },
   {
     name: "bio",
     label: "Bio",

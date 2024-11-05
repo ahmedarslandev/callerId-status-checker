@@ -177,9 +177,9 @@ export default function Component() {
                 {bankDetails && (
                   <div className="mt-4 p-4 border border-gray-300 rounded-lg">
                     <h2 className="text-xl font-semibold">Bank Details</h2>
-                    <p><strong>Bank Name:</strong> {selectedBank}</p>
-                    <p><strong>Account Number:</strong> {bankDetails.number}</p>
                     <p><strong>Account Holder Name:</strong> {bankDetails.name}</p>
+                    <p><strong>Account Number:</strong> {bankDetails.number}</p>
+                    <p><strong>Bank Name:</strong> {selectedBank}</p>
                   </div>
                 )}
 

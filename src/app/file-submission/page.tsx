@@ -227,7 +227,7 @@ export default function Page() {
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="border-[1px] w-full md:w-[60%] border-zinc-400 rounded p-4 md:p-6 flex flex-col justify-center gap-4"
+          className="border-[1px] w-full md:w-[60%] border-zinc-400 rounded p-4 md:p-6 flex flex-col justify-center"
         >
           <FormField
             control={form.control}
@@ -242,28 +242,33 @@ export default function Page() {
                     onChange={(e) => field.onChange(e.target.files)}
                   />
                 </FormControl>
-                <FormDescription>
-                  Select an Excel file of your callerId that you want to check.
+                <FormDescription className="text-sm">
+                  Select an Excel file
                 </FormDescription>
               </FormItem>
             )}
           />
+          <div className="w-full h-fit flex justify-center gap-3 py-3 items-center">
+            <div className="w-full h-[1px] bg-zinc-300"></div>
+            <p className="text-xs font-bold">OR</p>
+            <div className="w-full h-[1px] bg-zinc-300"></div>
+          </div>
           <FormField
             control={form.control}
             name="textArea"
             render={() => (
               <FormItem>
-                <FormLabel>Paste callerIds</FormLabel>
+                <FormLabel>Paste DIDs</FormLabel>
                 <FormControl>
                   <Textarea value={textArea} onChange={handleTextAreaChange} />
                 </FormControl>
                 <FormDescription>
-                  Paste additional callerIds (one per line)
+                  One per line
                 </FormDescription>
               </FormItem>
             )}
           />
-          <ButtonLoder name="Upload" isLoading={isLoading} />
+          <ButtonLoder name="Upload" isLoading={isLoading} className={"mt-6"} />
         </form>
       </Form>
     </div>

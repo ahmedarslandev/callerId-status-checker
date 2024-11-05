@@ -58,14 +58,14 @@ export default function Navbar() {
         <header className="flex h-16 w-full items-center justify-between bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b px-4 sm:px-6">
           <div className="flex items-center gap-4">
             <Link href="/" className="flex items-center gap-3" prefetch={false}>
-              <span className="text-sm md:text-base font-semibold">
+              <span className="text-base md:text-lg font-semibold">
                 BULK DID
               </span>
             </Link>
           </div>
           <div className="flex items-center gap-2">
             <div className="relative md:block hidden flex-1 max-w-sm">
-              <ul className="flex justify-center items-center py-0 gap-3  px-5">
+              <ul className="flex justify-center items-center py-0 gap-3 px-5">
                 {links.map((link) => (
                   <>
                     <Link
@@ -73,13 +73,13 @@ export default function Navbar() {
                       href={link.href}
                       key={link.label}
                     >
-                      <p className="text-xs font-bold">{link.label}</p>
+                      <p className="text-[13px] font-bold">{link.label}</p>
                     </Link>
                   </>
                 ))}
                 <p
                   onClick={logoutUser}
-                  className="links text-xs font-bold relative cursor-pointer"
+                  className="links text-[13px] font-bold relative cursor-pointer"
                 >
                   Logout
                 </p>

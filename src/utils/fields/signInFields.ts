@@ -9,7 +9,7 @@ interface FormFieldData {
 }
 
 export const signInfields: FormFieldData[] = [
-  { name: "email", label: "Email", placeholder: "exapmle@gmail.com" },
+  { name: "email", label: "Email", placeholder: "Enter email" },
   {
     name: "password",
     label: "Password",
